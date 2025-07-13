@@ -23,7 +23,7 @@ const requiredFiles = [
   'test/index.test.js',
   '.github/workflows/test.yml',
   '.github/workflows/release.yml',
-  'eslint.config.js',
+  '.eslintrc.json',
   '.prettierrc',
   '.prettierignore',
   'public/test.html'
@@ -71,7 +71,7 @@ function checkPackageJson() {
   requiredPackageJsonFields.forEach(field => {
     const fieldParts = field.split('.');
     let value = packageJson;
-    
+
     for (const part of fieldParts) {
       value = value?.[part];
     }
@@ -89,13 +89,13 @@ function checkPackageJson() {
 
 function main() {
   console.log('🔍 SidepanelFallback Project Health Check\n');
-  
+
   console.log('📁 Required Files:');
   const filesOk = requiredFiles.every(checkFile);
-  
+
   console.log('\n📦 Package.json Fields:');
   const packageOk = checkPackageJson();
-  
+
   console.log('\n📊 Summary:');
   if (filesOk && packageOk) {
     console.log('🎉 Project is ready for OSS publication!');

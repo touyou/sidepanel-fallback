@@ -13,9 +13,7 @@ class ModeStorage {
    * @returns {boolean}
    */
   _isExtensionContext() {
-    return typeof chrome !== 'undefined' && 
-           chrome.storage && 
-           chrome.storage.sync;
+    return typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync;
   }
 
   /**
@@ -27,7 +25,7 @@ class ModeStorage {
     if (!browser || typeof browser !== 'string' || browser.trim() === '') {
       throw new Error('Invalid browser name');
     }
-    
+
     if (!mode || typeof mode !== 'string' || !this.validModes.includes(mode)) {
       throw new Error('Invalid mode');
     }
@@ -50,7 +48,7 @@ class ModeStorage {
    */
   async setMode(browser, mode) {
     this._validateInputs(browser, mode);
-    
+
     const key = this._getStorageKey(browser);
 
     if (this._isExtensionContext()) {
@@ -58,7 +56,7 @@ class ModeStorage {
       return new Promise((resolve, reject) => {
         const data = {};
         data[key] = mode;
-        
+
         chrome.storage.sync.set(data, () => {
           if (chrome.runtime.lastError) {
             reject(new Error(chrome.runtime.lastError.message));
@@ -88,8 +86,8 @@ class ModeStorage {
 
     if (this._isExtensionContext()) {
       // Chrome Extension環境
-      return new Promise((resolve) => {
-        chrome.storage.sync.get(key, (result) => {
+      return new Promise(resolve => {
+        chrome.storage.sync.get(key, result => {
           resolve(result[key] || null);
         });
       });
@@ -106,7 +104,7 @@ class ModeStorage {
    */
   async clear() {
     if (this._isExtensionContext()) {
-      return new Promise((resolve) => {
+      return new Promise(resolve => {
         chrome.storage.sync.clear(() => {
           resolve();
         });
@@ -120,11 +118,11 @@ class ModeStorage {
           keysToRemove.push(key);
         }
       }
-      
+
       keysToRemove.forEach(key => localStorage.removeItem(key));
       return Promise.resolve();
     }
   }
 }
 
-module.exports = { ModeStorage };
+export { ModeStorage };

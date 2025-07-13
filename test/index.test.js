@@ -34,7 +34,7 @@ describe('SidepanelFallback', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // モックインスタンスを作成
     mockStorage = {
       getMode: jest.fn(),
@@ -87,7 +87,7 @@ describe('SidepanelFallback', () => {
     it('カスタム設定で初期化できる', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue(null);
-      
+
       const fallback = new SidepanelFallback({
         defaultMode: 'window',
         userAgent: 'Custom User Agent'
@@ -122,7 +122,7 @@ describe('SidepanelFallback', () => {
 
       const fallback = new SidepanelFallback();
       await fallback.init();
-      const result = await fallback.openPanel('/panel.html');
+      await fallback.openPanel('/panel.html');
 
       // Chromeの場合はsidepanelを選択
       expect(mockLauncher.openPanel).toHaveBeenCalledWith('sidepanel', '/panel.html');
@@ -135,7 +135,7 @@ describe('SidepanelFallback', () => {
 
       const fallback = new SidepanelFallback();
       await fallback.init();
-      const result = await fallback.openPanel('/panel.html');
+      await fallback.openPanel('/panel.html');
 
       // Firefoxの場合はwindowを選択
       expect(mockLauncher.openPanel).toHaveBeenCalledWith('window', '/panel.html');

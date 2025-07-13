@@ -87,9 +87,9 @@ describe('PanelLauncher', () => {
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('window', '/panel.html');
 
-      expect(result).toEqual({ 
-        success: false, 
-        error: 'Failed to open popup window' 
+      expect(result).toEqual({
+        success: false,
+        error: 'Failed to open popup window'
       });
     });
 

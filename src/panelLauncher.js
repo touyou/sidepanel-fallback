@@ -43,9 +43,11 @@ export class PanelLauncher {
    * @returns {boolean}
    */
   isExtensionContext() {
-    return !!(typeof chrome !== 'undefined' && 
-              chrome.sidePanel && 
-              typeof chrome.sidePanel.open === 'function');
+    return !!(
+      typeof chrome !== 'undefined' &&
+      chrome.sidePanel &&
+      typeof chrome.sidePanel.open === 'function'
+    );
   }
 
   /**
@@ -57,7 +59,7 @@ export class PanelLauncher {
   async _openWindow(path, isFallback) {
     const windowFeatures = 'width=400,height=600,scrollbars=yes,resizable=yes';
     const popup = window.open(path, 'sidepanel_fallback', windowFeatures);
-    
+
     if (popup) {
       popup.focus();
       const result = { success: true, method: 'window' };

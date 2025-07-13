@@ -8,11 +8,11 @@ describe('ModeStorage - localStorage', () => {
     // シンプルなlocalStorageモック
     mockLocalStorage = {};
     global.localStorage = {
-      getItem: jest.fn((key) => mockLocalStorage[key] || null),
+      getItem: jest.fn(key => mockLocalStorage[key] || null),
       setItem: jest.fn((key, value) => {
         mockLocalStorage[key] = value;
       }),
-      removeItem: jest.fn((key) => {
+      removeItem: jest.fn(key => {
         delete mockLocalStorage[key];
       })
     };
@@ -26,27 +26,25 @@ describe('ModeStorage - localStorage', () => {
 
   it('ブラウザモードを保存できる', async () => {
     await storage.setMode('chrome', 'sidepanel');
-    
+
     expect(global.localStorage.setItem).toHaveBeenCalledWith(
-      'sidepanel-fallback-mode-chrome', 
+      'sidepanel-fallback-mode-chrome',
       'sidepanel'
     );
   });
 
   it('保存したブラウザモードを取得できる', async () => {
     mockLocalStorage['sidepanel-fallback-mode-firefox'] = 'window';
-    
+
     const mode = await storage.getMode('firefox');
-    
+
     expect(mode).toBe('window');
-    expect(global.localStorage.getItem).toHaveBeenCalledWith(
-      'sidepanel-fallback-mode-firefox'
-    );
+    expect(global.localStorage.getItem).toHaveBeenCalledWith('sidepanel-fallback-mode-firefox');
   });
 
   it('未設定のブラウザはnullを返す', async () => {
     const mode = await storage.getMode('unknown-browser');
-    
+
     expect(mode).toBeNull();
   });
 

@@ -10,11 +10,14 @@ We actively support the following versions with security updates:
 
 ## Reporting a Vulnerability
 
-We take security vulnerabilities seriously. If you discover a security vulnerability, please follow these steps:
+We take security vulnerabilities seriously. If you discover a security
+vulnerability, please follow these steps:
 
 ### Private Disclosure
 
-Please **DO NOT** file a public issue. Instead, create a [security advisory](https://github.com/touyou/sidepanel-fallback/security/advisories/new) or contact via GitHub with:
+Please **DO NOT** file a public issue. Instead, create a
+[security advisory](https://github.com/touyou/sidepanel-fallback/security/advisories/new)
+or contact via GitHub with:
 
 - A clear description of the vulnerability
 - Steps to reproduce the issue
@@ -24,7 +27,8 @@ Please **DO NOT** file a public issue. Instead, create a [security advisory](htt
 ### What to Expect
 
 - **Acknowledgment**: We will acknowledge receipt within 48 hours
-- **Investigation**: We will investigate and assess the vulnerability within 7 days
+- **Investigation**: We will investigate and assess the vulnerability within 7
+  days
 - **Resolution**: We will work on a fix and release it as soon as possible
 - **Disclosure**: We will coordinate with you on public disclosure timing
 
@@ -56,9 +60,11 @@ When using sidepanel-fallback:
 
 ### Browser Extension Context
 
-- This library operates in browser extension context and relies on extension APIs
+- This library operates in browser extension context and relies on extension
+  APIs
 - Ensure your extension's manifest.json properly declares required permissions
-- Be aware that storage operations may be visible to other extensions with storage permissions
+- Be aware that storage operations may be visible to other extensions with
+  storage permissions
 
 ### Cross-Origin Issues
 
@@ -69,7 +75,10 @@ When using sidepanel-fallback:
 ## Contact
 
 For security-related questions or concerns:
-- Use [GitHub Security Advisories](https://github.com/touyou/sidepanel-fallback/security/advisories)
-- For general questions, use the [GitHub issues](https://github.com/touyou/sidepanel-fallback/issues)
+
+- Use
+  [GitHub Security Advisories](https://github.com/touyou/sidepanel-fallback/security/advisories)
+- For general questions, use the
+  [GitHub issues](https://github.com/touyou/sidepanel-fallback/issues)
 
 Thank you for helping keep sidepanel-fallback secure!

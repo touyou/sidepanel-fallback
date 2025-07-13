@@ -9,7 +9,7 @@ export default defineConfig({
     lib: {
       entry: 'src/index.js',
       name: 'SidepanelFallback',
-      fileName: (format) => `sidepanel-fallback.${format}.js`,
+      fileName: format => `sidepanel-fallback.${format}.js`,
       formats: ['es', 'umd']
     },
     rollupOptions: {

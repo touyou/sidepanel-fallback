@@ -38,4 +38,4 @@ function getBrowserInfo(userAgent) {
   return 'unknown';
 }
 
-module.exports = { getBrowserInfo };
+export { getBrowserInfo };

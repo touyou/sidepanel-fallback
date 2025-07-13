@@ -3,19 +3,22 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
+
 - Initial implementation
 
 ## [1.0.0] - 2025-07-13
 
 ### Added
+
 - Core sidepanel fallback functionality
 - Browser detection utilities (`browserInfo.js`)
-- Persistent storage management (`modeStorage.js`) 
+- Persistent storage management (`modeStorage.js`)
 - Panel launcher with automatic fallback (`panelLauncher.js`)
 - Embeddable settings UI component (`settingsUI.js`)
 - Main API with initialization and integration (`index.js`)
@@ -33,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OSS-ready project structure
 
 ### Technical Details
+
 - TDD development approach following @t_wada principles
 - Jest test framework with extensive coverage
 - ES6+ modules with UMD fallback
@@ -43,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Clean, developer-friendly API surface
 
 ### Browser Compatibility
+
 - Chrome 88+ (sidepanel API support)
 - Firefox 78+
 - Safari 14+
@@ -50,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Other Chromium-based browsers
 
 ### API Surface
+
 - `SidepanelFallback.init()` - Initialize the fallback system
 - `SidepanelFallback.openPanel(url, options)` - Open panel with auto-fallback
 - `SidepanelFallback.withSettingsUI(container, options)` - Add settings UI

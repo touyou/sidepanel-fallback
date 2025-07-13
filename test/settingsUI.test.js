@@ -23,7 +23,7 @@ describe('SettingsUI', () => {
   beforeEach(() => {
     // DOMのグローバルモック
     global.document = mockDocument;
-    
+
     // createElementは常に新しいモックElementを返す
     mockDocument.createElement.mockImplementation(() => ({
       ...mockElement,
@@ -37,7 +37,7 @@ describe('SettingsUI', () => {
       checked: false,
       textContent: ''
     }));
-    
+
     // モック関数のリセット
     jest.clearAllMocks();
   });
@@ -45,10 +45,6 @@ describe('SettingsUI', () => {
   describe('renderSettingsPanel', () => {
     it('設定パネルのHTMLを生成する', () => {
       const settingsUI = new SettingsUI();
-      const mockContainer = {
-        innerHTML: '',
-        appendChild: jest.fn()
-      };
 
       const result = settingsUI.renderSettingsPanel();
 
@@ -134,7 +130,7 @@ describe('SettingsUI', () => {
         appendChild: jest.fn(),
         querySelectorAll: jest.fn().mockReturnValue([])
       };
-      
+
       // renderSettingsPanelをモックして制御
       jest.spyOn(settingsUI, 'renderSettingsPanel').mockReturnValue(mockPanel);
       jest.spyOn(settingsUI, 'bindEvents');

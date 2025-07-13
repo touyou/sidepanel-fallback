@@ -33,11 +33,13 @@ export class SettingsUI {
    * @param {Function} onSettingsChange - 設定変更時のコールバック
    */
   bindEvents(panel, onSettingsChange) {
-    if (!onSettingsChange) return;
+    if (!onSettingsChange) {
+      return;
+    }
 
     const radioButtons = panel.querySelectorAll('input[name="mode"]');
     radioButtons.forEach(radio => {
-      radio.addEventListener('change', (event) => {
+      radio.addEventListener('change', event => {
         if (event.target.checked) {
           onSettingsChange({ mode: event.target.value });
         }

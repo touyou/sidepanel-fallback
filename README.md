@@ -1,6 +1,8 @@
 # SidepanelFallback
 
-A lightweight fallback utility for Chrome Extensions to handle side panel conflicts. Provides browser-specific storage and display mode switching with a clean developer API.
+A lightweight fallback utility for Chrome Extensions to handle side panel
+conflicts. Provides browser-specific storage and display mode switching with a
+clean developer API.
 
 [![npm version](https://badge.fury.io/js/sidepanel-fallback.svg)](https://badge.fury.io/js/sidepanel-fallback)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -10,11 +12,15 @@ A lightweight fallback utility for Chrome Extensions to handle side panel confli
 
 ## Features
 
-- 🚀 **Automatic Fallback**: Seamlessly switch between Chrome sidepanel and popup window
-- 🌐 **Cross-Browser Support**: Works with Chrome, Firefox, Safari, Edge, and more
-- 💾 **Persistent Settings**: Per-browser mode preferences with localStorage/Chrome Storage API
+- 🚀 **Automatic Fallback**: Seamlessly switch between Chrome sidepanel and
+  popup window
+- 🌐 **Cross-Browser Support**: Works with Chrome, Firefox, Safari, Edge, and
+  more
+- 💾 **Persistent Settings**: Per-browser mode preferences with
+  localStorage/Chrome Storage API
 - 🎛️ **Embeddable Settings UI**: Ready-to-use settings component
-- 🧪 **Test Driven**: 46 test cases with 100% coverage using Jest and @t_wada TDD principles
+- 🧪 **Test Driven**: 46 test cases with 100% coverage using Jest and @t_wada
+  TDD principles
 - 📦 **Zero Dependencies**: Lightweight and self-contained
 - 🔧 **Developer Friendly**: Clean API with TypeScript support
 - ⚡ **Modern Build**: ES6+ modules with UMD fallback via Vite
@@ -50,16 +56,17 @@ Chrome Extensions with sidepanel functionality face several challenges:
 - **User Preferences**: Some users prefer popup windows
 - **Fallback Complexity**: Manual fallback implementation is error-prone
 
-SidepanelFallback solves these issues with a unified API that automatically handles browser detection, fallback logic, and user preferences.
+SidepanelFallback solves these issues with a unified API that automatically
+handles browser detection, fallback logic, and user preferences.
 
 ## Browser Support
 
-| Browser | Sidepanel | Popup | Auto Mode |
-|---------|-----------|-------|-----------|
-| Chrome 114+ | ✅ | ✅ | sidepanel |
-| Edge 114+ | ✅ | ✅ | sidepanel |
-| Firefox | ❌ | ✅ | window |
-| Safari | ❌ | ✅ | window |
+| Browser     | Sidepanel | Popup | Auto Mode |
+| ----------- | --------- | ----- | --------- |
+| Chrome 114+ | ✅        | ✅    | sidepanel |
+| Edge 114+   | ✅        | ✅    | sidepanel |
+| Firefox     | ❌        | ✅    | window    |
+| Safari      | ❌        | ✅    | window    |
 
 ## API Overview
 
@@ -83,8 +90,8 @@ const settings = fallback.getCurrentSettings();
 
 ```javascript
 const fallback = new SidepanelFallback({
-  defaultMode: 'auto',    // 'auto', 'sidepanel', 'window'
-  userAgent: 'custom-ua'  // Override browser detection
+  defaultMode: 'auto', // 'auto', 'sidepanel', 'window'
+  userAgent: 'custom-ua' // Override browser detection
 });
 ```
 
@@ -152,16 +159,17 @@ npm run health-check  # Validate project setup
 This project maintains high code quality standards:
 
 - **ESLint**: Enforces JavaScript best practices and catches potential bugs
-- **Prettier**: Ensures consistent code formatting across the codebase  
+- **Prettier**: Ensures consistent code formatting across the codebase
 - **Jest**: Maintains 90%+ test coverage with comprehensive test suites
 - **TDD**: Follows test-driven development (@t_wada style)
 
-Pre-commit hooks automatically run linting and formatting to maintain consistency.
+Pre-commit hooks automatically run linting and formatting to maintain
+consistency.
 
 ### Test Coverage
 
 - ✅ **46 test cases** across 5 modules
-- ✅ **100% pass rate** 
+- ✅ **100% pass rate**
 - ✅ **Complete API coverage**
 - ✅ **Browser compatibility tests**
 - ✅ **Error handling validation**
@@ -174,7 +182,7 @@ The library is built as a composition of focused modules:
 src/
 ├── index.js           # Main API integration
 ├── browserInfo.js     # User agent detection
-├── modeStorage.js     # Settings persistence  
+├── modeStorage.js     # Settings persistence
 ├── panelLauncher.js   # Panel opening logic
 └── settingsUI.js      # Settings UI component
 ```
@@ -183,7 +191,8 @@ Each module is fully tested and follows single responsibility principle.
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md)
+for details.
 
 ### Development Process
 

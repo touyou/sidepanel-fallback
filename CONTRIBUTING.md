@@ -1,13 +1,15 @@
 # Contributing to SidepanelFallback
 
-Thank you for your interest in contributing to SidepanelFallback! This guide will help you get started.
+Thank you for your interest in contributing to SidepanelFallback! This guide
+will help you get started.
 
 ## Development Philosophy
 
-SidepanelFallback is built using **Test-Driven Development (TDD)** following @t_wada principles:
+SidepanelFallback is built using **Test-Driven Development (TDD)** following
+@t_wada principles:
 
 1. **Red** → Write a failing test first
-2. **Green** → Write minimal code to make the test pass  
+2. **Green** → Write minimal code to make the test pass
 3. **Refactor** → Improve code quality while keeping tests green
 
 ## Getting Started
@@ -23,17 +25,20 @@ SidepanelFallback is built using **Test-Driven Development (TDD)** following @t_
 ### Getting Started
 
 1. **Fork and Clone**
+
    ```bash
    git clone https://github.com/your-username/sidepanel-fallback.git
    cd sidepanel-fallback
    ```
 
 2. **Install Dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Run Quality Checks**
+
    ```bash
    npm run quality     # Run lint and format checks
    npm run quality:fix # Auto-fix lint and format issues
@@ -42,6 +47,7 @@ SidepanelFallback is built using **Test-Driven Development (TDD)** following @t_
    ```
 
 4. **Run Tests**
+
    ```bash
    npm test           # Run all tests
    npm run test:watch # Run tests in watch mode
@@ -49,6 +55,7 @@ SidepanelFallback is built using **Test-Driven Development (TDD)** following @t_
    ```
 
 5. **Start Development**
+
    ```bash
    npm run dev        # Start Vite dev server
    ```
@@ -67,7 +74,8 @@ This project enforces code quality through:
 - **Jest**: Test coverage requirements (90%+ threshold)
 - **Pre-commit hooks**: Automatic lint and format on commit
 
-Your code editor should automatically format files on save if you have ESLint and Prettier extensions installed.
+Your code editor should automatically format files on save if you have ESLint
+and Prettier extensions installed.
 
 ## Development Workflow
 
@@ -144,7 +152,7 @@ git add .
 git commit -m "feat: add new feature description"
 # or
 git commit -m "fix: resolve specific bug"
-# or  
+# or
 git commit -m "docs: update API documentation"
 ```
 
@@ -170,11 +178,11 @@ export class NewModule {
   constructor() {
     // Initialization
   }
-  
+
   publicMethod() {
     // Public API
   }
-  
+
   _privateMethod() {
     // Private methods prefixed with _
   }
@@ -189,20 +197,20 @@ import { NewModule } from '../src/newModule.js';
 
 describe('NewModule', () => {
   let module;
-  
+
   beforeEach(() => {
     module = new NewModule();
   });
-  
+
   describe('publicMethod', () => {
     it('should handle normal case', () => {
       // Test implementation
     });
-    
+
     it('should handle edge case', () => {
       // Edge case testing
     });
-    
+
     it('should handle error case', () => {
       // Error handling testing
     });
@@ -271,20 +279,24 @@ global.document = {
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
-- [ ] New feature  
+- [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] All tests pass
 - [ ] New tests added for new functionality
 - [ ] Manual testing completed
 
 ## Documentation
+
 - [ ] README updated if needed
 - [ ] API documentation updated if needed
 ```
@@ -296,19 +308,18 @@ Brief description of changes
 Use the bug report template:
 
 ```markdown
-**Describe the bug**
-Clear description of the issue
+**Describe the bug** Clear description of the issue
 
-**To Reproduce**
-Steps to reproduce:
+**To Reproduce** Steps to reproduce:
+
 1. Initialize with '...'
 2. Call method '...'
 3. See error
 
-**Expected behavior**
-What should happen
+**Expected behavior** What should happen
 
 **Environment**
+
 - Browser: [e.g., Chrome 120]
 - Node.js version: [e.g., 18.17.0]
 - Library version: [e.g., 1.0.0]
@@ -317,17 +328,13 @@ What should happen
 ### Feature Requests
 
 ```markdown
-**Is your feature request related to a problem?**
-Description of the problem
+**Is your feature request related to a problem?** Description of the problem
 
-**Describe the solution you'd like**
-Clear description of desired feature
+**Describe the solution you'd like** Clear description of desired feature
 
-**Describe alternatives you've considered**
-Other solutions you've thought about
+**Describe alternatives you've considered** Other solutions you've thought about
 
-**Additional context**
-Any other context about the feature
+**Additional context** Any other context about the feature
 ```
 
 ## Release Process
@@ -361,8 +368,10 @@ We follow [Semantic Versioning](https://semver.org/):
 ### Getting Help
 
 - 📖 Read the [documentation](docs/usage.md)
-- 🔍 Search existing [issues](https://github.com/touyou/sidepanel-fallback/issues)
-- 💬 Start a [discussion](https://github.com/touyou/sidepanel-fallback/discussions)
+- 🔍 Search existing
+  [issues](https://github.com/touyou/sidepanel-fallback/issues)
+- 💬 Start a
+  [discussion](https://github.com/touyou/sidepanel-fallback/discussions)
 
 ## Recognition
 

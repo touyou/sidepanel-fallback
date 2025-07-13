@@ -10,7 +10,7 @@ export class SidepanelFallback {
       userAgent: null,
       ...options
     };
-    
+
     this.browser = null;
     this.mode = null;
     this.storage = null;
@@ -27,18 +27,18 @@ export class SidepanelFallback {
     // ブラウザ判定
     const userAgent = this.options.userAgent || navigator.userAgent;
     this.browser = getBrowserInfo(userAgent);
-    
+
     // ストレージとランチャーを初期化
     this.storage = new ModeStorage();
     this.launcher = new PanelLauncher();
     this.settingsUI = new SettingsUI();
-    
+
     // 保存されたモードを取得
     const savedMode = await this.storage.getMode(this.browser);
     this.mode = savedMode || this.options.defaultMode;
-    
+
     this.initialized = true;
-    
+
     return {
       browser: this.browser,
       mode: this.mode
@@ -95,7 +95,7 @@ export class SidepanelFallback {
     }
 
     // 設定変更時のコールバック
-    const onSettingsChange = async (newSettings) => {
+    const onSettingsChange = async newSettings => {
       if (newSettings.mode) {
         await this.storage.setMode(this.browser, newSettings.mode);
         this.mode = newSettings.mode;
@@ -139,7 +139,7 @@ export class SidepanelFallback {
     if (['chrome', 'edge', 'dia'].includes(this.browser)) {
       return 'sidepanel';
     }
-    
+
     // Firefox, Safari, その他はwindow
     return 'window';
   }

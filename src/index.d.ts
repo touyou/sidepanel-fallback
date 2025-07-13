@@ -54,32 +54,32 @@ export interface CurrentSettings {
  */
 export declare class SidepanelFallback {
   constructor(options?: SidepanelFallbackOptions);
-  
+
   /**
    * Initialize the fallback system
    */
   init(): Promise<void>;
-  
+
   /**
    * Open panel using the best available method
    */
   openPanel(url?: string, options?: PanelOptions): Promise<void>;
-  
+
   /**
    * Add settings UI to the provided container
    */
   withSettingsUI(container: HTMLElement, options?: SettingsUIOptions): Promise<void>;
-  
+
   /**
    * Get current settings and configuration
    */
   getCurrentSettings(): CurrentSettings;
-  
+
   /**
    * Check if the system is initialized
    */
   isInitialized(): boolean;
-  
+
   /**
    * Set debug mode
    */
@@ -121,7 +121,10 @@ export declare namespace PanelLauncher {
  * Settings UI utilities
  */
 export declare namespace SettingsUI {
-  function createSettingsUI(container: HTMLElement, options?: SettingsUIOptions): Promise<HTMLElement>;
+  function createSettingsUI(
+    container: HTMLElement,
+    options?: SettingsUIOptions
+  ): Promise<HTMLElement>;
   function updateSettingsDisplay(settings: CurrentSettings): void;
   function bindEventHandlers(onModeChange?: (mode: string) => void): void;
 }

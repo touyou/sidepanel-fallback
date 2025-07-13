@@ -1,6 +1,7 @@
 # Testing Documentation
 
-This document provides detailed information about the testing strategy, results, and coverage for SidepanelFallback.
+This document provides detailed information about the testing strategy, results,
+and coverage for SidepanelFallback.
 
 ## Testing Philosophy
 
@@ -23,14 +24,14 @@ Time:        0.283s
 
 ### Test Breakdown by Module
 
-| Module | Test Cases | Status | Coverage |
-|--------|------------|--------|----------|
-| `browserInfo.js` | 8 | ✅ Pass | 100% |
-| `modeStorage.js` | 6 | ✅ Pass | 100% |
-| `panelLauncher.js` | 9 | ✅ Pass | 100% |
-| `settingsUI.js` | 9 | ✅ Pass | 100% |
-| `index.js` | 14 | ✅ Pass | 100% |
-| **Total** | **46** | **✅ 100%** | **100%** |
+| Module             | Test Cases | Status      | Coverage |
+| ------------------ | ---------- | ----------- | -------- |
+| `browserInfo.js`   | 8          | ✅ Pass     | 100%     |
+| `modeStorage.js`   | 6          | ✅ Pass     | 100%     |
+| `panelLauncher.js` | 9          | ✅ Pass     | 100%     |
+| `settingsUI.js`    | 9          | ✅ Pass     | 100%     |
+| `index.js`         | 14         | ✅ Pass     | 100%     |
+| **Total**          | **46**     | **✅ 100%** | **100%** |
 
 ## Test Categories
 
@@ -39,8 +40,9 @@ Time:        0.283s
 Each module is tested in isolation with comprehensive mocking:
 
 #### browserInfo.js (8 tests)
+
 - ✅ Chrome UA detection
-- ✅ Firefox UA detection  
+- ✅ Firefox UA detection
 - ✅ Safari UA detection
 - ✅ Edge UA detection
 - ✅ Dia browser detection
@@ -49,6 +51,7 @@ Each module is tested in isolation with comprehensive mocking:
 - ✅ Empty string handling
 
 #### modeStorage.js (6 tests)
+
 - ✅ Mode storage functionality
 - ✅ Mode retrieval functionality
 - ✅ Unset browser handling
@@ -57,6 +60,7 @@ Each module is tested in isolation with comprehensive mocking:
 - ✅ Valid mode acceptance
 
 #### panelLauncher.js (9 tests)
+
 - ✅ Sidepanel mode with API available
 - ✅ Window mode popup creation
 - ✅ Sidepanel fallback when API unavailable
@@ -68,6 +72,7 @@ Each module is tested in isolation with comprehensive mocking:
 - ✅ Extension context detection (partial)
 
 #### settingsUI.js (9 tests)
+
 - ✅ Settings panel HTML generation
 - ✅ Current settings reflection
 - ✅ Default value handling
@@ -79,6 +84,7 @@ Each module is tested in isolation with comprehensive mocking:
 - ✅ Checkbox state management
 
 #### index.js (14 tests)
+
 - ✅ Initialization with stored mode
 - ✅ Initialization with default mode
 - ✅ Custom configuration initialization
@@ -118,7 +124,7 @@ Comprehensive error scenario coverage:
 Mock-based testing for different browsers:
 
 - **Chrome 114+**: Sidepanel API available
-- **Edge 114+**: Sidepanel API available  
+- **Edge 114+**: Sidepanel API available
 - **Firefox**: Sidepanel API unavailable
 - **Safari**: Sidepanel API unavailable
 - **Unknown**: Graceful degradation
@@ -157,7 +163,8 @@ Tests use predictable data sets:
 ```javascript
 const TEST_USER_AGENTS = {
   chrome: 'Mozilla/5.0 (Windows NT 10.0) Chrome/115.0.0.0',
-  firefox: 'Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0',
+  firefox:
+    'Mozilla/5.0 (Windows NT 10.0; rv:109.0) Gecko/20100101 Firefox/115.0',
   safari: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Safari/605.1.15',
   edge: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Edg/115.0.1901.183',
   dia: 'Mozilla/5.0 (Dia/1.0.0)'
@@ -200,6 +207,7 @@ npm run test:coverage
 ### Coverage Requirements
 
 Minimum coverage thresholds:
+
 - **Branches**: 90%
 - **Functions**: 90%
 - **Lines**: 90%
@@ -245,14 +253,14 @@ jobs:
 
 ### Test Execution Time
 
-| Module | Execution Time | Tests |
-|--------|----------------|--------|
-| browserInfo | ~50ms | 8 |
-| modeStorage | ~60ms | 6 |
-| panelLauncher | ~70ms | 9 |
-| settingsUI | ~80ms | 9 |
-| index | ~90ms | 14 |
-| **Total** | **~283ms** | **46** |
+| Module        | Execution Time | Tests  |
+| ------------- | -------------- | ------ |
+| browserInfo   | ~50ms          | 8      |
+| modeStorage   | ~60ms          | 6      |
+| panelLauncher | ~70ms          | 9      |
+| settingsUI    | ~80ms          | 9      |
+| index         | ~90ms          | 14     |
+| **Total**     | **~283ms**     | **46** |
 
 ### Memory Usage
 
@@ -327,7 +335,7 @@ describe('ModuleName', () => {
 
 ---
 
-*Last updated: 2025-07-13*  
-*Total tests: 46*  
-*Pass rate: 100%*  
-*Coverage: 100%*
+_Last updated: 2025-07-13_  
+_Total tests: 46_  
+_Pass rate: 100%_  
+_Coverage: 100%_
