@@ -12,7 +12,7 @@ describe('PanelLauncher', () => {
   });
 
   describe('openPanel', () => {
-    it('sidepanelモードでchrome.sidePanel.openが使用可能な場合、sidepanelを開く', async () => {
+    it('opens sidepanel when chrome.sidePanel.open is available in sidepanel mode', async () => {
       // Chrome Extension環境のモック
       global.chrome = {
         sidePanel: {
@@ -27,7 +27,7 @@ describe('PanelLauncher', () => {
       expect(result).toEqual({ success: true, method: 'sidepanel' });
     });
 
-    it('windowモードの場合、window.openを使用してポップアップを開く', async () => {
+    it('uses window.open to open popup in window mode', async () => {
       const mockWindow = { focus: jest.fn() };
       global.window.open.mockReturnValue(mockWindow);
 
@@ -43,7 +43,7 @@ describe('PanelLauncher', () => {
       expect(result).toEqual({ success: true, method: 'window' });
     });
 
-    it('sidepanelモードでchrome.sidePanelが利用できない場合、windowにフォールバック', async () => {
+    it('falls back to window when chrome.sidePanel is not available in sidepanel mode', async () => {
       // Chrome Extension環境だがsidePanelがない（古いChrome）
       global.chrome = {};
       const mockWindow = { focus: jest.fn() };
@@ -60,7 +60,7 @@ describe('PanelLauncher', () => {
       expect(result).toEqual({ success: true, method: 'window', fallback: true });
     });
 
-    it('sidepanelモードでchrome.sidePanel.openがエラーの場合、windowにフォールバック', async () => {
+    it('falls back to window when chrome.sidePanel.open throws error in sidepanel mode', async () => {
       global.chrome = {
         sidePanel: {
           open: jest.fn().mockRejectedValue(new Error('Permission denied'))
@@ -81,7 +81,7 @@ describe('PanelLauncher', () => {
       expect(result).toEqual({ success: true, method: 'window', fallback: true });
     });
 
-    it('window.openが失敗した場合、エラーを返す', async () => {
+    it('returns error when window.open fails', async () => {
       global.window.open.mockReturnValue(null);
 
       const launcher = new PanelLauncher();
@@ -93,7 +93,7 @@ describe('PanelLauncher', () => {
       });
     });
 
-    it('不正なmode（sidepanel、window以外）の場合、エラーを返す', async () => {
+    it('returns error for invalid mode (other than sidepanel or window)', async () => {
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('invalid', '/panel.html');
 
@@ -105,7 +105,7 @@ describe('PanelLauncher', () => {
   });
 
   describe('isExtensionContext', () => {
-    it('chrome.sidePanel APIが利用可能な場合、trueを返す', () => {
+    it('returns true when chrome.sidePanel API is available', () => {
       global.chrome = {
         sidePanel: {
           open: jest.fn()
@@ -116,14 +116,14 @@ describe('PanelLauncher', () => {
       expect(launcher.isExtensionContext()).toBe(true);
     });
 
-    it('chromeオブジェクトが存在しない場合、falseを返す', () => {
+    it('returns false when chrome object does not exist', () => {
       global.chrome = undefined;
 
       const launcher = new PanelLauncher();
       expect(launcher.isExtensionContext()).toBe(false);
     });
 
-    it('chromeオブジェクトはあるがsidePanelがない場合、falseを返す', () => {
+    it('returns false when chrome object exists but sidePanel does not', () => {
       global.chrome = {};
 
       const launcher = new PanelLauncher();

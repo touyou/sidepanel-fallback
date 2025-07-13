@@ -43,7 +43,7 @@ describe('SettingsUI', () => {
   });
 
   describe('renderSettingsPanel', () => {
-    it('設定パネルのHTMLを生成する', () => {
+    it('generates settings panel HTML', () => {
       const settingsUI = new SettingsUI();
 
       const result = settingsUI.renderSettingsPanel();
@@ -55,7 +55,7 @@ describe('SettingsUI', () => {
       expect(mockDocument.createElement).toHaveBeenCalledWith('input');
     });
 
-    it('現在の設定値（mode）を反映したUIを生成する', () => {
+    it('generates UI reflecting current settings value (mode)', () => {
       const settingsUI = new SettingsUI();
       const currentSettings = { mode: 'window' };
 
@@ -66,7 +66,7 @@ describe('SettingsUI', () => {
       expect(mockDocument.createElement).toHaveBeenCalledWith('input');
     });
 
-    it('未設定の場合はデフォルト値（sidepanel）を使用する', () => {
+    it('uses default value (sidepanel) when unset', () => {
       const settingsUI = new SettingsUI();
 
       const result = settingsUI.renderSettingsPanel();
@@ -77,7 +77,7 @@ describe('SettingsUI', () => {
   });
 
   describe('bindEvents', () => {
-    it('設定変更時のコールバック関数をバインドする', () => {
+    it('binds callback function for settings changes', () => {
       const settingsUI = new SettingsUI();
       const mockRadio = {
         addEventListener: jest.fn(),
@@ -95,7 +95,7 @@ describe('SettingsUI', () => {
       expect(mockRadio.addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
     });
 
-    it('ラジオボタン変更時にコールバックが呼ばれる', () => {
+    it('calls callback when radio button is changed', () => {
       const settingsUI = new SettingsUI();
       const mockCallback = jest.fn();
       const mockRadio = {
@@ -119,7 +119,7 @@ describe('SettingsUI', () => {
   });
 
   describe('createSettingsPanel', () => {
-    it('完全な設定パネル（描画 + イベントバインド）を作成する', () => {
+    it('creates complete settings panel (rendering + event binding)', () => {
       const settingsUI = new SettingsUI();
       const mockCallback = jest.fn();
       const currentSettings = { mode: 'sidepanel' };
@@ -142,7 +142,7 @@ describe('SettingsUI', () => {
       expect(result).toBe(mockPanel);
     });
 
-    it('コールバック関数なしでもパネルを作成できる', () => {
+    it('can create panel without callback function', () => {
       const settingsUI = new SettingsUI();
 
       const result = settingsUI.createSettingsPanel();
@@ -153,7 +153,7 @@ describe('SettingsUI', () => {
   });
 
   describe('createRadioGroup', () => {
-    it('ラジオボタングループを作成する', () => {
+    it('creates radio button group', () => {
       const settingsUI = new SettingsUI();
       const options = [
         { value: 'sidepanel', label: 'Side Panel', checked: true },
@@ -168,7 +168,7 @@ describe('SettingsUI', () => {
       expect(mockDocument.createElement).toHaveBeenCalledWith('input');
     });
 
-    it('チェック状態を正しく設定する', () => {
+    it('sets checked state correctly', () => {
       const settingsUI = new SettingsUI();
       const options = [
         { value: 'sidepanel', label: 'Side Panel', checked: false },

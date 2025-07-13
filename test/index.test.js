@@ -59,7 +59,7 @@ describe('SidepanelFallback', () => {
   });
 
   describe('init', () => {
-    it('初期化が正常に完了する', async () => {
+    it('initializes successfully', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue('sidepanel');
 
@@ -73,7 +73,7 @@ describe('SidepanelFallback', () => {
       expect(result.mode).toBe('sidepanel');
     });
 
-    it('初期化でモードが未設定の場合、デフォルト（auto）を使用する', async () => {
+    it('uses default (auto) when mode is unset during initialization', async () => {
       getBrowserInfo.mockReturnValue('firefox');
       mockStorage.getMode.mockResolvedValue(null);
 
@@ -84,7 +84,7 @@ describe('SidepanelFallback', () => {
       expect(result.mode).toBe('auto');
     });
 
-    it('カスタム設定で初期化できる', async () => {
+    it('can initialize with custom settings', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue(null);
 
@@ -100,7 +100,7 @@ describe('SidepanelFallback', () => {
   });
 
   describe('openPanel', () => {
-    it('設定されたモードでパネルを開く', async () => {
+    it('opens panel with configured mode', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue('sidepanel');
       mockLauncher.openPanel.mockResolvedValue({ success: true, method: 'sidepanel' });
@@ -115,7 +115,7 @@ describe('SidepanelFallback', () => {
       expect(result.method).toBe('sidepanel');
     });
 
-    it('autoモードの場合、ブラウザに応じてモードを選択する', async () => {
+    it('selects mode based on browser in auto mode', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue('auto');
       mockLauncher.openPanel.mockResolvedValue({ success: true, method: 'sidepanel' });
@@ -128,7 +128,7 @@ describe('SidepanelFallback', () => {
       expect(mockLauncher.openPanel).toHaveBeenCalledWith('sidepanel', '/panel.html');
     });
 
-    it('Firefoxでautoモードの場合、windowモードを選択する', async () => {
+    it('selects window mode for Firefox in auto mode', async () => {
       getBrowserInfo.mockReturnValue('firefox');
       mockStorage.getMode.mockResolvedValue('auto');
       mockLauncher.openPanel.mockResolvedValue({ success: true, method: 'window' });
@@ -141,7 +141,7 @@ describe('SidepanelFallback', () => {
       expect(mockLauncher.openPanel).toHaveBeenCalledWith('window', '/panel.html');
     });
 
-    it('init前にopenPanelを呼ぶとエラーを返す', async () => {
+    it('returns error when openPanel is called before init', async () => {
       const fallback = new SidepanelFallback();
       const result = await fallback.openPanel('/panel.html');
 
@@ -149,7 +149,7 @@ describe('SidepanelFallback', () => {
       expect(result.error).toBe('SidepanelFallback not initialized. Call init() first.');
     });
 
-    it('引数なしでopenPanelを呼ぶとエラーを返す', async () => {
+    it('returns error when openPanel is called without arguments', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       const mockStorage = new ModeStorage();
       mockStorage.getMode.mockResolvedValue('sidepanel');
@@ -164,7 +164,7 @@ describe('SidepanelFallback', () => {
   });
 
   describe('withSettingsUI', () => {
-    it('設定UIを作成してコンテナに挿入する', async () => {
+    it('creates settings UI and inserts into container', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue('sidepanel');
       const mockPanel = { className: 'settings-panel' };
@@ -188,7 +188,7 @@ describe('SidepanelFallback', () => {
       expect(result.success).toBe(true);
     });
 
-    it('設定変更時にストレージに保存される', async () => {
+    it('saves to storage when settings are changed', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue('sidepanel');
       mockStorage.setMode.mockResolvedValue();
@@ -207,7 +207,7 @@ describe('SidepanelFallback', () => {
       expect(mockStorage.setMode).toHaveBeenCalledWith('chrome', 'window');
     });
 
-    it('init前にwithSettingsUIを呼ぶとエラーを返す', async () => {
+    it('returns error when withSettingsUI is called before init', async () => {
       const fallback = new SidepanelFallback();
       const mockContainer = { appendChild: jest.fn() };
       const result = await fallback.withSettingsUI(mockContainer);
@@ -216,7 +216,7 @@ describe('SidepanelFallback', () => {
       expect(result.error).toBe('SidepanelFallback not initialized. Call init() first.');
     });
 
-    it('コンテナが指定されていない場合はエラーを返す', async () => {
+    it('returns error when container is not specified', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       const mockStorage = new ModeStorage();
       mockStorage.getMode.mockResolvedValue('sidepanel');
@@ -231,7 +231,7 @@ describe('SidepanelFallback', () => {
   });
 
   describe('getCurrentSettings', () => {
-    it('現在の設定を取得できる', async () => {
+    it('can retrieve current settings', async () => {
       getBrowserInfo.mockReturnValue('chrome');
       mockStorage.getMode.mockResolvedValue('window');
 
@@ -243,7 +243,7 @@ describe('SidepanelFallback', () => {
       expect(settings.mode).toBe('window');
     });
 
-    it('init前に呼ぶとnullを返す', () => {
+    it('returns null when called before init', () => {
       const fallback = new SidepanelFallback();
       const settings = fallback.getCurrentSettings();
 

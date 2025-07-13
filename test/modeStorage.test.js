@@ -24,7 +24,7 @@ describe('ModeStorage - localStorage', () => {
     jest.clearAllMocks();
   });
 
-  it('ブラウザモードを保存できる', async () => {
+  it('can save browser mode', async () => {
     await storage.setMode('chrome', 'sidepanel');
 
     expect(global.localStorage.setItem).toHaveBeenCalledWith(
@@ -33,7 +33,7 @@ describe('ModeStorage - localStorage', () => {
     );
   });
 
-  it('保存したブラウザモードを取得できる', async () => {
+  it('can retrieve saved browser mode', async () => {
     mockLocalStorage['sidepanel-fallback-mode-firefox'] = 'window';
 
     const mode = await storage.getMode('firefox');
@@ -42,23 +42,23 @@ describe('ModeStorage - localStorage', () => {
     expect(global.localStorage.getItem).toHaveBeenCalledWith('sidepanel-fallback-mode-firefox');
   });
 
-  it('未設定のブラウザはnullを返す', async () => {
+  it('returns null for unset browsers', async () => {
     const mode = await storage.getMode('unknown-browser');
 
     expect(mode).toBeNull();
   });
 
-  it('不正なブラウザ名の場合はエラーをスロー', async () => {
+  it('throws error for invalid browser name', async () => {
     await expect(storage.setMode('', 'sidepanel')).rejects.toThrow('Invalid browser name');
     await expect(storage.setMode(null, 'sidepanel')).rejects.toThrow('Invalid browser name');
   });
 
-  it('不正なモード名の場合はエラーをスロー', async () => {
+  it('throws error for invalid mode name', async () => {
     await expect(storage.setMode('chrome', '')).rejects.toThrow('Invalid mode');
     await expect(storage.setMode('chrome', 'invalid')).rejects.toThrow('Invalid mode');
   });
 
-  it('有効なモード値が使用できる', async () => {
+  it('can use valid mode values', async () => {
     await expect(storage.setMode('chrome', 'sidepanel')).resolves.not.toThrow();
     await expect(storage.setMode('firefox', 'window')).resolves.not.toThrow();
     await expect(storage.setMode('safari', 'auto')).resolves.not.toThrow();
