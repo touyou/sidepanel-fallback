@@ -168,8 +168,6 @@ reports are generated locally and stored as GitHub Actions artifacts:
   run quality # Run all quality checks npm run health-check # Validate project
   setup
 
-```
-
 ### Code Quality
 
 This project maintains high code quality standards:
@@ -231,4 +229,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 Made with ❤️ by [touyou](https://github.com/touyou)
-```
