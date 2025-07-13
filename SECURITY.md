@@ -14,7 +14,7 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 ### Private Disclosure
 
-Please **DO NOT** file a public issue. Instead, send an email to [security@your-domain.com] with:
+Please **DO NOT** file a public issue. Instead, create a [security advisory](https://github.com/touyou/sidepanel-fallback/security/advisories/new) or contact via GitHub with:
 
 - A clear description of the vulnerability
 - Steps to reproduce the issue
@@ -69,7 +69,7 @@ When using sidepanel-fallback:
 ## Contact
 
 For security-related questions or concerns:
-- Email: [security@your-domain.com]
-- For general questions, use the GitHub issues
+- Use [GitHub Security Advisories](https://github.com/touyou/sidepanel-fallback/security/advisories)
+- For general questions, use the [GitHub issues](https://github.com/touyou/sidepanel-fallback/issues)
 
 Thank you for helping keep sidepanel-fallback secure!

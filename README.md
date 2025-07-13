@@ -4,8 +4,8 @@ A lightweight fallback utility for Chrome Extensions to handle side panel confli
 
 [![npm version](https://badge.fury.io/js/sidepanel-fallback.svg)](https://badge.fury.io/js/sidepanel-fallback)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://github.com/your-username/sidepanel-fallback/workflows/Tests/badge.svg)](https://github.com/your-username/sidepanel-fallback/actions)
-[![Coverage Status](https://coveralls.io/repos/github/your-username/sidepanel-fallback/badge.svg?branch=main)](https://coveralls.io/github/your-username/sidepanel-fallback?branch=main)
+[![Tests](https://github.com/touyou/sidepanel-fallback/workflows/Tests/badge.svg)](https://github.com/touyou/sidepanel-fallback/actions)
+[![Coverage Status](https://coveralls.io/repos/github/touyou/sidepanel-fallback/badge.svg?branch=main)](https://coveralls.io/github/touyou/sidepanel-fallback?branch=main)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
 ## Features
@@ -183,10 +183,12 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- 🐛 [Report bugs](https://github.com/your-username/sidepanel-fallback/issues)
-- 💡 [Request features](https://github.com/your-username/sidepanel-fallback/issues)
-- 📧 [Email support](mailto:support@example.com)
+- 🐛 [Report bugs](https://github.com/touyou/sidepanel-fallback/issues)
+- 💡 [Request features](https://github.com/touyou/sidepanel-fallback/issues)
+- � [Documentation](https://github.com/touyou/sidepanel-fallback/tree/main/docs)
 
 ---
+
+Made with ❤️ by [touyou](https://github.com/touyou)
 
 Made with ❤️ by the SidepanelFallback team

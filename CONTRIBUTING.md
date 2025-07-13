@@ -330,9 +330,8 @@ We follow [Semantic Versioning](https://semver.org/):
 ### Getting Help
 
 - 📖 Read the [documentation](docs/usage.md)
-- 🔍 Search existing [issues](https://github.com/your-username/sidepanel-fallback/issues)
-- 💬 Start a [discussion](https://github.com/your-username/sidepanel-fallback/discussions)
-- 📧 Contact maintainers
+- 🔍 Search existing [issues](https://github.com/touyou/sidepanel-fallback/issues)
+- 💬 Start a [discussion](https://github.com/touyou/sidepanel-fallback/discussions)
 
 ## Recognition
 
