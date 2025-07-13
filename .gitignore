@@ -7,6 +7,9 @@ dist/
 # Test coverage
 coverage/
 
+# Linting and formatting
+.eslintcache
+
 # Environment variables
 .env
 .env.local

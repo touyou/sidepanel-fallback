@@ -22,7 +22,10 @@ const requiredFiles = [
   'src/index.d.ts',
   'test/index.test.js',
   '.github/workflows/test.yml',
-  '.github/workflows/release.yml'
+  '.github/workflows/release.yml',
+  'eslint.config.js',
+  '.prettierrc',
+  '.prettierignore'
 ];
 
 const requiredPackageJsonFields = [
@@ -36,6 +39,8 @@ const requiredPackageJsonFields = [
   'files',
   'scripts.test',
   'scripts.build',
+  'scripts.lint',
+  'scripts.format',
   'author',
   'license',
   'repository'

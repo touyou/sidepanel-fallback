@@ -12,31 +12,62 @@ SidepanelFallback is built using **Test-Driven Development (TDD)** following @t_
 
 ## Getting Started
 
+### Development Setup
+
 ### Prerequisites
 
-- Node.js 16+ 
-- npm 7+
+- Node.js 16+ and npm 7+
 - Git
+- ESLint and Prettier extensions for VS Code (recommended)
 
-### Setup
+### Getting Started
 
-1. Fork the repository on GitHub
-2. Clone your fork locally:
+1. **Fork and Clone**
    ```bash
    git clone https://github.com/your-username/sidepanel-fallback.git
    cd sidepanel-fallback
    ```
 
-3. Install dependencies:
+2. **Install Dependencies**
    ```bash
    npm install
    ```
 
-4. Verify everything works:
+3. **Run Quality Checks**
    ```bash
-   npm test
-   npm run dev
+   npm run quality     # Run lint and format checks
+   npm run quality:fix # Auto-fix lint and format issues
+   npm run lint        # Run ESLint only
+   npm run format      # Run Prettier only
    ```
+
+4. **Run Tests**
+   ```bash
+   npm test           # Run all tests
+   npm run test:watch # Run tests in watch mode
+   npm run test:coverage # Run tests with coverage
+   ```
+
+5. **Start Development**
+   ```bash
+   npm run dev        # Start Vite dev server
+   ```
+
+6. **Build Package**
+   ```bash
+   npm run build      # Build for production
+   ```
+
+### Code Quality
+
+This project enforces code quality through:
+
+- **ESLint**: JavaScript linting with modern best practices
+- **Prettier**: Code formatting for consistent style
+- **Jest**: Test coverage requirements (90%+ threshold)
+- **Pre-commit hooks**: Automatic lint and format on commit
+
+Your VS Code should automatically format files on save if you have the recommended extensions installed.
 
 ## Development Workflow
 

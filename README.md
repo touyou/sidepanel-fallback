@@ -18,6 +18,7 @@ A lightweight fallback utility for Chrome Extensions to handle side panel confli
 - 📦 **Zero Dependencies**: Lightweight and self-contained
 - 🔧 **Developer Friendly**: Clean API with TypeScript support
 - ⚡ **Modern Build**: ES6+ modules with UMD fallback via Vite
+- 📏 **Code Quality**: ESLint + Prettier for consistent code style
 
 ## Quick Start
 
@@ -125,21 +126,37 @@ document.getElementById('open-btn').onclick = () => {
 
 ## Development
 
-Built with Test-Driven Development (TDD) following @t_wada principles:
+### Setup
 
 ```bash
-# Install dependencies
+git clone https://github.com/touyou/sidepanel-fallback.git
+cd sidepanel-fallback
 npm install
-
-# Run tests (46 test cases)
-npm test
-
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
 ```
+
+### Commands
+
+```bash
+npm test              # Run tests
+npm run test:coverage # Run tests with coverage
+npm run dev           # Start development server
+npm run build         # Build for production
+npm run lint          # Check code quality
+npm run format        # Format code
+npm run quality       # Run all quality checks
+npm run health-check  # Validate project setup
+```
+
+### Code Quality
+
+This project maintains high code quality standards:
+
+- **ESLint**: Enforces JavaScript best practices and catches potential bugs
+- **Prettier**: Ensures consistent code formatting across the codebase  
+- **Jest**: Maintains 90%+ test coverage with comprehensive test suites
+- **TDD**: Follows test-driven development (@t_wada style)
+
+Pre-commit hooks automatically run linting and formatting to maintain consistency.
 
 ### Test Coverage
 

@@ -1,0 +1,21 @@
+# Ignore files for Prettier
+node_modules/
+dist/
+coverage/
+*.min.js
+*.map
+
+# Generated files
+package-lock.json
+
+# Binary files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.pdf
+
+# OS files
+.DS_Store
+Thumbs.db
