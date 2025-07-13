@@ -335,7 +335,4 @@ describe('ModuleName', () => {
 
 ---
 
-_Last updated: 2025-07-13_  
-_Total tests: 46_  
-_Pass rate: 100%_  
-_Coverage: 100%_
+_Last updated: 2025-07-13_ _Total tests: 46_ _Pass rate: 100%_ _Coverage: 100%_

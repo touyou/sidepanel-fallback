@@ -216,5 +216,3 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 Made with ❤️ by [touyou](https://github.com/touyou)
-
-Made with ❤️ by the SidepanelFallback team
