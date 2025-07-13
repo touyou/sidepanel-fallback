@@ -1,3 +1,7 @@
+---
+applyTo: 'src/**/*.js,src/index.d.ts,public/**/*.html'
+---
+
 # Chrome Extension Sidepanel Fallback Implementation
 
 ## Core Problem & Solution

@@ -1,3 +1,7 @@
+---
+applyTo: 'src/**/*.js,test/**/*.js,**/*.md,package.json,scripts/**/*.js'
+---
+
 # Development Process Instructions
 
 ## TDD Development Cycle

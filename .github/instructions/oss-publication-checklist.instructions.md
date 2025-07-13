@@ -1,3 +1,7 @@
+---
+applyTo: '**/*.md,package.json,.github/workflows/*.yml,LICENSE,CHANGELOG.md'
+---
+
 # OSS Publication Checklist
 
 ## Code Quality & Standards ✅

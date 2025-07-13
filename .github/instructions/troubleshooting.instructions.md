@@ -1,3 +1,7 @@
+---
+applyTo: '**/*.js,**/*.json,.github/workflows/*.yml,package.json'
+---
+
 # Common Issues & Solutions
 
 ## Jest & Testing Issues

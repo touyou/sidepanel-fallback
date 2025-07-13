@@ -1,3 +1,7 @@
+---
+applyTo: 'test/**/*.js,jest.config.js,babel.config.js,.github/workflows/test.yml'
+---
+
 # Testing Strategy & Best Practices
 
 ## Jest Configuration & Node.js Compatibility
