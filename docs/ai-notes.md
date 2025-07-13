@@ -152,3 +152,41 @@ DOMモック問題解決、イベントハンドリングテスト修正
 プロジェクトは即座にOSS公開・npm公開可能。開発者はこのライブラリを使って、ブラウザ拡張のsidepanel/popup問題を簡単に解決できる。
 
 **最終commit**: すべてのOSS体裁・ドキュメント・CI/CD・健全性チェック完了
+
+## 📚 2025/07/14 国際化対応完了
+
+### テスト記述英語化 ✅
+
+**目的**: OSS公開に向けた国際化対応
+**作業内容**: 全テストファイルの日本語記述を英語に翻訳
+
+#### 翻訳対象ファイル
+- `test/browserInfo.test.js` - 8テストケース翻訳
+- `test/modeStorage.test.js` - 6テストケース翻訳  
+- `test/panelLauncher.test.js` - 6テストケース翻訳
+- `test/settingsUI.test.js` - 9テストケース翻訳
+- `test/index.test.js` - 10テストケース翻訳
+
+#### 翻訳品質基準
+- 意味を保持しながら自然な英語表現
+- `it()` と `describe()` ブロックの一貫性
+- テスト動作に影響を与えない翻訳
+- Context7コード品質基準維持
+
+#### 成果
+- 全39テスト記述が英語化完了
+- テスト実行結果も英語で出力
+- 国際的な開発者にとって理解しやすい状態
+- OSS公開準備完了
+
+### プロジェクト指針文書化 ✅
+
+`.github/instructions/` ディレクトリを作成し、開発プロセスを体系化：
+
+- `development-process.md` - TDD開発サイクル、コード品質基準
+- `sidepanel-architecture.md` - Chrome拡張fallback設計、API使用パターン
+- `testing-strategy.md` - Jest設定、モック戦略、品質ゲート
+- `oss-publication-checklist.md` - OSS公開準備チェックリスト
+- `troubleshooting.md` - よくある問題と解決策
+
+これらの文書により、将来の開発者や協力者が一貫した品質でプロジェクトを継続できる基盤を構築。
