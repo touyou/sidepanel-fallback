@@ -22,6 +22,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:coverage:html": "jest --coverage && open coverage/lcov-report/index.html",
+    "test:coverage:summary": "jest --coverage --coverageReporters=text-summary",
     "dev": "vite",
     "build": "vite build",
     "health-check": "node scripts/health-check.js",

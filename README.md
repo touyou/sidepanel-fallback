@@ -7,7 +7,7 @@ clean developer API.
 [![npm version](https://badge.fury.io/js/sidepanel-fallback.svg)](https://badge.fury.io/js/sidepanel-fallback)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/touyou/sidepanel-fallback/workflows/Tests/badge.svg)](https://github.com/touyou/sidepanel-fallback/actions)
-[![Coverage Status](https://coveralls.io/repos/github/touyou/sidepanel-fallback/badge.svg?branch=main)](https://coveralls.io/github/touyou/sidepanel-fallback?branch=main)
+[![Node.js CI](https://github.com/touyou/sidepanel-fallback/actions/workflows/test.yml/badge.svg)](https://github.com/touyou/sidepanel-fallback/actions/workflows/test.yml)
 [![TypeScript](https://img.shields.io/badge/%3C%2F%3E-TypeScript-%230074c1.svg)](http://www.typescriptlang.org/)
 
 ## Features
@@ -144,14 +144,30 @@ npm install
 ### Commands
 
 ```bash
-npm test              # Run tests
-npm run test:coverage # Run tests with coverage
-npm run dev           # Start development server
-npm run build         # Build for production
-npm run lint          # Check code quality
-npm run format        # Format code
-npm run quality       # Run all quality checks
-npm run health-check  # Validate project setup
+npm test                    # Run tests
+npm run test:coverage       # Run tests with coverage
+npm run test:coverage:html  # Generate HTML coverage report (opens in browser)
+npm run test:coverage:summary # Show coverage summary only
+npm run test:watch          # Run tests in watch mode
+npm run dev                 # Start development server
+npm run build               # Build for production
+npm run quality             # Run lint + format check
+npm run quality:fix         # Fix lint + format issues
+```
+
+### Coverage Reports
+
+This project maintains high test coverage (85%+ lines, 80%+ branches). Coverage
+reports are generated locally and stored as GitHub Actions artifacts:
+
+- **Local Development**: Run `npm run test:coverage:html` to view detailed
+  coverage
+- **CI/CD**: Coverage reports are uploaded as artifacts in GitHub Actions
+- **Pull Requests**: Coverage summaries are automatically posted for Node.js
+  20.x runs npm run lint # Check code quality npm run format # Format code npm
+  run quality # Run all quality checks npm run health-check # Validate project
+  setup
+
 ```
 
 ### Code Quality
@@ -179,12 +195,11 @@ consistency.
 The library is built as a composition of focused modules:
 
 ```
-src/
-├── index.js           # Main API integration
-├── browserInfo.js     # User agent detection
-├── modeStorage.js     # Settings persistence
-├── panelLauncher.js   # Panel opening logic
-└── settingsUI.js      # Settings UI component
+
+src/ ├── index.js # Main API integration ├── browserInfo.js # User agent
+detection ├── modeStorage.js # Settings persistence ├── panelLauncher.js # Panel
+opening logic └── settingsUI.js # Settings UI component
+
 ```
 
 Each module is fully tested and follows single responsibility principle.
@@ -216,3 +231,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ---
 
 Made with ❤️ by [touyou](https://github.com/touyou)
+```
