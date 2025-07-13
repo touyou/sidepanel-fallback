@@ -1,22 +1,81 @@
 {
   "name": "sidepanel-fallback",
   "version": "1.0.0",
-  "description": "A lightweight fallback utility for Chrome Extensions to handle side panel conflicts",
-  "main": "src/index.js",
+  "description": "A lightweight fallback utility for Chrome Extensions to handle side panel conflicts. Provides browser-specific storage and display mode switching with a clean developer API.",
+  "main": "dist/sidepanel-fallback.umd.js",
+  "module": "dist/sidepanel-fallback.es.js",
+  "types": "src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/sidepanel-fallback.es.js",
+      "require": "./dist/sidepanel-fallback.umd.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "health-check": "node scripts/health-check.js",
+    "prepublishOnly": "npm run test && npm run build"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "chrome-extension",
+    "sidepanel",
+    "fallback",
+    "browser-api",
+    "popup",
+    "panel",
+    "chrome",
+    "firefox",
+    "safari",
+    "cross-browser",
+    "javascript",
+    "typescript",
+    "ui-component"
+  ],
+  "author": {
+    "name": "SidepanelFallback Contributors",
+    "url": "https://github.com/your-username/sidepanel-fallback/graphs/contributors"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/sidepanel-fallback.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/sidepanel-fallback/issues"
+  },
+  "homepage": "https://github.com/your-username/sidepanel-fallback#readme",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
   "jest": {
     "testEnvironment": "node",
     "verbose": true,
     "testTimeout": 10000,
-    "clearMocks": true
+    "clearMocks": true,
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 90,
+        "functions": 90,
+        "lines": 90,
+        "statements": 90
+      }
+    }
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.0",

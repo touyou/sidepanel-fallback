@@ -1,4 +1,6 @@
-export default {
+import { defineConfig } from 'vite';
+
+export default defineConfig({
   root: '.',
   server: {
     open: '/public/test.html'
@@ -7,7 +9,15 @@ export default {
     lib: {
       entry: 'src/index.js',
       name: 'SidepanelFallback',
-      fileName: 'sidepanel-fallback'
+      fileName: (format) => `sidepanel-fallback.${format}.js`,
+      formats: ['es', 'umd']
+    },
+    rollupOptions: {
+      output: {
+        globals: {
+          // External dependencies would go here if any
+        }
+      }
     }
   }
-};
+});
