@@ -1,0 +1,24 @@
+{
+  "name": "sidepanel-fallback",
+  "version": "1.0.0",
+  "description": "A lightweight fallback utility for Chrome Extensions to handle side panel conflicts",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "@babel/preset-env": "^7.28.0",
+    "@types/jest": "^27.5.2",
+    "jest": "^27.5.1",
+    "vite": "^7.0.4"
+  }
+}

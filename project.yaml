@@ -1,0 +1,104 @@
+project:
+  name: sidepanel-fallback
+  description: >
+    A lightweight fallback utility for Chrome Extensions to handle side panel conflicts.
+    Provides browser-specific storage and display mode switching with a clean developer API.
+
+goals:
+  - Launch side panel or popup window based on browser/user settings
+  - Enable persistent per-browser mode storage
+  - Provide an embeddable settings UI
+  - Build a TDD foundation with jest using @t_wada principles
+  - Support both module-based and legacy extension integrations
+  - Use Vite for dev/test/debug loop
+
+structure:
+  src:
+    - index.js              # main API: init, openPanel, withSettingsUI
+    - browserInfo.js        # UA判定用ユーティリティ
+    - modeStorage.js        # localStorage/chrome.storage周り
+    - panelLauncher.js      # window / side panel 判定＆分岐処理
+    - settingsUI.js         # DOM UI描画
+  test:
+    - browserInfo.test.js
+    - modeStorage.test.js
+    - panelLauncher.test.js
+    - settingsUI.test.js
+  public:
+    - test.html             # UI確認用の簡易HTML（Vite devで使う）
+  docs:
+    - ai-notes.md           # AIと共同開発する際の設計・意図・制約メモ
+    - usage.md              # 開発者向けのAPI使用例
+
+dependencies:
+  runtime: []
+  dev:
+    - vite
+    - jest
+    - @babel/preset-env
+    - @types/jest
+
+commands:
+  setup:
+    - git init
+    - npm init -y
+    - npm install vite --save-dev
+    - npm install jest @babel/preset-env @types/jest --save-dev
+    - echo '{"presets":["@babel/preset-env"]}' > babel.config.json
+    - echo 'node_modules/\ndist/\ncoverage/' > .gitignore
+    - mkdir src test public docs
+  vite_config:
+    file: vite.config.js
+    contents: |
+      export default {
+        root: '.',
+        server: {
+          open: '/public/test.html'
+        },
+        build: {
+          lib: {
+            entry: 'src/index.js',
+            name: 'SidepanelFallback',
+            fileName: 'sidepanel-fallback'
+          }
+        }
+      };
+
+testing:
+  framework: jest
+  approach: TDD (@t_wada)
+  policy:
+    - Red → Green → Refactor を貫く
+    - コードを書く前にテストを書く
+    - 「関数の名前＝その仕様」であることを意識
+    - 実装よりも具体例から始める
+  example_test:
+    file: test/browserInfo.test.js
+    snippet: |
+      describe('getBrowserInfo', () => {
+        it('ChromeのUAを正しく判定する', () => {
+          const ua = 'Mozilla/5.0 (Windows NT 10.0) Chrome/115.0.0.0';
+          expect(getBrowserInfo(ua)).toBe('chrome');
+        });
+        it('Diaを判別できる', () => {
+          const ua = 'Mozilla/5.0 (Dia/1.0.0)';
+          expect(getBrowserInfo(ua)).toBe('dia');
+        });
+      });
+
+ai_collab_notes:
+  file: docs/ai-notes.md
+  usage:
+    - ライブラリ設計中に出た疑問・制約・暗黙的なルールを記録
+    - 「なぜこうしたのか？」の記録をAIが読み取れる形で残す
+    - AIによる提案・改善がスムーズになる
+  example_entry: |
+    ## panelLauncher.js のfallback設計について
+    Sidepanel APIが競合等で開けない可能性があるため、失敗時は window.open を使ってフォールバック。
+    判定が非同期で不確実なため、ユーザー設定で明示的に window モードを選ばせる方式にする方が確実。
+    Sidepanel API自体の使用条件が変化する可能性があるので、interface は疎結合に保つ。
+
+next_steps:
+  - start with: `browserInfo.js` and `browserInfo.test.js`
+  - keep `ai-notes.md` open as a scratchpad during coding
+  - validate dev loop with `npm run dev` (Vite) and `npx jest --watch`
