@@ -224,7 +224,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - 🐛 [Report bugs](https://github.com/touyou/sidepanel-fallback/issues)
 - 💡 [Request features](https://github.com/touyou/sidepanel-fallback/issues)
-- � [Documentation](https://github.com/touyou/sidepanel-fallback/tree/main/docs)
+- 📚
+  [Documentation](https://github.com/touyou/sidepanel-fallback/tree/main/docs)
 
 ---
 
