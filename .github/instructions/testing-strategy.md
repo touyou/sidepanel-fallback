@@ -3,6 +3,7 @@
 ## Jest Configuration & Node.js Compatibility
 
 ### Environment Setup
+
 - **Jest 29.x** for Node.js 20 compatibility
 - **Babel transformation** for ES6+ modules
 - **Coverage thresholds**: 85% (realistic for OSS projects)
@@ -11,6 +12,7 @@
 ### Mock Strategies
 
 #### DOM Mocking
+
 ```javascript
 // Create comprehensive DOM mocks
 const mockDocument = {
@@ -18,12 +20,13 @@ const mockDocument = {
     classList: { add: jest.fn() },
     appendChild: jest.fn(),
     setAttribute: jest.fn()
-  })),
+  }))
   // ... other DOM methods
 };
 ```
 
 #### Chrome Extension API Mocking
+
 ```javascript
 // Mock Chrome APIs for testing
 global.chrome = {
@@ -34,24 +37,34 @@ global.chrome = {
 ```
 
 #### LocalStorage Mocking
+
 ```javascript
 // Simple localStorage mock
 const mockLocalStorage = {};
 global.localStorage = {
   getItem: jest.fn(key => mockLocalStorage[key] || null),
-  setItem: jest.fn((key, value) => { mockLocalStorage[key] = value; }),
-  removeItem: jest.fn(key => { delete mockLocalStorage[key]; })
+  setItem: jest.fn((key, value) => {
+    mockLocalStorage[key] = value;
+  }),
+  removeItem: jest.fn(key => {
+    delete mockLocalStorage[key];
+  })
 };
 ```
 
 ## Test Organization Patterns
 
 ### Test Structure
+
 ```javascript
 describe('ComponentName', () => {
   // Setup and teardown
-  beforeEach(() => { /* reset mocks */ });
-  afterEach(() => { /* cleanup */ });
+  beforeEach(() => {
+    /* reset mocks */
+  });
+  afterEach(() => {
+    /* cleanup */
+  });
 
   describe('methodName', () => {
     it('handles normal case correctly', () => {
@@ -66,6 +79,7 @@ describe('ComponentName', () => {
 ```
 
 ### Test Naming Convention
+
 - Use **descriptive English** test names
 - Focus on **behavior**, not implementation
 - Examples:
@@ -76,26 +90,32 @@ describe('ComponentName', () => {
 ## Common Testing Pitfalls & Solutions
 
 ### Problem: Jest Timeout with Complex Mocks
+
 **Solution**: Simplify mocks, use jest.spyOn() for specific methods
 
 ### Problem: Boolean Type Assertions Failing
+
 **Solution**: Use explicit boolean conversion (`!!value`)
 
 ### Problem: Async Test Race Conditions
+
 **Solution**: Proper async/await usage, avoid Promise constructor
 
 ### Problem: DOM Event Testing
+
 **Solution**: Mock event targets properly, simulate user interactions
 
 ## Coverage & Quality Gates
 
 ### Coverage Requirements
+
 - **Statements**: 85%
 - **Branches**: 85%
 - **Functions**: 85%
 - **Lines**: 85%
 
 ### Quality Checks
+
 - All tests must pass across Node.js 16, 18, 20
 - ESLint rules must pass
 - Prettier formatting enforced
@@ -104,6 +124,7 @@ describe('ComponentName', () => {
 ## Test Automation
 
 ### Local Development
+
 ```bash
 npm test              # Run all tests
 npm run test:watch    # Watch mode for development
@@ -111,6 +132,7 @@ npm run test:coverage # Generate coverage report
 ```
 
 ### CI/CD Pipeline
+
 - **GitHub Actions** on push/PR
 - **Matrix testing** across Node.js versions
 - **Coverage reports** uploaded as artifacts

@@ -161,19 +161,22 @@ DOMモック問題解決、イベントハンドリングテスト修正
 **作業内容**: 全テストファイルの日本語記述を英語に翻訳
 
 #### 翻訳対象ファイル
+
 - `test/browserInfo.test.js` - 8テストケース翻訳
-- `test/modeStorage.test.js` - 6テストケース翻訳  
+- `test/modeStorage.test.js` - 6テストケース翻訳
 - `test/panelLauncher.test.js` - 6テストケース翻訳
 - `test/settingsUI.test.js` - 9テストケース翻訳
 - `test/index.test.js` - 10テストケース翻訳
 
 #### 翻訳品質基準
+
 - 意味を保持しながら自然な英語表現
 - `it()` と `describe()` ブロックの一貫性
 - テスト動作に影響を与えない翻訳
 - Context7コード品質基準維持
 
 #### 成果
+
 - 全39テスト記述が英語化完了
 - テスト実行結果も英語で出力
 - 国際的な開発者にとって理解しやすい状態

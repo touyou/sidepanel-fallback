@@ -3,8 +3,9 @@
 ## Jest & Testing Issues
 
 ### Jest Timeout Problems
-**Symptoms**: Tests hang or timeout, especially with complex mocks
-**Solution**: 
+
+**Symptoms**: Tests hang or timeout, especially with complex mocks **Solution**:
+
 ```javascript
 // Simplify mocks - avoid overly complex mock objects
 const simpleMock = {
@@ -16,8 +17,9 @@ jest.spyOn(global, 'localStorage');
 ```
 
 ### Boolean Type Assertion Failures
-**Symptoms**: Tests fail with "expected undefined, received false"
-**Solution**:
+
+**Symptoms**: Tests fail with "expected undefined, received false" **Solution**:
+
 ```javascript
 // Use explicit boolean conversion
 return !!(chrome && chrome.sidePanel);
@@ -27,8 +29,9 @@ return chrome && chrome.sidePanel;
 ```
 
 ### Async Test Race Conditions
-**Symptoms**: Intermittent test failures, especially in CI
-**Solution**:
+
+**Symptoms**: Intermittent test failures, especially in CI **Solution**:
+
 ```javascript
 // Always use async/await properly
 it('async test', async () => {
@@ -42,8 +45,10 @@ it('async test', async () => {
 ## Node.js Version Compatibility
 
 ### Jest Version Conflicts
-**Problem**: Jest 27 incompatible with Node.js 20
-**Solution**: Upgrade to Jest 29
+
+**Problem**: Jest 27 incompatible with Node.js 20 **Solution**: Upgrade to Jest
+29
+
 ```json
 {
   "devDependencies": {
@@ -54,14 +59,19 @@ it('async test', async () => {
 ```
 
 ### Babel Configuration
-**Problem**: ES6 modules not transforming properly
-**Solution**: Update babel.config.js
+
+**Problem**: ES6 modules not transforming properly **Solution**: Update
+babel.config.js
+
 ```javascript
 module.exports = {
   presets: [
-    ['@babel/preset-env', {
-      targets: { node: '16' }
-    }]
+    [
+      '@babel/preset-env',
+      {
+        targets: { node: '16' }
+      }
+    ]
   ]
 };
 ```
@@ -69,8 +79,10 @@ module.exports = {
 ## GitHub Actions Issues
 
 ### Upload Artifact Version
-**Problem**: upload-artifact@v3 deprecated
-**Solution**: Use v4 with proper syntax
+
+**Problem**: upload-artifact@v3 deprecated **Solution**: Use v4 with proper
+syntax
+
 ```yaml
 - name: Upload coverage reports
   uses: actions/upload-artifact@v4
@@ -81,8 +93,10 @@ module.exports = {
 ```
 
 ### Permission Issues
-**Problem**: GitHub Actions can't write to repository
-**Solution**: Add proper permissions
+
+**Problem**: GitHub Actions can't write to repository **Solution**: Add proper
+permissions
+
 ```yaml
 jobs:
   release:
@@ -94,21 +108,25 @@ jobs:
 ## Browser Extension Context
 
 ### Extension Detection
-**Problem**: Inconsistent detection of extension context
-**Solution**: Use comprehensive feature detection
+
+**Problem**: Inconsistent detection of extension context **Solution**: Use
+comprehensive feature detection
+
 ```javascript
 function isExtensionContext() {
   return !!(
-    globalThis.chrome && 
-    chrome.sidePanel && 
+    globalThis.chrome &&
+    chrome.sidePanel &&
     typeof chrome.sidePanel.open === 'function'
   );
 }
 ```
 
 ### Fallback Timing
-**Problem**: Sidepanel API calls fail silently
-**Solution**: Implement proper error handling and fallback
+
+**Problem**: Sidepanel API calls fail silently **Solution**: Implement proper
+error handling and fallback
+
 ```javascript
 try {
   await chrome.sidePanel.open({ path: url });
@@ -123,8 +141,10 @@ try {
 ## Build & Distribution
 
 ### Module Format Issues
-**Problem**: Library not working in different environments
-**Solution**: Provide multiple build formats
+
+**Problem**: Library not working in different environments **Solution**: Provide
+multiple build formats
+
 ```javascript
 // Vite config for multiple outputs
 export default {
@@ -139,8 +159,9 @@ export default {
 ```
 
 ### TypeScript Definition Problems
-**Problem**: IDE not recognizing types
-**Solution**: Proper index.d.ts structure
+
+**Problem**: IDE not recognizing types **Solution**: Proper index.d.ts structure
+
 ```typescript
 declare module 'sidepanel-fallback' {
   export default class SidepanelFallback {
@@ -154,7 +175,9 @@ declare module 'sidepanel-fallback' {
 ## Development Workflow
 
 ### Git Commit Messages
+
 **Best Practice**: Use conventional commit format
+
 ```
 feat: add new browser detection
 fix: resolve fallback timing issue
@@ -164,6 +187,7 @@ chore: update dependencies
 ```
 
 ### Code Review Checklist
+
 - [ ] All tests passing
 - [ ] English-only text in user-facing content
 - [ ] TypeScript definitions updated
