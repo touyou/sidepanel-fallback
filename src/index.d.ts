@@ -15,7 +15,7 @@ export interface BrowserInfo {
 }
 
 export interface StorageMode {
-  mode: 'sidepanel' | 'popup' | 'auto';
+  mode: 'sidepanel' | 'window' | 'auto';
   browserKey: string;
   lastUpdated: number;
 }
@@ -37,13 +37,13 @@ export interface SettingsUIOptions {
 }
 
 export interface SidepanelFallbackOptions {
-  defaultMode?: 'sidepanel' | 'popup' | 'auto';
+  defaultMode?: 'sidepanel' | 'window' | 'auto';
   storageKey?: string;
   enableDebugMode?: boolean;
 }
 
 export interface CurrentSettings {
-  mode: 'sidepanel' | 'popup' | 'auto';
+  mode: 'sidepanel' | 'window' | 'auto';
   browserInfo: BrowserInfo;
   storageMode: StorageMode;
   isInitialized: boolean;

@@ -4,7 +4,7 @@
       "@babel/preset-env",
       {
         "targets": {
-          "node": "current"
+          "node": "18.18.0"
         },
         "modules": "auto"
       }
@@ -17,7 +17,7 @@
           "@babel/preset-env",
           {
             "targets": {
-              "node": "current"
+              "node": "18.18.0"
             },
             "modules": "commonjs"
           }

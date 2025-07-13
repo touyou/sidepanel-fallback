@@ -131,6 +131,15 @@ document.getElementById('open-btn').onclick = () => {
 - 🏗️ [Architecture & Design](docs/ai-notes.md)
 - 🧪 [Test Results & Coverage](docs/testing.md)
 
+## Requirements
+
+- **Node.js**: 18.18.0 or higher
+- **npm**: 8.0.0 or higher
+- **Browser**: Chrome 88+, Firefox 78+, Safari 14+, Edge 88+
+
+For legacy environments, consider using an older version that supports
+Node.js 16.
+
 ## Development
 
 ### Setup

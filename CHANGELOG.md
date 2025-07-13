@@ -8,6 +8,21 @@ and this project adheres to
 
 ## [Unreleased]
 
+### Changed
+
+- **BREAKING**: Updated minimum Node.js requirement from 16.0.0 to 18.18.0
+- Updated Vite from v4.5.14 to v5.4.19 for better performance and security
+- Updated GitHub Actions workflows to test Node.js 18.x, 20.x, and 22.x
+- Updated release workflow to use Node.js 20.x
+- Updated Babel configuration to target Node.js 18.18.0 specifically
+- Updated TypeScript definitions to use correct 'window' mode instead of 'popup'
+
+### Infrastructure
+
+- Modernized build toolchain for enhanced development experience
+- Improved CI/CD pipeline with latest Node.js LTS versions
+- Enhanced security posture with updated dependencies
+
 ### Added
 
 - Initial implementation
