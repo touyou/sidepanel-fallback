@@ -1,7 +1,32 @@
 # AI協同開発メモ
 
-## panelLauncher.js のfallback設計について
-Sidepanel APIが競合等で開けない可能性があるため、失敗時は window.open を使ってフォールバック。
+## panelLauncher.js のfallback設計に### panelLauncher.js 完了 ✅
+**Red**: テストファイル作成（9テストケース）→モジュール存在しない→テスト失敗
+**Green**: PanelLauncher クラス実装完了
+**Refactor**: `isExtensionContext`での明示的boolean変換（`!!`追加）
+- openPanel メソッド（sidepanel/windowモード分岐）
+- Chrome sidePanel API / window.open フォールバック機能
+- エラーハンドリング（不正なmode、API失敗時）
+- isExtensionContext メソッド（Extension context判定）
+- 全9テストケース通過
+
+## 📋 解決済み問題
+### Jest実行環境の問題 → 解決 ✅
+- 原因: 複雑なモック設定がJestのタイムアウトを引き起こした
+- 解決: テストを段階的に簡素化、シンプルなlocalStorageモックに変更
+- 結果: 全14テスト（browserInfo 8 + modeStorage 6）が正常に通過
+
+### panelLauncher.js boolean型返却問題 → 解決 ✅
+- 原因: `isExtensionContext`がundefined返却でテスト失敗
+- 解決: `!!`演算子で明示的にboolean型に変換
+- 結果: 全23テスト（browserInfo 8 + modeStorage 6 + panelLauncher 9）が正常に通過
+
+## 次のステップ
+1. ✅ Jest問題解決 → modeStorageテスト Green確認
+2. ✅ Refactor段階でコード品質向上
+3. ✅ `panelLauncher.js` & `panelLauncher.test.js` （メイン処理）
+4. **次回**: `settingsUI.js` & `settingsUI.test.js` （DOM UI）
+5. `index.js` （API統合）l APIが競合等で開けない可能性があるため、失敗時は window.open を使ってフォールバック。
 判定が非同期で不確実なため、ユーザー設定で明示的に window モードを選ばせる方式にする方が確実。
 Sidepanel API自体の使用条件が変化する可能性があるので、interface は疎結合に保つ。
 
