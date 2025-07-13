@@ -18,7 +18,7 @@ SidepanelFallback is built using **Test-Driven Development (TDD)** following @t_
 
 - Node.js 16+ and npm 7+
 - Git
-- ESLint and Prettier extensions for VS Code (recommended)
+- Code editor with ESLint and Prettier support (recommended)
 
 ### Getting Started
 
@@ -67,7 +67,7 @@ This project enforces code quality through:
 - **Jest**: Test coverage requirements (90%+ threshold)
 - **Pre-commit hooks**: Automatic lint and format on commit
 
-Your VS Code should automatically format files on save if you have the recommended extensions installed.
+Your code editor should automatically format files on save if you have ESLint and Prettier extensions installed.
 
 ## Development Workflow
 

@@ -25,7 +25,8 @@ const requiredFiles = [
   '.github/workflows/release.yml',
   'eslint.config.js',
   '.prettierrc',
-  '.prettierignore'
+  '.prettierignore',
+  'public/test.html'
 ];
 
 const requiredPackageJsonFields = [
