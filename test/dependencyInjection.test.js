@@ -94,15 +94,17 @@ describe('SidepanelFallback - Dependency Injection', () => {
 
     it('uses custom launcher implementation', async () => {
       const customLauncher = createMockLauncher({ success: true, method: 'custom' });
+      const customStorage = createMockStorage(null); // Return null to use default 'auto' mode
       
       const fallback = new SidepanelFallback({
-        launcher: customLauncher
+        launcher: customLauncher,
+        storage: customStorage
       });
 
       await fallback.init();
       const result = await fallback.openPanel('/test.html');
 
-      expect(customLauncher.openPanel).toHaveBeenCalledWith('auto', '/test.html');
+      expect(customLauncher.openPanel).toHaveBeenCalledWith('window', '/test.html');
       expect(result.method).toBe('custom');
     });
 
