@@ -19,12 +19,12 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest",
-    "test:core": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --testPathPattern=\"(browserInfo|modeStorage|panelLauncher|settingsUI)\\.test\\.js\"",
-    "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --watch",
-    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --coverage",
-    "test:coverage:html": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --coverage && open coverage/lcov-report/index.html",
-    "test:coverage:summary": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --coverage --coverageReporters=text-summary",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings --max-old-space-size=4096\" jest",
+    "test:core": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings --max-old-space-size=4096\" jest --testPathPattern=\"(browserInfo|modeStorage|panelLauncher|settingsUI)\\.test\\.js\"",
+    "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings --max-old-space-size=4096\" jest --watch",
+    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings --max-old-space-size=4096\" jest --coverage",
+    "test:coverage:html": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings --max-old-space-size=4096\" jest --coverage && open coverage/lcov-report/index.html",
+    "test:coverage:summary": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings --max-old-space-size=4096\" jest --coverage --coverageReporters=text-summary",
     "dev": "vite",
     "build": "vite build",
     "health-check": "node scripts/health-check.js",

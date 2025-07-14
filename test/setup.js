@@ -30,7 +30,10 @@ console.error = (...args) => {
     message.includes('soft deleted') ||
     // Node 22 specific warnings
     (nodeVersion >= 22 &&
-      (message.includes('ExperimentalWarning') || message.includes('--experimental-vm-modules')))
+      (message.includes('ExperimentalWarning') ||
+        message.includes('--experimental-vm-modules') ||
+        message.includes('punycode') ||
+        message.includes('DEP0040')))
   ) {
     // Suppress Jest + Node.js 20/22 memory management warnings in test output
     return;
@@ -44,9 +47,34 @@ if (nodeVersion >= 22) {
   // Handle Jest's process.exit behavior in Node 22
   const originalExit = process.exit;
   process.exit = code => {
-    // Give time for async cleanup
-    setTimeout(() => originalExit(code), 10);
+    // Give time for async cleanup in Node 22
+    setTimeout(() => originalExit(code), 50);
   };
+
+  // Node 22 experimental VM module compatibility
+  if (process.env.NODE_OPTIONS?.includes('--experimental-vm-modules')) {
+    // Disable specific warnings that interfere with Jest in Node 22
+    const originalEmitWarning = process.emitWarning;
+    process.emitWarning = (warning, type, code) => {
+      if (type === 'ExperimentalWarning' && (code === 'vm' || warning.includes('vm modules'))) {
+        return;
+      }
+      return originalEmitWarning.call(process, warning, type, code);
+    };
+  }
+
+  // Node 22 worker thread memory management
+  if (global.gc) {
+    // More aggressive garbage collection for Node 22
+    const originalGc = global.gc;
+    global.gc = () => {
+      try {
+        originalGc();
+      } catch (_e) {
+        // Ignore GC errors in Node 22
+      }
+    };
+  }
 }
 
 // Ensure proper cleanup for Node.js 20/22
