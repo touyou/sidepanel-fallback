@@ -1,56 +1,56 @@
 # Sidepanel Fallback Examples
 
-このディレクトリには、`sidepanel-fallback` ライブラリの実用的な使用例が含まれています。
+This directory contains practical usage examples for the `sidepanel-fallback` library.
 
-## 📁 利用例
+## 📁 Available Examples
 
 ### [Chrome Extension Example](./chrome-extension/)
-実際に動作するChrome Extensionの完全な実装例です。サイドパネルとポップアップウィンドウのフォールバック機能、設定UI、パフォーマンス追跡など、ライブラリのすべての機能を実際の拡張機能で体験できます。
+A complete working Chrome Extension implementation example. Experience all features of the library in a real extension including sidepanel and popup window fallback functionality, settings UI, performance tracking, and more.
 
-**主な特徴：**
-- ✅ Manifest V3 対応
-- ✅ サイドパネル ↔ ポップアップの自動フォールバック
-- ✅ 設定UIコンポーネントの実装例
-- ✅ パフォーマンス監視機能
-- ✅ 日本語UI対応
-- ✅ インストール可能な実用例
+**Key Features:**
+- ✅ Manifest V3 compatible
+- ✅ Automatic sidepanel ↔ popup fallback
+- ✅ Settings UI component implementation
+- ✅ Performance monitoring features
+- ✅ English UI support
+- ✅ Installable practical example
 
-## 🚀 クイックスタート
+## 🚀 Quick Start
 
-### 1. Chrome Extension Example を試す
+### 1. Try the Chrome Extension Example
 
 ```bash
-# 1. このリポジトリをクローン（または既にクローン済み）
+# 1. Clone this repository (or if already cloned)
 git clone https://github.com/touyou/sidepanel-fallback.git
 cd sidepanel-fallback
 
-# 2. 依存関係をインストールしてビルド
+# 2. Install dependencies and build
 npm install
 npm run build
 
-# 3. Chrome Extension として読み込み
-# - chrome://extensions/ を開く
-# - デベロッパーモードを有効にする
-# - 「パッケージ化されていない拡張機能を読み込む」をクリック
-# - examples/chrome-extension/ ディレクトリを選択
+# 3. Load as Chrome Extension
+# - Open chrome://extensions/
+# - Enable Developer mode
+# - Click "Load unpacked extension"
+# - Select examples/chrome-extension/ directory
 ```
 
-### 2. 動作確認
+### 2. Test Functionality
 
-1. ツールバーに追加された拡張機能アイコンをクリック
-2. Chrome/Edgeの場合：サイドパネルが開く
-3. Firefox/Safariの場合：ポップアップウィンドウが開く
-4. 設定UI、パフォーマンス統計、ブラウザ検出機能を確認
+1. Click the extension icon in the toolbar
+2. Chrome/Edge: Sidepanel opens
+3. Firefox/Safari: Popup window opens
+4. Verify settings UI, performance statistics, and browser detection features
 
-## 📖 詳細ドキュメント
+## 📖 Detailed Documentation
 
-各例には詳細なREADMEファイルが含まれています：
+Each example includes detailed README files:
 
-- [Chrome Extension の詳細説明](./chrome-extension/README.md)
+- [Chrome Extension Detailed Guide](./chrome-extension/README.md)
 
-## 🔧 カスタマイズ方法
+## 🔧 Customization Guide
 
-### ライブラリのオプション設定
+### Library Configuration Options
 ```javascript
 const fallbackInstance = new SidepanelFallback({
   defaultMode: 'auto',          // 'auto' | 'sidepanel' | 'window'
@@ -60,90 +60,90 @@ const fallbackInstance = new SidepanelFallback({
 });
 ```
 
-### イベントハンドリング
+### Event Handling
 ```javascript
-// ブラウザ検出時
+// Browser detection event
 fallbackInstance.on('browserDetected', (data) => {
-  console.log('検出ブラウザ:', data.browser);
+  console.log('Detected browser:', data.browser);
 });
 
-// モード変更時
+// Mode change event
 fallbackInstance.on('modeChanged', (data) => {
   console.log(`${data.oldMode} → ${data.newMode}`);
 });
 
-// パネル開始時
+// Panel open event
 fallbackInstance.on('afterOpenPanel', (data) => {
-  console.log('パネル開始:', data.method);
+  console.log('Panel opened:', data.method);
 });
 ```
 
-## 🎯 用途別の実装例
+## 🎯 Use Case Implementation Examples
 
-### 1. 基本的なサイドパネル拡張機能
+### 1. Basic Sidepanel Extension
 ```javascript
 // background.js
 chrome.action.onClicked.addListener(async (tab) => {
   const result = await fallbackInstance.openPanel('panel.html');
-  console.log('パネル開始結果:', result);
+  console.log('Panel open result:', result);
 });
 ```
 
-### 2. 設定付きアプリケーション
+### 2. Application with Settings
 ```javascript
 // panel.js
-// 設定UIを自動で追加
+// Automatically add settings UI
 const settingsContainer = document.getElementById('settings');
 await fallbackInstance.withSettingsUI(settingsContainer);
 ```
 
-### 3. パフォーマンス監視
+### 3. Performance Monitoring
 ```javascript
-// パフォーマンス統計の取得
+// Get performance statistics
 const stats = fallbackInstance.getPerformanceStats();
-console.log('キャッシュ統計:', stats.browserCache);
-console.log('メモリ使用量:', stats.memorySnapshots);
+console.log('Cache statistics:', stats.browserCache);
+console.log('Memory usage:', stats.memorySnapshots);
 ```
 
-## 🆘 トラブルシューティング
+## 🆘 Troubleshooting
 
-### よくある問題
+### Common Issues
 
-1. **サイドパネルが開かない**
-   - Chrome 114+ を使用していることを確認
-   - `sidePanel` パーミッションが manifest.json に含まれていることを確認
+1. **Sidepanel won't open**
+   - Confirm using Chrome 114+
+   - Verify `sidePanel` permission is included in manifest.json
 
-2. **ライブラリが読み込まれない**
-   - `sidepanel-fallback.umd.js` が正しいパスにあることを確認
-   - ネットワークタブでファイルの読み込み状況を確認
+2. **Library won't load**
+   - Confirm `sidepanel-fallback.umd.js` is in the correct path
+   - Check file loading status in Network tab
 
-3. **設定が保存されない**
-   - `storage` パーミッションが有効になっていることを確認
-   - ブラウザの開発者ツールで localStorage/chrome.storage をチェック
+3. **Settings not saving**
+   - Verify `storage` permission is enabled
+   - Check localStorage/chrome.storage in browser dev tools
 
-### デバッグ方法
+### Debug Methods
 
 ```javascript
-// デバッグイベントの監視
+// Monitor debug events
 fallbackInstance.on('debug', (data) => {
-  console.log('デバッグ情報:', data);
+  console.log('Debug info:', data);
 });
 
-// エラーイベントの監視
+// Monitor error events
 fallbackInstance.on('error', (data) => {
-  console.error('エラー発生:', data);
+  console.error('Error occurred:', data);
 });
 ```
 
-## 🤝 コントリビューション
+## 🤝 Contributing
 
-新しい例や改善提案は歓迎です！
+New examples and improvement suggestions are welcome!
 
-1. フォークして新しいブランチを作成
-2. 例を追加または既存例を改善
-3. 適切なドキュメントを追加
-4. プルリクエストを送信
+1. Fork and create a new branch
+2. Add new examples or improve existing ones
+3. Add appropriate documentation
+4. Submit a pull request
 
-## 📄 ライセンス
+## 📄 License
 
-これらの例はメインライブラリと同じ MIT ライセンスの下で提供されます。
+These examples are provided under the same MIT license as the main library.

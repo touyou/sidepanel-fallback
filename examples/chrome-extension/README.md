@@ -1,53 +1,53 @@
 # Chrome Extension Example
 
-この例は、`sidepanel-fallback` ライブラリを実際のChrome Extensionで使用する方法を示しています。
+This example demonstrates how to use the `sidepanel-fallback` library in a real Chrome Extension.
 
-## 📁 ファイル構成
+## 📁 File Structure
 
 ```
 chrome-extension/
-├── manifest.json           # Chrome Extension設定ファイル
-├── background.js           # バックグラウンドサービスワーカー  
-├── sidepanel.html          # サイドパネル表示用HTML
-├── popup.html              # フォールバック用ポップアップHTML
-├── sidepanel-fallback.umd.js # ライブラリファイル（dist/から自動コピー）
-└── README.md               # このファイル
+├── manifest.json           # Chrome Extension configuration file
+├── background.js           # Background service worker  
+├── sidepanel.html          # Sidepanel display HTML
+├── popup.html              # Fallback popup HTML
+├── sidepanel-fallback.umd.js # Library file (auto-copied from dist/)
+└── README.md               # This file
 ```
 
-## 🚀 インストール方法
+## 🚀 Installation Instructions
 
-### 1. Chrome Extensionとして読み込み
+### 1. Load as Chrome Extension
 
-1. Chromeブラウザで `chrome://extensions/` を開く
-2. 右上の「デベロッパーモード」を有効にする
-3. 「パッケージ化されていない拡張機能を読み込む」をクリック
-4. このディレクトリ（`examples/chrome-extension/`）を選択
-5. 拡張機能が読み込まれ、ツールバーにアイコンが表示される
+1. Open `chrome://extensions/` in Chrome browser
+2. Enable "Developer mode" in the top right
+3. Click "Load unpacked extension"
+4. Select this directory (`examples/chrome-extension/`)
+5. The extension will be loaded and an icon will appear in the toolbar
 
-### 2. 動作確認
+### 2. Test Functionality
 
-1. ツールバーの拡張機能アイコンをクリック
-2. Chromeの場合：サイドパネルが開く
-3. その他のブラウザ/環境：ポップアップウィンドウが開く
+1. Click the extension icon in the toolbar
+2. Chrome: Sidepanel opens
+3. Other browsers/environments: Popup window opens
 
-## 🎯 デモ機能
+## 🎯 Demo Features
 
-### サイドパネルモード（Chrome/Edge）
-- 📱 ブラウザの右側にサイドパネルとして表示
-- 🎛️ リアルタイム設定変更
-- 📊 パフォーマンス統計表示
-- ⚙️ 設定UIコンポーネントのデモ
+### Sidepanel Mode (Chrome/Edge)
+- 📱 Displays as sidepanel on the right side of the browser
+- 🎛️ Real-time settings changes
+- 📊 Performance statistics display
+- ⚙️ Settings UI component demo
 
-### ポップアップモード（Firefox/Safari/その他）
-- 🪟 独立したポップアップウィンドウとして表示
-- ⚠️ フォールバック動作の明示
-- 🔄 同じ機能セットをコンパクトなUIで提供
+### Popup Mode (Firefox/Safari/Others)
+- 🪟 Displays as independent popup window
+- ⚠️ Clear indication of fallback behavior
+- 🔄 Same feature set in compact UI
 
-## 🛠️ 実装のポイント
+## 🛠️ Implementation Highlights
 
-### 1. Service Worker（background.js）
+### 1. Service Worker (background.js)
 ```javascript
-// ライブラリの初期化
+// Library initialization
 const fallbackInstance = new SidepanelFallback({
   defaultMode: 'auto',
   enablePerformanceTracking: true
@@ -55,16 +55,16 @@ const fallbackInstance = new SidepanelFallback({
 
 await fallbackInstance.init();
 
-// アクションボタンクリック時の処理
+// Action button click handler
 chrome.action.onClicked.addListener(async (tab) => {
   const result = await fallbackInstance.openPanel('sidepanel.html');
-  // フォールバック処理...
+  // Fallback handling...
 });
 ```
 
-### 2. サイドパネル/ポップアップ（HTML）
+### 2. Sidepanel/Popup (HTML)
 ```javascript
-// フロントエンドでの初期化
+// Frontend initialization
 const fallbackInstance = new SidepanelFallback({
   defaultMode: 'auto',
   enableCaching: true
@@ -72,11 +72,11 @@ const fallbackInstance = new SidepanelFallback({
 
 await fallbackInstance.init();
 
-// 設定UIの追加
+// Add settings UI
 await fallbackInstance.withSettingsUI(container);
 ```
 
-### 3. Manifest V3対応
+### 3. Manifest V3 Support
 ```json
 {
   "manifest_version": 3,
@@ -90,72 +90,72 @@ await fallbackInstance.withSettingsUI(container);
 }
 ```
 
-## 📋 動作確認チェックリスト
+## 📋 Testing Checklist
 
-- [ ] 拡張機能が正常に読み込まれる
-- [ ] アイコンクリック時にパネル/ポップアップが開く
-- [ ] ブラウザ情報が正しく検出・表示される
-- [ ] 表示モード設定が機能する
-- [ ] 設定変更が永続化される
-- [ ] パフォーマンス統計が取得できる
-- [ ] キャッシュクリア機能が動作する
-- [ ] 異なるブラウザでフォールバック動作が確認できる
+- [ ] Extension loads properly
+- [ ] Panel/popup opens when icon is clicked
+- [ ] Browser information is correctly detected and displayed
+- [ ] Display mode settings work
+- [ ] Setting changes are persisted
+- [ ] Performance statistics can be retrieved
+- [ ] Cache clear function works
+- [ ] Fallback behavior works in different browsers
 
-## 🔧 カスタマイズ例
+## 🔧 Customization Examples
 
-### 独自の設定オプション追加
+### Adding Custom Configuration Options
 ```javascript
 const fallbackInstance = new SidepanelFallback({
   defaultMode: 'auto',
   enablePerformanceTracking: true,
   enableCaching: true,
-  // カスタムオプション
+  // Custom options
   customOption: 'value'
 });
 ```
 
-### イベントリスナーの追加
+### Adding Event Listeners
 ```javascript
 fallbackInstance.on('modeChanged', (data) => {
-  console.log(`モード変更: ${data.oldMode} → ${data.newMode}`);
+  console.log(`Mode changed: ${data.oldMode} → ${data.newMode}`);
 });
 
 fallbackInstance.on('afterOpenPanel', (data) => {
-  console.log('パネル開始:', data);
+  console.log('Panel opened:', data);
 });
 ```
 
-## 🐛 トラブルシューティング
+## 🐛 Troubleshooting
 
-### 拡張機能が読み込まれない
-- `manifest.json` の書式が正しいか確認
-- `background.js` にシンタックスエラーがないか確認
-- Chrome DevTools のConsoleでエラーをチェック
+### Extension Won't Load
+- Check that `manifest.json` syntax is correct
+- Verify `background.js` has no syntax errors
+- Check Chrome DevTools Console for errors
 
-### サイドパネルが開かない
-- Chrome 114+ を使用しているか確認
-- `sidePanel` パーミッションが有効か確認
-- バックグラウンドスクリプトのログを確認
+### Sidepanel Won't Open
+- Confirm using Chrome 114+
+- Verify `sidePanel` permission is enabled
+- Check background script logs
 
-### ライブラリのエラー
-- `sidepanel-fallback.umd.js` が正しく配置されているか確認
-- ネットワークタブでファイルの読み込み状況を確認
+### Library Errors
+- Confirm `sidepanel-fallback.umd.js` is properly placed
+- Check Network tab for file loading status
 
-## 📚 参考リンク
+## 📚 Reference Links
 
 - [Chrome Extensions Developer Guide](https://developer.chrome.com/docs/extensions/)
 - [Side Panel API Documentation](https://developer.chrome.com/docs/extensions/reference/sidePanel/)
-- [sidepanel-fallback ライブラリ仕様](../../docs/usage.md)
+- [sidepanel-fallback Library Documentation](../../docs/usage.md)
 
-## 🎉 応用例
+## 🎉 Use Cases
 
-この例を参考に、以下のような機能を持つ拡張機能を作成できます：
+This example can be used as a reference for creating extensions with:
 
-- ブックマーク管理ツール
-- メモ・ToDo管理
-- パスワードマネージャー
-- 開発者ツール
-- ソーシャルメディア管理
-- オンライン学習ツール
+- Bookmark management tools
+- Note & ToDo management
+- Password managers
+- Developer tools
+- Social media management
+- Online learning tools
 
-各用途に応じて、UIとロジックをカスタマイズしてください。
+Customize the UI and logic according to your specific use case.
