@@ -1,10 +1,5 @@
 /**
- * Class to manage display mode settin  /**
-   * Set browser display mode
-   * @param {string} browser Browser identifier
-   * @param {string} mode Display mode ('sidepanel', 'window', 'auto')
-   * @returns {Promise<void>}
-   */ browser
+ * Class to manage display mode settings per browser
  * Uses localStorage or Chrome Extension Storage API
  */
 class ModeStorage {
@@ -22,8 +17,8 @@ class ModeStorage {
   }
 
   /**
-   * 入力値のバリデーション
-   * @param {string} browser ブラウザ名
+   * Input validation
+   * @param {string} browser Browser name
    * @param {string} mode Mode name
    */
   _validateInputs(browser, mode) {
@@ -38,7 +33,7 @@ class ModeStorage {
 
   /**
    * Generate storage key
-   * @param {string} browser ブラウザ名
+   * @param {string} browser Browser name
    * @returns {string}
    */
   _getStorageKey(browser) {
@@ -46,9 +41,9 @@ class ModeStorage {
   }
 
   /**
-   * ブラウザの表示モードを設定
-   * @param {string} browser ブラウザ名
-   * @param {string} mode 表示モード ('sidepanel', 'window', 'auto')
+   * Set browser display mode
+   * @param {string} browser Browser name
+   * @param {string} mode Display mode ('sidepanel', 'window', 'auto')
    * @returns {Promise<void>}
    */
   async setMode(browser, mode) {
@@ -57,7 +52,7 @@ class ModeStorage {
     const key = this._getStorageKey(browser);
 
     if (this._isExtensionContext()) {
-      // Chrome Extension環境
+      // Chrome Extension environment
       return new Promise((resolve, reject) => {
         const data = {};
         data[key] = mode;
@@ -71,15 +66,15 @@ class ModeStorage {
         });
       });
     } else {
-      // 通常のブラウザ環境（localStorage使用）
+      // Regular browser environment (using localStorage)
       localStorage.setItem(key, mode);
       return Promise.resolve();
     }
   }
 
   /**
-   * ブラウザの表示モードを取得
-   * @param {string} browser ブラウザ名
+   * Get the display mode for a browser
+   * @param {string} browser Browser name
    * @returns {Promise<string|null>} The configured mode, or null if not set
    */
   async getMode(browser) {
@@ -90,21 +85,21 @@ class ModeStorage {
     const key = this._getStorageKey(browser);
 
     if (this._isExtensionContext()) {
-      // Chrome Extension環境
+      // Chrome Extension environment
       return new Promise(resolve => {
         chrome.storage.sync.get(key, result => {
           resolve(result[key] || null);
         });
       });
     } else {
-      // 通常のブラウザ環境（localStorage使用）
+      // Regular browser environment (using localStorage)
       const value = localStorage.getItem(key);
       return Promise.resolve(value);
     }
   }
 
   /**
-   * 全ての設定を削除
+   * Delete all settings
    * @returns {Promise<void>}
    */
   async clear() {
@@ -115,7 +110,7 @@ class ModeStorage {
         });
       });
     } else {
-      // localStorage内の関連キーのみクリア
+      // Clear only related keys in localStorage
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);

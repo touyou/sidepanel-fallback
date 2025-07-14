@@ -51,8 +51,8 @@ export class PanelLauncher {
   }
 
   /**
-   * window.openを使ってポップアップを開く
-   * @param {string} path - 開くパネルのパス
+   * Open a popup using window.open
+   * @param {string} path - Path to the panel to open
    * @param {boolean} isFallback - Whether this is a fallback operation
    * @returns {Promise<{success: boolean, method: string, fallback?: boolean, error?: string}>}
    */

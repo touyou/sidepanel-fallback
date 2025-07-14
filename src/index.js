@@ -20,7 +20,7 @@ export class SidepanelFallback {
   }
 
   /**
-   * SidepanelFallbackを初期化する
+   * Initialize SidepanelFallback
    * @returns {Promise<{browser: string, mode: string}>}
    */
   async init() {
@@ -28,7 +28,7 @@ export class SidepanelFallback {
     const userAgent = this.options.userAgent || navigator.userAgent;
     this.browser = getBrowserInfo(userAgent);
 
-    // ストレージとランチャーを初期化
+    // Initialize storage and launcher
     this.storage = new ModeStorage();
     this.launcher = new PanelLauncher();
     this.settingsUI = new SettingsUI();
@@ -46,8 +46,8 @@ export class SidepanelFallback {
   }
 
   /**
-   * パネルを開く
-   * @param {string} path - パネルのパス
+   * Open a panel
+   * @param {string} path - Panel path
    * @returns {Promise<{success: boolean, method?: string, fallback?: boolean, error?: string}>}
    */
   async openPanel(path) {
@@ -75,8 +75,8 @@ export class SidepanelFallback {
   }
 
   /**
-   * 設定UIを作成してコンテナに追加する
-   * @param {HTMLElement} container - 設定UIを挿入するコンテナ要素
+   * Create settings UI and add it to a container
+   * @param {HTMLElement} container - Container element to insert the settings UI
    * @returns {Promise<{success: boolean, error?: string}>}
    */
   async withSettingsUI(container) {
@@ -94,7 +94,7 @@ export class SidepanelFallback {
       };
     }
 
-    // 設定変更時のコールバック
+    // Callback for settings changes
     const onSettingsChange = async newSettings => {
       if (newSettings.mode) {
         await this.storage.setMode(this.browser, newSettings.mode);
@@ -102,20 +102,20 @@ export class SidepanelFallback {
       }
     };
 
-    // 設定パネルを作成
+    // Create settings panel
     const settingsPanel = this.settingsUI.createSettingsPanel(
       { mode: this.mode },
       onSettingsChange
     );
 
-    // コンテナに追加
+    // Add to container
     container.appendChild(settingsPanel);
 
     return { success: true };
   }
 
   /**
-   * 現在の設定を取得する
+   * Get current settings
    * @returns {{browser: string, mode: string} | null}
    */
   getCurrentSettings() {
@@ -130,17 +130,17 @@ export class SidepanelFallback {
   }
 
   /**
-   * autoモードでの実際のモードを決定する
+   * Determine the actual mode in auto mode
    * @returns {string}
    * @private
    */
   _getAutoMode() {
-    // Chrome系ブラウザ（Chrome, Edge, Dia）はsidepanel対応
+    // Chrome-based browsers (Chrome, Edge, Dia) support sidepanel
     if (['chrome', 'edge', 'dia'].includes(this.browser)) {
       return 'sidepanel';
     }
 
-    // Firefox, Safari, その他はwindow
+    // Firefox, Safari, and others use window
     return 'window';
   }
 }
