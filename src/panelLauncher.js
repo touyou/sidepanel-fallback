@@ -20,10 +20,15 @@ export class PanelLauncher {
     if (mode === 'sidepanel') {
       if (this.isExtensionContext()) {
         try {
-          await chrome.sidePanel.open({ path });
+          // Set the sidepanel path if provided
+          if (path) {
+            await chrome.sidePanel.setOptions({ path });
+          }
+          // Open the sidepanel (uses current active tab)
+          await chrome.sidePanel.open();
           return { success: true, method: 'sidepanel' };
         } catch (_error) {
-          // Fallback to window on error
+          // Fallback to window on error (either setOptions or open failed)
           return this._openWindow(path, true);
         }
       } else {
@@ -46,7 +51,8 @@ export class PanelLauncher {
     return !!(
       typeof chrome !== 'undefined' &&
       chrome.sidePanel &&
-      typeof chrome.sidePanel.open === 'function'
+      typeof chrome.sidePanel.open === 'function' &&
+      typeof chrome.sidePanel.setOptions === 'function'
     );
   }
 
@@ -55,11 +61,7 @@ export class PanelLauncher {
    * @returns {boolean}
    */
   isChromeExtensionContext() {
-    return !!(
-      typeof chrome !== 'undefined' &&
-      chrome.runtime &&
-      chrome.runtime.id
-    );
+    return !!(typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id);
   }
 
   /**
@@ -73,11 +75,12 @@ export class PanelLauncher {
     if (this.isChromeExtensionContext()) {
       try {
         // Resolve relative paths for Chrome Extension context
-        const resolvedPath = path.startsWith('chrome-extension://') || path.startsWith('http') 
-          ? path 
-          : chrome.runtime.getURL(path);
-          
-        const window = await chrome.windows.create({
+        const resolvedPath =
+          path.startsWith('chrome-extension://') || path.startsWith('http')
+            ? path
+            : chrome.runtime.getURL(path);
+
+        const _window = await chrome.windows.create({
           url: resolvedPath,
           type: 'popup',
           width: 400,

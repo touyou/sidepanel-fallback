@@ -93,7 +93,11 @@ const createBrowserEnvironment = (browserType, hasExtensionAPI = false) => {
         }
       },
       runtime: {
-        id: 'test-extension-id'
+        id: 'test-extension-id',
+        getURL: jest.fn().mockImplementation(path => `chrome-extension://test-extension-id${path}`)
+      },
+      windows: {
+        create: jest.fn().mockResolvedValue({ id: 1 })
       }
     };
   } else {
@@ -144,9 +148,10 @@ describe('End-to-End Tests', () => {
       const openResult = await fallback.openPanel('/extension-panel.html');
       expect(openResult.success).toBe(true);
       expect(openResult.method).toBe('sidepanel');
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith({
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({
         path: '/extension-panel.html'
       });
+      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
 
       // Create settings UI
       const container = document.createElement('div');
@@ -172,7 +177,7 @@ describe('End-to-End Tests', () => {
       expect(result.success).toBe(true);
       expect(result.fallback).toBe(true);
       expect(result.method).toBe('window');
-      expect(window.open).toHaveBeenCalled();
+      expect(chrome.windows.create).toHaveBeenCalled();
     });
   });
 
@@ -366,10 +371,11 @@ describe('End-to-End Tests', () => {
 
       results.forEach((result, index) => {
         expect(result.success).toBe(true);
-        expect(chrome.sidePanel.open).toHaveBeenCalledWith({
+        expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({
           path: `/panel-${index}.html`
         });
       });
+      expect(chrome.sidePanel.open).toHaveBeenCalledTimes(5);
     });
 
     it('should handle settings changes during panel operations', async () => {
@@ -396,7 +402,7 @@ describe('End-to-End Tests', () => {
       const result = await fallback.openPanel('/new-panel.html');
       expect(result.success).toBe(true);
       expect(result.method).toBe('window');
-      expect(window.open).toHaveBeenCalled();
+      expect(chrome.windows.create).toHaveBeenCalled();
     });
 
     it('should handle network errors gracefully', async () => {
@@ -404,6 +410,7 @@ describe('End-to-End Tests', () => {
 
       // Mock network-like errors
       chrome.sidePanel.open.mockRejectedValue(new Error('Network error'));
+      chrome.windows.create.mockRejectedValue(new Error('Window creation failed'));
       window.open.mockReturnValue(null);
 
       fallback = new SidepanelFallback({

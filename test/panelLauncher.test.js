@@ -16,14 +16,16 @@ describe('PanelLauncher', () => {
       // Chrome Extension環境のモック
       global.chrome = {
         sidePanel: {
-          open: jest.fn().mockResolvedValue(undefined)
+          open: jest.fn().mockResolvedValue(undefined),
+          setOptions: jest.fn().mockResolvedValue(undefined)
         }
       };
 
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('sidepanel', '/panel.html');
 
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith({ path: '/panel.html' });
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: '/panel.html' });
+      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
       expect(result).toEqual({ success: true, method: 'sidepanel' });
     });
 
@@ -63,7 +65,8 @@ describe('PanelLauncher', () => {
     it('falls back to window when chrome.sidePanel.open throws error in sidepanel mode', async () => {
       global.chrome = {
         sidePanel: {
-          open: jest.fn().mockRejectedValue(new Error('Permission denied'))
+          open: jest.fn().mockRejectedValue(new Error('Permission denied')),
+          setOptions: jest.fn().mockResolvedValue(undefined)
         }
       };
       const mockWindow = { focus: jest.fn() };
@@ -72,7 +75,8 @@ describe('PanelLauncher', () => {
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('sidepanel', '/panel.html');
 
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith({ path: '/panel.html' });
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: '/panel.html' });
+      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
       expect(global.window.open).toHaveBeenCalledWith(
         '/panel.html',
         'sidepanel_fallback',
@@ -97,7 +101,7 @@ describe('PanelLauncher', () => {
       global.chrome = {
         runtime: {
           id: 'extension-id',
-          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+          getURL: jest.fn().mockImplementation(path => `chrome-extension://extension-id${path}`)
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
@@ -121,10 +125,11 @@ describe('PanelLauncher', () => {
       global.chrome = {
         runtime: {
           id: 'extension-id',
-          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+          getURL: jest.fn().mockImplementation(path => `chrome-extension://extension-id${path}`)
         },
         sidePanel: {
-          open: jest.fn().mockRejectedValue(new Error('Permission denied'))
+          open: jest.fn().mockRejectedValue(new Error('Permission denied')),
+          setOptions: jest.fn().mockResolvedValue(undefined)
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
@@ -134,7 +139,8 @@ describe('PanelLauncher', () => {
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('sidepanel', '/panel.html');
 
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith({ path: '/panel.html' });
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: '/panel.html' });
+      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
       expect(chrome.windows.create).toHaveBeenCalledWith({
         url: 'chrome-extension://extension-id/panel.html',
         type: 'popup',
@@ -149,7 +155,7 @@ describe('PanelLauncher', () => {
       global.chrome = {
         runtime: {
           id: 'extension-id',
-          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+          getURL: jest.fn().mockImplementation(path => `chrome-extension://extension-id${path}`)
         },
         windows: {
           create: jest.fn().mockRejectedValue(new Error('Windows API error'))
@@ -169,7 +175,7 @@ describe('PanelLauncher', () => {
       global.chrome = {
         runtime: {
           id: 'extension-id',
-          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+          getURL: jest.fn().mockImplementation(path => `chrome-extension://extension-id${path}`)
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
@@ -177,7 +183,10 @@ describe('PanelLauncher', () => {
       };
 
       const launcher = new PanelLauncher();
-      const result = await launcher.openPanel('window', 'chrome-extension://extension-id/panel.html');
+      const result = await launcher.openPanel(
+        'window',
+        'chrome-extension://extension-id/panel.html'
+      );
 
       expect(chrome.windows.create).toHaveBeenCalledWith({
         url: 'chrome-extension://extension-id/panel.html',
@@ -218,7 +227,8 @@ describe('PanelLauncher', () => {
     it('returns true when chrome.sidePanel API is available', () => {
       global.chrome = {
         sidePanel: {
-          open: jest.fn()
+          open: jest.fn(),
+          setOptions: jest.fn()
         }
       };
 

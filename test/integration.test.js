@@ -76,7 +76,8 @@ const mockDOM = () => {
   // Mock Chrome Extension API
   global.chrome = {
     sidePanel: {
-      open: jest.fn().mockResolvedValue(undefined)
+      open: jest.fn().mockResolvedValue(undefined),
+      setOptions: jest.fn().mockResolvedValue(undefined)
     },
     storage: {
       local: {
@@ -222,9 +223,10 @@ describe('Integration Tests', () => {
       const result = await fallback.openPanel('/test-panel.html');
 
       expect(result.success).toBe(true);
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith({
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({
         path: '/test-panel.html'
       });
+      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
     });
 
     it('should fallback to window mode when sidepanel fails', async () => {
