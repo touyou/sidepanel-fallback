@@ -2,13 +2,13 @@ export class PanelLauncher {
   constructor() {}
 
   /**
-   * パネルを開く（sidepanelまたはwindowモード）
-   * @param {string} mode - 'sidepanel' または 'window'
-   * @param {string} path - 開くパネルのパス
+   * Open a panel (sidepanel or window mode)
+   * @param {string} mode - 'sidepanel' or 'window'
+   * @param {string} path - Path of the panel to open
    * @returns {Promise<{success: boolean, method?: string, fallback?: boolean, error?: string}>}
    */
   async openPanel(mode, path) {
-    // モード検証
+    // Mode validation
     if (mode !== 'sidepanel' && mode !== 'window') {
       return {
         success: false,
@@ -16,30 +16,30 @@ export class PanelLauncher {
       };
     }
 
-    // sidepanelモードの場合
+    // sidepanel mode case
     if (mode === 'sidepanel') {
       if (this.isExtensionContext()) {
         try {
           await chrome.sidePanel.open({ path });
           return { success: true, method: 'sidepanel' };
         } catch (_error) {
-          // エラーの場合はwindowにフォールバック
+          // Fallback to window on error
           return this._openWindow(path, true);
         }
       } else {
-        // Extension contextでない場合はwindowにフォールバック
+        // Fallback to window when not in Extension context
         return this._openWindow(path, true);
       }
     }
 
-    // windowモードの場合
+    // window mode case
     if (mode === 'window') {
       return this._openWindow(path, false);
     }
   }
 
   /**
-   * Chrome Extension contextでsidePanelが利用可能かチェック
+   * Check if sidepanel is available in Chrome Extension context
    * @returns {boolean}
    */
   isExtensionContext() {
@@ -53,7 +53,7 @@ export class PanelLauncher {
   /**
    * window.openを使ってポップアップを開く
    * @param {string} path - 開くパネルのパス
-   * @param {boolean} isFallback - フォールバックかどうか
+   * @param {boolean} isFallback - Whether this is a fallback operation
    * @returns {Promise<{success: boolean, method: string, fallback?: boolean, error?: string}>}
    */
   async _openWindow(path, isFallback) {

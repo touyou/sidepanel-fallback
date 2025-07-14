@@ -71,3 +71,49 @@ scripts/                # Utility scripts
 - **Consistent method signatures** across all modules
 - **Promise-based async operations** for better error handling
 - **Configuration over convention** where it improves usability
+
+## CHANGELOG Management
+
+### AI Development Instructions
+
+When working on this project as an AI assistant, **always update the CHANGELOG.md** after completing any significant work:
+
+1. **Add entries to the [Unreleased] section** for any changes made
+2. **Use appropriate categories**: Added, Changed, Fixed, Removed, Security
+3. **Write clear, user-focused descriptions** of what changed and why
+4. **Include breaking changes** with BREAKING prefix when applicable
+5. **Follow Keep a Changelog format** consistently
+
+### CHANGELOG Update Process
+
+- **During development**: Add entries to [Unreleased] section
+- **Before release**: Entries will be automatically moved to versioned section
+- **Categories to use**:
+  - **Added**: New features or capabilities
+  - **Changed**: Changes to existing functionality  
+  - **Fixed**: Bug fixes and corrections
+  - **Removed**: Removed features or deprecated functionality
+  - **Security**: Security-related changes
+
+### Example Entry Format
+
+```markdown
+### Added
+- New browser detection for Edge browser support
+- Automatic fallback mechanism for sidepanel API failures
+
+### Changed  
+- **BREAKING**: Updated minimum Node.js requirement to 18.18.0
+- Improved error handling in panel launcher
+
+### Fixed
+- Fixed ESLint configuration for catch block variables
+```
+
+### Release Process
+
+The release workflow automatically:
+- Moves [Unreleased] content to a versioned section
+- Creates new empty [Unreleased] section
+- Updates version comparison links
+- Generates GitHub release notes from CHANGELOG content

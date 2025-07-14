@@ -1,6 +1,6 @@
 /**
- * ブラウザごとの表示モード設定を管理するクラス
- * localStorage または Chrome Extension Storage API を使用
+ * Class to manage display mode settings per browser
+ * Uses localStorage or Chrome Extension Storage API
  */
 class ModeStorage {
   constructor() {
@@ -9,7 +9,7 @@ class ModeStorage {
   }
 
   /**
-   * Chrome Extension環境かどうかを判定
+   * Check if running in Chrome Extension environment
    * @returns {boolean}
    */
   _isExtensionContext() {
@@ -75,7 +75,7 @@ class ModeStorage {
   /**
    * ブラウザの表示モードを取得
    * @param {string} browser ブラウザ名
-   * @returns {Promise<string|null>} 設定されたモード、未設定の場合はnull
+   * @returns {Promise<string|null>} The configured mode, or null if not set
    */
   async getMode(browser) {
     if (!browser || typeof browser !== 'string' || browser.trim() === '') {

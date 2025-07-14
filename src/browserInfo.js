@@ -1,7 +1,7 @@
 /**
- * User Agentストリングからブラウザ情報を判定する
- * @param {string} userAgent - User Agentストリング
- * @returns {string} ブラウザ名（'chrome', 'firefox', 'safari', 'edge', 'dia', 'unknown'）
+ * Determine browser information from User Agent string
+ * @param {string} userAgent - User Agent string
+ * @returns {string} Browser name ('chrome', 'firefox', 'safari', 'edge', 'dia', 'unknown')
  */
 function getBrowserInfo(userAgent) {
   if (!userAgent || typeof userAgent !== 'string') {
@@ -10,27 +10,27 @@ function getBrowserInfo(userAgent) {
 
   const ua = userAgent.toLowerCase();
 
-  // Dia（カスタムブラウザ）の判定
+  // Dia (custom browser) detection
   if (ua.includes('dia/')) {
     return 'dia';
   }
 
-  // EdgeはChromeより先に判定する必要がある（Chrome UAも含むため）
+  // Edge must be detected before Chrome (since it includes Chrome UA)
   if (ua.includes('edg/')) {
     return 'edge';
   }
 
-  // Chrome判定
+  // Chrome detection
   if (ua.includes('chrome/')) {
     return 'chrome';
   }
 
-  // Firefox判定
+  // Firefox detection
   if (ua.includes('firefox/')) {
     return 'firefox';
   }
 
-  // Safari判定（SafariかつWebkitの場合）
+  // Safari detection (Safari and Webkit)
   if (ua.includes('safari/') && ua.includes('webkit/') && !ua.includes('chrome/')) {
     return 'safari';
   }

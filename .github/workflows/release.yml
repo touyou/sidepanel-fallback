@@ -42,18 +42,18 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
           DATE=$(date +%Y-%m-%d)
-
-          # Create backup
+          
+          # Create backup of original CHANGELOG
           cp CHANGELOG.md CHANGELOG.md.bak
-
-          # Replace [Unreleased] with version and date
+          
+          # Replace [Unreleased] section with version and date
           sed -i "s/## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
-
-          # Add new Unreleased section
+          
+          # Add new empty Unreleased section at the top
           sed -i "/## \[$VERSION\] - $DATE/i ## [Unreleased]\n" CHANGELOG.md
           sed -i "/## \[Unreleased\]/a \n### Added\n\n### Changed\n\n### Fixed\n\n### Removed\n" CHANGELOG.md
-
-          # Update comparison links
+          
+          # Update version comparison links
           sed -i "s|\[Unreleased\]: https://github.com/touyou/sidepanel-fallback/compare/v.*\.\.\.HEAD|[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/v$VERSION...HEAD|" CHANGELOG.md
           sed -i "/\[Unreleased\]:/a [$VERSION]: https://github.com/touyou/sidepanel-fallback/compare/v1.0.0...v$VERSION" CHANGELOG.md
 
