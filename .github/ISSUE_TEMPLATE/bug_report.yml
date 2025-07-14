@@ -101,7 +101,6 @@ body:
       render: javascript
       placeholder: |
         import SidepanelFallback from 'sidepanel-fallback';
-
         SidepanelFallback.init();
         // Your code here...
 
