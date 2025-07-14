@@ -27,6 +27,7 @@
     "test:coverage:summary": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" jest --coverage --coverageReporters=text-summary",
     "dev": "vite",
     "build": "vite build",
+    "build:examples": "npm run build && ./scripts/copy-to-examples.sh",
     "health-check": "node scripts/health-check.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

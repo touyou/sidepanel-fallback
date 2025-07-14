@@ -97,19 +97,26 @@ const fallback = new SidepanelFallback({
 
 ## Examples
 
-### Chrome Extension
+### 🎯 Working Chrome Extension
 
-```javascript
-// background.js
-import { SidepanelFallback } from 'sidepanel-fallback';
+A complete, production-ready Chrome Extension example is available in
+[`examples/chrome-extension/`](examples/chrome-extension/). This demonstrates
+all library features in a real extension:
 
-const fallback = new SidepanelFallback();
-await fallback.init();
+- **Manifest V3** compatibility
+- **Automatic fallback** between sidepanel and popup window
+- **Settings UI** with persistent preferences
+- **Performance monitoring** and caching
+- **Japanese UI** for better user experience
 
-chrome.action.onClicked.addListener(async () => {
-  await fallback.openPanel('panel.html');
-});
+**Quick Start:**
+
+```bash
+npm run build
+# Load examples/chrome-extension/ in chrome://extensions/
 ```
+
+📖 [View Complete Chrome Extension Example →](examples/chrome-extension/)
 
 ### Web Application
 
