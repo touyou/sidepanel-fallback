@@ -220,7 +220,8 @@ test/
 └── testUtils.js         # Testing utilities
 ```
 
-Each module is fully tested with enterprise-level test coverage including unit tests, integration tests, end-to-end tests, and performance benchmarks.
+Each module is fully tested with enterprise-level test coverage including unit
+tests, integration tests, end-to-end tests, and performance benchmarks.
 
 ## Contributing
 
