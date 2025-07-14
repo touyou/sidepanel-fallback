@@ -3,9 +3,18 @@ import { ModeStorage } from './modeStorage.js';
 import { PanelLauncher } from './panelLauncher.js';
 import { SettingsUI } from './settingsUI.js';
 import { ErrorCodes, createErrorResult, createSuccessResult } from './errorHandling.js';
+import { createValidatedConfig } from './configValidation.js';
+import { smartNormalize } from './resultNormalizer.js';
 
 export class SidepanelFallback {
   constructor(options = {}) {
+    // Validate configuration first, but fall back to original behavior for now
+    const validationResult = this._validateConfig(options);
+    if (!validationResult.success && options.strictValidation) {
+      throw new Error(validationResult.error?.message || 'Invalid configuration');
+    }
+
+    // Use original options merging for backward compatibility
     this.options = {
       defaultMode: 'auto',
       userAgent: null,
@@ -18,6 +27,22 @@ export class SidepanelFallback {
     this.launcher = null;
     this.settingsUI = null;
     this.initialized = false;
+  }
+
+  /**
+   * Validate configuration (internal method)
+   * @param {object} config - Configuration to validate
+   * @returns {object} Validation result
+   * @private
+   */
+  _validateConfig(config) {
+    try {
+      return createValidatedConfig(config);
+    } catch (error) {
+      return createErrorResult(ErrorCodes.VALIDATION_ERROR, 'Configuration validation failed', {
+        originalError: error.message
+      });
+    }
   }
 
   /**
@@ -45,15 +70,21 @@ export class SidepanelFallback {
 
       this.initialized = true;
 
-      return createSuccessResult({
-        browser: this.browser,
-        mode: this.mode
-      }, {
-        userAgent: userAgent.substring(0, 50) + '...', // Truncated for logging
-        defaultMode: this.options.defaultMode
-      });
+      const result = createSuccessResult(
+        {
+          browser: this.browser,
+          mode: this.mode
+        },
+        {
+          userAgent: userAgent.substring(0, 50) + '...', // Truncated for logging
+          defaultMode: this.options.defaultMode
+        }
+      );
+
+      // Normalize for backward compatibility
+      return smartNormalize(result, 'init');
     } catch (error) {
-      return createErrorResult(
+      const errorResult = createErrorResult(
         ErrorCodes.INIT_FAILED,
         `Initialization failed: ${error.message}`,
         {
@@ -62,6 +93,9 @@ export class SidepanelFallback {
           originalError: error.message
         }
       );
+
+      // For init errors, throw the error for backward compatibility
+      throw new Error(errorResult.error);
     }
   }
 
@@ -72,19 +106,19 @@ export class SidepanelFallback {
    */
   async openPanel(path) {
     if (!this.initialized) {
-      return createErrorResult(
+      const errorResult = createErrorResult(
         ErrorCodes.NOT_INITIALIZED,
         'SidepanelFallback not initialized. Call init() first.',
         { path }
       );
+      return smartNormalize(errorResult, 'openPanel');
     }
 
     if (!path) {
-      return createErrorResult(
-        ErrorCodes.INVALID_PATH,
-        'Panel path is required',
-        { providedPath: path }
-      );
+      const errorResult = createErrorResult(ErrorCodes.INVALID_PATH, 'Panel path is required', {
+        providedPath: path
+      });
+      return smartNormalize(errorResult, 'openPanel');
     }
 
     // Determine mode
@@ -95,22 +129,24 @@ export class SidepanelFallback {
 
     try {
       const result = await this.launcher.openPanel(actualMode, path);
-      return createSuccessResult(result, { 
+      const successResult = createSuccessResult(result, {
         requestedMode: this.mode,
         effectiveMode: actualMode,
         browser: this.browser
       });
+      return smartNormalize(successResult, 'openPanel');
     } catch (error) {
-      return createErrorResult(
+      const errorResult = createErrorResult(
         ErrorCodes.PANEL_OPEN_FAILED,
         `Failed to open panel: ${error.message}`,
-        { 
-          path, 
-          mode: actualMode, 
+        {
+          path,
+          mode: actualMode,
           browser: this.browser,
           originalError: error.message
         }
       );
+      return smartNormalize(errorResult, 'openPanel');
     }
   }
 
@@ -121,19 +157,23 @@ export class SidepanelFallback {
    */
   async withSettingsUI(container) {
     if (!this.initialized) {
-      return createErrorResult(
+      const errorResult = createErrorResult(
         ErrorCodes.NOT_INITIALIZED,
         'SidepanelFallback not initialized. Call init() first.',
         { container }
       );
+      return smartNormalize(errorResult, 'settings');
     }
 
     if (!container) {
-      return createErrorResult(
+      const errorResult = createErrorResult(
         ErrorCodes.INVALID_CONTAINER,
         'Container element is required',
-        { providedContainer: container }
+        {
+          providedContainer: container
+        }
       );
+      return smartNormalize(errorResult, 'settings');
     }
 
     // Callback for settings changes
@@ -154,20 +194,25 @@ export class SidepanelFallback {
       // Add to container
       container.appendChild(settingsPanel);
 
-      return createSuccessResult({}, { 
-        browser: this.browser,
-        currentMode: this.mode
-      });
+      const successResult = createSuccessResult(
+        {},
+        {
+          browser: this.browser,
+          currentMode: this.mode
+        }
+      );
+      return smartNormalize(successResult, 'settings');
     } catch (error) {
-      return createErrorResult(
+      const errorResult = createErrorResult(
         ErrorCodes.UI_CREATION_FAILED,
         `Failed to create settings UI: ${error.message}`,
-        { 
+        {
           browser: this.browser,
           mode: this.mode,
           originalError: error.message
         }
       );
+      return smartNormalize(errorResult, 'settings');
     }
   }
 

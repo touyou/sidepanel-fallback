@@ -64,10 +64,96 @@ export interface CurrentSettings {
 }
 
 /**
+ * Enhanced result structures with metadata support
+ */
+export interface ResultMetadata {
+  timestamp: string;
+  [key: string]: any;
+}
+
+export interface ResultContext {
+  timestamp: string;
+  [key: string]: any;
+}
+
+export interface StructuredResult<T = any> {
+  success: boolean;
+  error?: string;
+  errorCode?: string;
+  metadata?: ResultMetadata;
+  context?: ResultContext;
+}
+
+export interface StructuredSuccessResult<T = any> extends StructuredResult<T> {
+  success: true;
+  metadata: ResultMetadata;
+}
+
+export interface StructuredErrorResult extends StructuredResult {
+  success: false;
+  error: string;
+  errorCode: string;
+  context: ResultContext;
+}
+
+/**
+ * Configuration and validation types
+ */
+export interface SidepanelFallbackConfig {
+  defaultMode?: 'auto' | 'sidepanel' | 'window';
+  userAgent?: string;
+  storagePrefix?: string;
+  enableDebugMode?: boolean;
+  validModes?: string[];
+  supportedBrowsers?: string[];
+  strictValidation?: boolean;
+}
+
+export interface ValidationResult {
+  success: boolean;
+  error?: string;
+  errors?: Array<{
+    key: string;
+    error: string;
+    context?: any;
+  }>;
+  providedConfig?: any;
+}
+
+/**
+ * Error codes for different types of failures
+ */
+export enum ErrorCodes {
+  // Initialization errors
+  INIT_FAILED = 'INIT_FAILED',
+  BROWSER_DETECTION_FAILED = 'BROWSER_DETECTION_FAILED',
+  STORAGE_INIT_FAILED = 'STORAGE_INIT_FAILED',
+
+  // Input validation errors
+  INVALID_INPUT = 'INVALID_INPUT',
+  INVALID_BROWSER = 'INVALID_BROWSER',
+  INVALID_MODE = 'INVALID_MODE',
+  INVALID_PATH = 'INVALID_PATH',
+  INVALID_CONTAINER = 'INVALID_CONTAINER',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
+
+  // Operation errors
+  NOT_INITIALIZED = 'NOT_INITIALIZED',
+  PANEL_OPEN_FAILED = 'PANEL_OPEN_FAILED',
+  STORAGE_OPERATION_FAILED = 'STORAGE_OPERATION_FAILED',
+  UI_CREATION_FAILED = 'UI_CREATION_FAILED',
+
+  // Browser/API errors
+  SIDEPANEL_API_UNAVAILABLE = 'SIDEPANEL_API_UNAVAILABLE',
+  POPUP_BLOCKED = 'POPUP_BLOCKED',
+  EXTENSION_CONTEXT_INVALID = 'EXTENSION_CONTEXT_INVALID'
+}
+
+/**
  * Main SidepanelFallback class
  */
 export declare class SidepanelFallback {
-  constructor(options?: SidepanelFallbackOptions);
+  constructor(options?: SidepanelFallbackConfig);
 
   /**
    * Initialize the fallback system

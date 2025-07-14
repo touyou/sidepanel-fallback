@@ -56,11 +56,10 @@ function validateConfigValue(key, value, schema) {
   // Handle optional values
   if (value === undefined) {
     if (schema.required) {
-      return createErrorResult(
-        ErrorCodes.INVALID_INPUT,
-        `Configuration key '${key}' is required`,
-        { key, schema }
-      );
+      return createErrorResult(ErrorCodes.INVALID_INPUT, `Configuration key '${key}' is required`, {
+        key,
+        schema
+      });
     }
     return { success: true };
   }
@@ -115,11 +114,9 @@ function validateConfigValue(key, value, schema) {
  */
 export function validateConfiguration(config) {
   if (!config || typeof config !== 'object') {
-    return createErrorResult(
-      ErrorCodes.INVALID_INPUT,
-      'Configuration must be an object',
-      { providedConfig: config }
-    );
+    return createErrorResult(ErrorCodes.INVALID_INPUT, 'Configuration must be an object', {
+      providedConfig: config
+    });
   }
 
   const errors = [];
@@ -127,7 +124,7 @@ export function validateConfiguration(config) {
   // Validate each provided configuration key
   for (const [key, value] of Object.entries(config)) {
     const schema = CONFIG_SCHEMA[key];
-    
+
     if (!schema) {
       errors.push({
         key,
@@ -193,7 +190,7 @@ export function createValidatedConfig(userConfig = {}) {
  */
 export function getConfigurationDocs() {
   const docs = {};
-  
+
   for (const [key, schema] of Object.entries(CONFIG_SCHEMA)) {
     docs[key] = {
       type: schema.type,
