@@ -1,13 +1,18 @@
 # Sidepanel Fallback Examples
 
-This directory contains practical usage examples for the `sidepanel-fallback` library.
+This directory contains practical usage examples for the `sidepanel-fallback`
+library.
 
 ## 📁 Available Examples
 
 ### [Chrome Extension Example](./chrome-extension/)
-A complete working Chrome Extension implementation example. Experience all features of the library in a real extension including sidepanel and popup window fallback functionality, settings UI, performance tracking, and more.
+
+A complete working Chrome Extension implementation example. Experience all
+features of the library in a real extension including sidepanel and popup window
+fallback functionality, settings UI, performance tracking, and more.
 
 **Key Features:**
+
 - ✅ Manifest V3 compatible
 - ✅ Automatic sidepanel ↔ popup fallback
 - ✅ Settings UI component implementation
@@ -51,9 +56,10 @@ Each example includes detailed README files:
 ## 🔧 Customization Guide
 
 ### Library Configuration Options
+
 ```javascript
 const fallbackInstance = new SidepanelFallback({
-  defaultMode: 'auto',          // 'auto' | 'sidepanel' | 'window'
+  defaultMode: 'auto', // 'auto' | 'sidepanel' | 'window'
   enablePerformanceTracking: true,
   enableCaching: true,
   enableLazyLoading: true
@@ -61,19 +67,20 @@ const fallbackInstance = new SidepanelFallback({
 ```
 
 ### Event Handling
+
 ```javascript
 // Browser detection event
-fallbackInstance.on('browserDetected', (data) => {
+fallbackInstance.on('browserDetected', data => {
   console.log('Detected browser:', data.browser);
 });
 
 // Mode change event
-fallbackInstance.on('modeChanged', (data) => {
+fallbackInstance.on('modeChanged', data => {
   console.log(`${data.oldMode} → ${data.newMode}`);
 });
 
 // Panel open event
-fallbackInstance.on('afterOpenPanel', (data) => {
+fallbackInstance.on('afterOpenPanel', data => {
   console.log('Panel opened:', data.method);
 });
 ```
@@ -81,15 +88,17 @@ fallbackInstance.on('afterOpenPanel', (data) => {
 ## 🎯 Use Case Implementation Examples
 
 ### 1. Basic Sidepanel Extension
+
 ```javascript
 // background.js
-chrome.action.onClicked.addListener(async (tab) => {
+chrome.action.onClicked.addListener(async tab => {
   const result = await fallbackInstance.openPanel('panel.html');
   console.log('Panel open result:', result);
 });
 ```
 
 ### 2. Application with Settings
+
 ```javascript
 // panel.js
 // Automatically add settings UI
@@ -98,6 +107,7 @@ await fallbackInstance.withSettingsUI(settingsContainer);
 ```
 
 ### 3. Performance Monitoring
+
 ```javascript
 // Get performance statistics
 const stats = fallbackInstance.getPerformanceStats();
@@ -125,12 +135,12 @@ console.log('Memory usage:', stats.memorySnapshots);
 
 ```javascript
 // Monitor debug events
-fallbackInstance.on('debug', (data) => {
+fallbackInstance.on('debug', data => {
   console.log('Debug info:', data);
 });
 
 // Monitor error events
-fallbackInstance.on('error', (data) => {
+fallbackInstance.on('error', data => {
   console.error('Error occurred:', data);
 });
 ```

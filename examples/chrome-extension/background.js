@@ -25,25 +25,24 @@ async function initializeFallback() {
     console.log('Sidepanel Fallback initialized:', result);
 
     // Listen for fallback events
-    fallbackInstance.on('browserDetected', (data) => {
+    fallbackInstance.on('browserDetected', data => {
       console.log('Browser detected:', data.browser);
     });
 
-    fallbackInstance.on('modeChanged', (data) => {
+    fallbackInstance.on('modeChanged', data => {
       console.log('Display mode changed:', data.oldMode, '->', data.newMode);
     });
 
-    fallbackInstance.on('afterOpenPanel', (data) => {
+    fallbackInstance.on('afterOpenPanel', data => {
       console.log('Panel opened:', data);
     });
-
   } catch (error) {
     console.error('Failed to initialize sidepanel fallback:', error);
   }
 }
 
 // Handle extension installation
-chrome.runtime.onInstalled.addListener(async (details) => {
+chrome.runtime.onInstalled.addListener(async details => {
   console.log('Extension installed:', details.reason);
   await initializeFallback();
 });
@@ -55,9 +54,9 @@ chrome.runtime.onStartup.addListener(async () => {
 });
 
 // Handle action button click (toolbar icon)
-chrome.action.onClicked.addListener(async (tab) => {
+chrome.action.onClicked.addListener(async tab => {
   console.log('Action clicked for tab:', tab.id);
-  
+
   if (!fallbackInstance) {
     console.log('Fallback not initialized, initializing now...');
     await initializeFallback();
@@ -67,7 +66,7 @@ chrome.action.onClicked.addListener(async (tab) => {
     // Attempt to open the panel using the fallback library
     const result = await fallbackInstance.openPanel('sidepanel.html');
     console.log('Panel open result:', result);
-    
+
     // If sidepanel method failed or not available, try popup fallback
     if (!result.success && result.method !== 'sidepanel') {
       console.log('Sidepanel not available, using popup fallback...');
@@ -96,7 +95,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 // Handle messages from content scripts or popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('Message received:', message);
-  
+
   switch (message.type) {
     case 'GET_SETTINGS':
       if (fallbackInstance) {
@@ -106,7 +105,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ success: false, error: 'Fallback not initialized' });
       }
       break;
-      
+
     case 'GET_PERFORMANCE_STATS':
       if (fallbackInstance) {
         const stats = fallbackInstance.getPerformanceStats();
@@ -115,7 +114,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ success: false, error: 'Fallback not initialized' });
       }
       break;
-      
+
     case 'CLEAR_CACHE':
       if (fallbackInstance) {
         fallbackInstance.clearPerformanceCaches(message.cacheType || 'all');
@@ -124,16 +123,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ success: false, error: 'Fallback not initialized' });
       }
       break;
-      
+
     default:
       sendResponse({ success: false, error: 'Unknown message type' });
   }
-  
+
   return true; // Keep message channel open for async response
 });
 
 // Handle any errors
-self.addEventListener('error', (event) => {
+self.addEventListener('error', event => {
   console.error('Background script error:', event.error);
 });
 

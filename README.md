@@ -99,7 +99,9 @@ const fallback = new SidepanelFallback({
 
 ### 🎯 Working Chrome Extension
 
-A complete, production-ready Chrome Extension example is available in [`examples/chrome-extension/`](examples/chrome-extension/). This demonstrates all library features in a real extension:
+A complete, production-ready Chrome Extension example is available in
+[`examples/chrome-extension/`](examples/chrome-extension/). This demonstrates
+all library features in a real extension:
 
 - **Manifest V3** compatibility
 - **Automatic fallback** between sidepanel and popup window
@@ -108,6 +110,7 @@ A complete, production-ready Chrome Extension example is available in [`examples
 - **Japanese UI** for better user experience
 
 **Quick Start:**
+
 ```bash
 npm run build
 # Load examples/chrome-extension/ in chrome://extensions/

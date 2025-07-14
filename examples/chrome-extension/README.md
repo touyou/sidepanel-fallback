@@ -1,13 +1,14 @@
 # Chrome Extension Example
 
-This example demonstrates how to use the `sidepanel-fallback` library in a real Chrome Extension.
+This example demonstrates how to use the `sidepanel-fallback` library in a real
+Chrome Extension.
 
 ## 📁 File Structure
 
 ```
 chrome-extension/
 ├── manifest.json           # Chrome Extension configuration file
-├── background.js           # Background service worker  
+├── background.js           # Background service worker
 ├── sidepanel.html          # Sidepanel display HTML
 ├── popup.html              # Fallback popup HTML
 ├── sidepanel-fallback.umd.js # Library file (auto-copied from dist/)
@@ -33,35 +34,42 @@ chrome-extension/
 ## 🎯 Demo Features
 
 ### Sidepanel Mode (Chrome/Edge)
+
 - 📱 Displays as sidepanel on the right side of the browser
 - 🎛️ Real-time settings changes
 - 📊 Performance statistics display
 - ⚙️ Settings UI component demo
 
 ### Popup Mode (Firefox/Safari/Others)
+
 - 🪟 Displays as independent popup window
 - ⚠️ Clear indication of fallback behavior
 - 🔄 Same feature set in compact UI
 
 ## ⚠️ Service Worker Compatibility
 
-**Important**: When using this library in Chrome Extension background scripts (service workers), you must disable certain features that use dynamic imports:
+**Important**: When using this library in Chrome Extension background scripts
+(service workers), you must disable certain features that use dynamic imports:
 
 ```javascript
 const fallbackInstance = new SidepanelFallback.SidepanelFallback({
   defaultMode: 'auto',
   enablePerformanceTracking: true,
   enableCaching: true,
-  enableLazyLoading: false,      // ⚠️ REQUIRED: Disable in service workers
-  enableProgressiveInit: false   // ⚠️ REQUIRED: Disable in service workers
+  enableLazyLoading: false, // ⚠️ REQUIRED: Disable in service workers
+  enableProgressiveInit: false // ⚠️ REQUIRED: Disable in service workers
 });
 ```
 
-**Why**: Service workers don't support dynamic imports (`import()`) according to the HTML specification. The library's lazy loading and progressive initialization features use dynamic imports and will cause errors if not disabled.
+**Why**: Service workers don't support dynamic imports (`import()`) according to
+the HTML specification. The library's lazy loading and progressive
+initialization features use dynamic imports and will cause errors if not
+disabled.
 
 ## 🛠️ Implementation Highlights
 
 ### 1. Service Worker (background.js)
+
 ```javascript
 // Library initialization with service worker compatibility
 const fallbackInstance = new SidepanelFallback({
@@ -72,13 +80,14 @@ const fallbackInstance = new SidepanelFallback({
 await fallbackInstance.init();
 
 // Action button click handler
-chrome.action.onClicked.addListener(async (tab) => {
+chrome.action.onClicked.addListener(async tab => {
   const result = await fallbackInstance.openPanel('sidepanel.html');
   // Fallback handling...
 });
 ```
 
 ### 2. Sidepanel/Popup (HTML)
+
 ```javascript
 // Frontend initialization
 const fallbackInstance = new SidepanelFallback({
@@ -93,6 +102,7 @@ await fallbackInstance.withSettingsUI(container);
 ```
 
 ### 3. Manifest V3 Support
+
 ```json
 {
   "manifest_version": 3,
@@ -120,6 +130,7 @@ await fallbackInstance.withSettingsUI(container);
 ## 🔧 Customization Examples
 
 ### Adding Custom Configuration Options
+
 ```javascript
 const fallbackInstance = new SidepanelFallback({
   defaultMode: 'auto',
@@ -131,12 +142,13 @@ const fallbackInstance = new SidepanelFallback({
 ```
 
 ### Adding Event Listeners
+
 ```javascript
-fallbackInstance.on('modeChanged', (data) => {
+fallbackInstance.on('modeChanged', data => {
   console.log(`Mode changed: ${data.oldMode} → ${data.newMode}`);
 });
 
-fallbackInstance.on('afterOpenPanel', (data) => {
+fallbackInstance.on('afterOpenPanel', data => {
   console.log('Panel opened:', data);
 });
 ```
@@ -144,16 +156,19 @@ fallbackInstance.on('afterOpenPanel', (data) => {
 ## 🐛 Troubleshooting
 
 ### Extension Won't Load
+
 - Check that `manifest.json` syntax is correct
 - Verify `background.js` has no syntax errors
 - Check Chrome DevTools Console for errors
 
 ### Sidepanel Won't Open
+
 - Confirm using Chrome 114+
 - Verify `sidePanel` permission is enabled
 - Check background script logs
 
 ### Library Errors
+
 - Confirm `sidepanel-fallback.umd.js` is properly placed
 - Check Network tab for file loading status
 

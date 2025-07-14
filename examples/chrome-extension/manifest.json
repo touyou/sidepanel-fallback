@@ -3,10 +3,7 @@
   "name": "Sidepanel Fallback Demo",
   "version": "1.0.0",
   "description": "Demonstration of sidepanel-fallback library in a real Chrome Extension",
-  "permissions": [
-    "sidePanel",
-    "storage"
-  ],
+  "permissions": ["sidePanel", "storage"],
   "background": {
     "service_worker": "background.js"
   },
