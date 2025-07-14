@@ -40,6 +40,15 @@ export class PanelLauncher {
 
     // window mode case
     if (mode === 'window') {
+      // In Chrome Extension context, disable automatic sidepanel opening on action click
+      // so that the background script can handle popup creation
+      if (this.isChromeExtensionContext() && typeof chrome.sidePanel?.setPanelBehavior === 'function') {
+        try {
+          await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+        } catch (_error) {
+          // Ignore errors in setting panel behavior - not critical for popup functionality
+        }
+      }
       return this._openWindow(path, false);
     }
   }
