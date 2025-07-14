@@ -17,9 +17,12 @@
           "@babel/preset-env",
           {
             "targets": {
-              "node": "18.18.0"
+              "node": "current"
             },
-            "modules": "commonjs"
+            "modules": "commonjs",
+            "bugfixes": true,
+            "shippedProposals": true,
+            "exclude": ["proposal-dynamic-import"]
           }
         ]
       ]

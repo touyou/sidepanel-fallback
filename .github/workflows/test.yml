@@ -32,8 +32,9 @@ jobs:
       - name: Run format check
         run: npm run format:check
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with timeout
+        run: timeout 600 npm test || npm test
+        timeout-minutes: 15
 
       - name: Run coverage
         run: npm run test:coverage

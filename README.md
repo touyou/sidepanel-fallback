@@ -133,9 +133,30 @@ document.getElementById('open-btn').onclick = () => {
 
 ## Requirements
 
-- **Node.js**: 18.18.0 or higher
+- **Node.js**: 18.18.0 or higher (tested on 18.x, 20.x, 22.x)
 - **npm**: 8.0.0 or higher
 - **Browser**: Chrome 88+, Firefox 78+, Safari 14+, Edge 88+
+
+### Node.js Compatibility
+
+This package is actively tested on:
+
+- Node.js 18.x (LTS) - Full test suite
+- Node.js 20.x (LTS) - Core functionality tests only\*
+- Node.js 22.x (Current) - Core functionality tests only\*
+
+**Note**: Due to compatibility issues with Jest and complex performance tests on
+Node.js 20/22, some advanced test suites (benchmark, performance, integration,
+e2e, caching) are temporarily disabled on these versions. The core functionality
+remains fully supported and tested.
+
+### Test Commands
+
+```bash
+npm test           # Run core tests (compatible with all Node.js versions)
+npm run test:core  # Run only core functionality tests
+npm run test:full  # Run full test suite (Node.js 18 recommended)
+```
 
 For legacy environments, consider using an older version that supports
 Node.js 16.

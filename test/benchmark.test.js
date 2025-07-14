@@ -4,7 +4,6 @@
  */
 
 import { SidepanelFallback } from '../src/index.js';
-import { jest } from '@jest/globals';
 import { setupTestEnvironment } from './testUtils.js';
 
 // Setup test environment before any tests
