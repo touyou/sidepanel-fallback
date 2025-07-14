@@ -1,53 +1,64 @@
 # Node.js 22 Compatibility Guide
 
-This document outlines the Node.js 22 compatibility issues and solutions implemented in this project.
+This document outlines the Node.js 22 compatibility issues and solutions
+implemented in this project.
 
 ## Overview
 
-Node.js 22 introduced several changes that affect Jest testing environments. This project includes comprehensive compatibility fixes to ensure tests run correctly across Node.js versions 18-22.
+Node.js 22 introduced several changes that affect Jest testing environments.
+This project includes comprehensive compatibility fixes to ensure tests run
+correctly across Node.js versions 18-22.
 
 ## Node.js 22 Specific Issues
 
 ### 1. Experimental VM Modules
 
 **Issue**: Node.js 22 changed how experimental VM modules work with Jest.
-**Solution**: Enhanced `NODE_OPTIONS` with memory management and improved warning suppression.
+**Solution**: Enhanced `NODE_OPTIONS` with memory management and improved
+warning suppression.
 
 ### 2. Process Exit Behavior
 
-**Issue**: Jest's process exit handling changed in Node.js 22.
-**Solution**: Implemented delayed exit handling to allow proper async cleanup.
+**Issue**: Jest's process exit handling changed in Node.js 22. **Solution**:
+Implemented delayed exit handling to allow proper async cleanup.
 
 ### 3. Console and Warning Handling
 
-**Issue**: Node.js 22 generates additional warnings that interfere with test output.
-**Solution**: Enhanced console filtering to suppress Node.js 22 specific warnings.
+**Issue**: Node.js 22 generates additional warnings that interfere with test
+output. **Solution**: Enhanced console filtering to suppress Node.js 22 specific
+warnings.
 
 ### 4. Memory Management
 
-**Issue**: Node.js 22 has stricter memory management that can cause test failures.
-**Solution**: Added memory limits and enhanced garbage collection handling.
+**Issue**: Node.js 22 has stricter memory management that can cause test
+failures. **Solution**: Added memory limits and enhanced garbage collection
+handling.
 
 ## Configuration Files
 
 ### jest.config.js
+
 - Added `workerIdleMemoryLimit` for Node.js 22 worker thread compatibility
 - Enhanced `extensionsToTreatAsEsm` configuration
 
 ### test/setup.js
+
 - Node.js 22 specific process exit handling
 - Enhanced warning suppression for experimental VM modules
 - Improved garbage collection handling
 
 ### package.json
-- Updated test scripts with `--max-old-space-size=4096` for better memory management
+
+- Updated test scripts with `--max-old-space-size=4096` for better memory
+  management
 - Enhanced `NODE_OPTIONS` for Node.js 22 compatibility
 
 ## CI/CD Compatibility
 
 The GitHub Actions workflow tests against:
+
 - Node.js 18.x
-- Node.js 20.x  
+- Node.js 20.x
 - Node.js 22.x
 
 All compatibility fixes are backwards compatible with older Node.js versions.
@@ -88,4 +99,5 @@ npm test
 
 ## Future Compatibility
 
-This setup is designed to be forwards-compatible with future Node.js versions while maintaining backwards compatibility with Node.js 18+.
+This setup is designed to be forwards-compatible with future Node.js versions
+while maintaining backwards compatibility with Node.js 18+.
