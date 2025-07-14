@@ -1,0 +1,292 @@
+
+> sidepanel-fallback@1.0.0 test
+> jest
+
+FAIL test/modeStorage.test.js
+  ModeStorage - localStorage
+    ✓ can save browser mode (1 ms)
+    ✓ can retrieve saved browser mode (1 ms)
+    ✓ returns null for unset browsers
+    ✕ throws error for invalid browser name (1 ms)
+    ✕ throws error for invalid mode name
+    ✓ can use valid mode values
+
+  ● ModeStorage - localStorage › throws error for invalid browser name
+
+    expect(received).rejects.toThrow(expected)
+
+    Expected substring: "Invalid browser name"
+
+    Received function did not throw
+
+      50 |
+      51 |   it('throws error for invalid browser name', async () => {
+    > 52 |     await expect(storage.setMode('', 'sidepanel')).rejects.toThrow('Invalid browser name');
+         |                                                            ^
+      53 |     await expect(storage.setMode(null, 'sidepanel')).rejects.toThrow('Invalid browser name');
+      54 |   });
+      55 |
+
+      at Object.toThrow (node_modules/expect/build/index.js:2152:20)
+      at Object.toThrow (test/modeStorage.test.js:52:60)
+
+  ● ModeStorage - localStorage › throws error for invalid mode name
+
+    expect(received).rejects.toThrow(expected)
+
+    Expected substring: "Invalid mode"
+
+    Received function did not throw
+
+      55 |
+      56 |   it('throws error for invalid mode name', async () => {
+    > 57 |     await expect(storage.setMode('chrome', '')).rejects.toThrow('Invalid mode');
+         |                                                         ^
+      58 |     await expect(storage.setMode('chrome', 'invalid')).rejects.toThrow('Invalid mode');
+      59 |   });
+      60 |
+
+      at Object.toThrow (node_modules/expect/build/index.js:2152:20)
+      at Object.toThrow (test/modeStorage.test.js:57:57)
+
+FAIL test/panelLauncher.test.js
+  PanelLauncher
+    openPanel
+      ✕ opens sidepanel when chrome.sidePanel.open is available in sidepanel mode (3 ms)
+      ✕ uses window.open to open popup in window mode
+      ✕ falls back to window when chrome.sidePanel is not available in sidepanel mode
+      ✕ falls back to window when chrome.sidePanel.open throws error in sidepanel mode
+      ✕ returns error when window.open fails (1 ms)
+      ✕ returns error for invalid mode (other than sidepanel or window)
+    isExtensionContext
+      ✓ returns true when chrome.sidePanel API is available
+      ✓ returns false when chrome object does not exist
+      ✓ returns false when chrome object exists but sidePanel does not
+
+  ● PanelLauncher › openPanel › opens sidepanel when chrome.sidePanel.open is available in sidepanel mode
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 5
+
+      Object {
+    +   "metadata": Object {
+    +     "extensionContext": true,
+    +     "path": "/panel.html",
+    +     "timestamp": "2025-07-14T01:51:23.225Z",
+    +   },
+        "method": "sidepanel",
+        "success": true,
+      }
+
+      25 |
+      26 |       expect(chrome.sidePanel.open).toHaveBeenCalledWith({ path: '/panel.html' });
+    > 27 |       expect(result).toEqual({ success: true, method: 'sidepanel' });
+         |                      ^
+      28 |     });
+      29 |
+      30 |     it('uses window.open to open popup in window mode', async () => {
+
+      at Object.toEqual (test/panelLauncher.test.js:27:22)
+
+  ● PanelLauncher › openPanel › uses window.open to open popup in window mode
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 6
+
+      Object {
+    +   "metadata": Object {
+    +     "isFallback": false,
+    +     "path": "/panel.html",
+    +     "timestamp": "2025-07-14T01:51:23.230Z",
+    +     "windowFeatures": "width=400,height=600,scrollbars=yes,resizable=yes",
+    +   },
+        "method": "window",
+        "success": true,
+      }
+
+      41 |       );
+      42 |       expect(mockWindow.focus).toHaveBeenCalled();
+    > 43 |       expect(result).toEqual({ success: true, method: 'window' });
+         |                      ^
+      44 |     });
+      45 |
+      46 |     it('falls back to window when chrome.sidePanel is not available in sidepanel mode', async () => {
+
+      at Object.toEqual (test/panelLauncher.test.js:43:22)
+
+  ● PanelLauncher › openPanel › falls back to window when chrome.sidePanel is not available in sidepanel mode
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 6
+
+      Object {
+        "fallback": true,
+    +   "metadata": Object {
+    +     "fallbackReason": "Not in extension context",
+    +     "originalMethod": "sidepanel",
+    +     "path": "/panel.html",
+    +     "timestamp": "2025-07-14T01:51:23.231Z",
+    +   },
+        "method": "window",
+        "success": true,
+      }
+
+      58 |         'width=400,height=600,scrollbars=yes,resizable=yes'
+      59 |       );
+    > 60 |       expect(result).toEqual({ success: true, method: 'window', fallback: true });
+         |                      ^
+      61 |     });
+      62 |
+      63 |     it('falls back to window when chrome.sidePanel.open throws error in sidepanel mode', async () => {
+
+      at Object.toEqual (test/panelLauncher.test.js:60:22)
+
+  ● PanelLauncher › openPanel › falls back to window when chrome.sidePanel.open throws error in sidepanel mode
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 6
+
+      Object {
+        "fallback": true,
+    +   "metadata": Object {
+    +     "fallbackReason": "Permission denied",
+    +     "originalMethod": "sidepanel",
+    +     "path": "/panel.html",
+    +     "timestamp": "2025-07-14T01:51:23.232Z",
+    +   },
+        "method": "window",
+        "success": true,
+      }
+
+      79 |         'width=400,height=600,scrollbars=yes,resizable=yes'
+      80 |       );
+    > 81 |       expect(result).toEqual({ success: true, method: 'window', fallback: true });
+         |                      ^
+      82 |     });
+      83 |
+      84 |     it('returns error when window.open fails', async () => {
+
+      at Object.toEqual (test/panelLauncher.test.js:81:22)
+
+  ● PanelLauncher › openPanel › returns error when window.open fails
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 8
+
+      Object {
+    -   "error": "Failed to open popup window",
+    +   "context": Object {
+    +     "isFallback": false,
+    +     "path": "/panel.html",
+    +     "timestamp": "2025-07-14T01:51:23.232Z",
+    +     "windowFeatures": "width=400,height=600,scrollbars=yes,resizable=yes",
+    +   },
+    +   "error": "Failed to open popup window - likely blocked by browser",
+    +   "errorCode": "POPUP_BLOCKED",
+        "success": false,
+      }
+
+      88 |       const result = await launcher.openPanel('window', '/panel.html');
+      89 |
+    > 90 |       expect(result).toEqual({
+         |                      ^
+      91 |         success: false,
+      92 |         error: 'Failed to open popup window'
+      93 |       });
+
+      at Object.toEqual (test/panelLauncher.test.js:90:22)
+
+  ● PanelLauncher › openPanel › returns error for invalid mode (other than sidepanel or window)
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 9
+
+      Object {
+    +   "context": Object {
+    +     "providedMode": "invalid",
+    +     "timestamp": "2025-07-14T01:51:23.233Z",
+    +     "validModes": Array [
+    +       "sidepanel",
+    +       "window",
+    +     ],
+    +   },
+        "error": "Invalid mode: invalid. Must be \"sidepanel\" or \"window\"",
+    +   "errorCode": "INVALID_MODE",
+        "success": false,
+      }
+
+       98 |       const result = await launcher.openPanel('invalid', '/panel.html');
+       99 |
+    > 100 |       expect(result).toEqual({
+          |                      ^
+      101 |         success: false,
+      102 |         error: 'Invalid mode: invalid. Must be "sidepanel" or "window"'
+      103 |       });
+
+      at Object.toEqual (test/panelLauncher.test.js:100:22)
+
+PASS test/index.test.js
+  SidepanelFallback
+    init
+      ✓ initializes successfully (1 ms)
+      ✓ uses default (auto) when mode is unset during initialization
+      ✓ can initialize with custom settings
+    openPanel
+      ✓ opens panel with configured mode (1 ms)
+      ✓ selects mode based on browser in auto mode
+      ✓ selects window mode for Firefox in auto mode
+      ✓ returns error when openPanel is called before init
+      ✓ returns error when openPanel is called without arguments (1 ms)
+    withSettingsUI
+      ✓ creates settings UI and inserts into container
+      ✓ saves to storage when settings are changed
+      ✓ returns error when withSettingsUI is called before init (1 ms)
+      ✓ returns error when container is not specified
+    getCurrentSettings
+      ✓ can retrieve current settings
+      ✓ returns null when called before init
+
+PASS test/browserInfo.test.js
+  getBrowserInfo
+    ✓ correctly identifies Chrome user agent
+    ✓ can detect Dia browser
+    ✓ can detect Firefox (1 ms)
+    ✓ can detect Safari
+    ✓ can detect Edge
+    ✓ returns unknown for unrecognized browsers
+    ✓ returns unknown when undefined is passed
+    ✓ returns unknown when empty string is passed
+
+PASS test/settingsUI.test.js
+  SettingsUI
+    renderSettingsPanel
+      ✓ generates settings panel HTML (1 ms)
+      ✓ generates UI reflecting current settings value (mode)
+      ✓ uses default value (sidepanel) when unset
+    bindEvents
+      ✓ binds callback function for settings changes
+      ✓ calls callback when radio button is changed (1 ms)
+    createSettingsPanel
+      ✓ creates complete settings panel (rendering + event binding)
+      ✓ can create panel without callback function
+    createRadioGroup
+      ✓ creates radio button group (1 ms)
+      ✓ sets checked state correctly
+
+Test Suites: 2 failed, 3 passed, 5 total
+Tests:       8 failed, 38 passed, 46 total
+Snapshots:   0 total
+Time:        0.379 s, estimated 1 s
+Ran all test suites.
