@@ -75,10 +75,6 @@ export class PanelLauncher {
     // If we're in Chrome Extension context, use chrome.windows.create
     if (this.isChromeExtensionContext()) {
       try {
-        // Set sidepanel behavior to not open on action click (only if sidePanel API is available)
-        if (chrome.sidePanel && typeof chrome.sidePanel.setPanelBehavior === 'function') {
-          await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
-        }
         // Resolve relative paths for Chrome Extension context
         const resolvedPath =
           path.startsWith('chrome-extension://') || path.startsWith('http')

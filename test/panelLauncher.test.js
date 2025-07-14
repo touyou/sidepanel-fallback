@@ -107,9 +107,6 @@ describe('PanelLauncher', () => {
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
-        },
-        sidePanel: {
-          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
 
@@ -165,9 +162,6 @@ describe('PanelLauncher', () => {
         },
         windows: {
           create: jest.fn().mockRejectedValue(new Error('Windows API error'))
-        },
-        sidePanel: {
-          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
 
@@ -188,9 +182,6 @@ describe('PanelLauncher', () => {
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
-        },
-        sidePanel: {
-          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
 
