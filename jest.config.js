@@ -23,12 +23,8 @@ module.exports = {
     }
   },
   testMatch: [
-    '**/test/browserInfo.test.js',
-    '**/test/modeStorage.test.js',
-    '**/test/panelLauncher.test.js',
-    '**/test/settingsUI.test.js'
+    '**/test/*.test.js'
   ],
-  // Skip problematic performance tests that cause segfaults
   testPathIgnorePatterns: ['node_modules'],
   transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
   // Minimal configuration for stability
