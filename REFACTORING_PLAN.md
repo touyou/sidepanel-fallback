@@ -78,12 +78,17 @@ context before making changes.
 
 **Priority: Medium** | **Risk: Medium** | **Impact: High**
 
-#### TODO 3.1: Dependency Injection Pattern
+#### TODO 3.1: Dependency Injection Pattern ✅ COMPLETED
 
-- [ ] Implement dependency injection for better testability
-- [ ] Allow custom storage implementations
-- [ ] Allow custom launcher implementations
-- [ ] Reduce coupling between main class and dependencies
+- [x] Implement dependency injection for better testability
+- [x] Allow custom storage implementations
+- [x] Allow custom launcher implementations
+- [x] Allow custom settings UI implementations
+- [x] Allow custom browser detector implementations
+- [x] Reduce coupling between main class and dependencies
+- [x] Add feature flag for gradual adoption (enableDependencyInjection)
+- [x] Maintain backward compatibility with existing code
+- [x] Create test utilities for dependency injection
 
 #### TODO 3.2: Event System Implementation
 

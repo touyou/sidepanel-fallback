@@ -5,6 +5,7 @@ import { SettingsUI } from './settingsUI.js';
 import { ErrorCodes, createErrorResult, createSuccessResult } from './errorHandling.js';
 import { createValidatedConfig } from './configValidation.js';
 import { smartNormalize } from './resultNormalizer.js';
+import { container } from './diContainer.js';
 
 export class SidepanelFallback {
   constructor(options = {}) {
@@ -20,6 +21,16 @@ export class SidepanelFallback {
       userAgent: null,
       ...options
     };
+
+    // Dependency injection support (experimental feature flag)
+    this._enableDI = options.enableDependencyInjection || false;
+    this._container = options.container || container;
+    
+    // Support for custom implementations (dependency injection)
+    this._customStorage = options.storage || null;
+    this._customLauncher = options.launcher || null;
+    this._customSettingsUI = options.settingsUI || null;
+    this._customBrowserDetector = options.browserDetector || null;
 
     this.browser = null;
     this.mode = null;
@@ -51,18 +62,65 @@ export class SidepanelFallback {
    */
   async init() {
     try {
-      // Browser detection
+      // Get userAgent
       const userAgent = this.options.userAgent || navigator.userAgent;
-      this.browser = getBrowserInfo(userAgent);
+      
+      // Browser detection - use DI only if enabled and custom detector provided
+      if (this._customBrowserDetector) {
+        this.browser = this._customBrowserDetector.getBrowserInfo(userAgent);
+      } else if (this._enableDI) {
+        try {
+          const browserDetector = this._container.get('browserDetector');
+          this.browser = browserDetector.getBrowserInfo(userAgent);
+        } catch {
+          // Fallback to direct import
+          this.browser = getBrowserInfo(userAgent);
+        }
+      } else {
+        // Default behavior for backward compatibility
+        this.browser = getBrowserInfo(userAgent);
+      }
 
       if (!this.browser) {
         throw new Error('Failed to detect browser from user agent');
       }
 
-      // Initialize storage and launcher
-      this.storage = new ModeStorage();
-      this.launcher = new PanelLauncher();
-      this.settingsUI = new SettingsUI();
+      // Initialize dependencies - use DI only if enabled and custom implementations provided
+      if (this._customStorage) {
+        this.storage = this._customStorage;
+      } else if (this._enableDI) {
+        try {
+          this.storage = this._container.get('storage');
+        } catch {
+          this.storage = new ModeStorage();
+        }
+      } else {
+        this.storage = new ModeStorage();
+      }
+
+      if (this._customLauncher) {
+        this.launcher = this._customLauncher;
+      } else if (this._enableDI) {
+        try {
+          this.launcher = this._container.get('launcher');
+        } catch {
+          this.launcher = new PanelLauncher();
+        }
+      } else {
+        this.launcher = new PanelLauncher();
+      }
+
+      if (this._customSettingsUI) {
+        this.settingsUI = this._customSettingsUI;
+      } else if (this._enableDI) {
+        try {
+          this.settingsUI = this._container.get('settingsUI');
+        } catch {
+          this.settingsUI = new SettingsUI();
+        }
+      } else {
+        this.settingsUI = new SettingsUI();
+      }
 
       // Get saved mode
       const savedMode = await this.storage.getMode(this.browser);
@@ -77,7 +135,13 @@ export class SidepanelFallback {
         },
         {
           userAgent: userAgent.substring(0, 50) + '...', // Truncated for logging
-          defaultMode: this.options.defaultMode
+          defaultMode: this.options.defaultMode,
+          dependencyInjectionUsed: {
+            storage: !!this._customStorage,
+            launcher: !!this._customLauncher,
+            settingsUI: !!this._customSettingsUI,
+            browserDetector: !!this._customBrowserDetector
+          }
         }
       );
 
