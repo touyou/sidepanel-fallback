@@ -1,10 +1,15 @@
-const { SidepanelError, ErrorCodes, createErrorResult, createSuccessResult } = require('../src/errorHandling.js');
+const {
+  SidepanelError,
+  ErrorCodes,
+  createErrorResult,
+  createSuccessResult
+} = require('../src/errorHandling.js');
 
 describe('ErrorHandling', () => {
   describe('SidepanelError', () => {
     it('should create error with message and code', () => {
       const error = new SidepanelError('Test message', 'TEST_CODE');
-      
+
       expect(error.message).toBe('Test message');
       expect(error.name).toBe('SidepanelError');
       expect(error.code).toBe('TEST_CODE');
@@ -16,7 +21,7 @@ describe('ErrorHandling', () => {
     it('should create error with context', () => {
       const context = { userId: 123, action: 'test' };
       const error = new SidepanelError('Test message', 'TEST_CODE', context);
-      
+
       expect(error.context).toEqual(context);
     });
 
@@ -24,7 +29,7 @@ describe('ErrorHandling', () => {
       const before = new Date().toISOString();
       const error = new SidepanelError('Test message', 'TEST_CODE');
       const after = new Date().toISOString();
-      
+
       expect(error.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
       expect(error.timestamp >= before).toBe(true);
       expect(error.timestamp <= after).toBe(true);
@@ -54,7 +59,7 @@ describe('ErrorHandling', () => {
   describe('createErrorResult', () => {
     it('should create error result with required fields', () => {
       const result = createErrorResult('TEST_CODE', 'Test message');
-      
+
       expect(result.success).toBe(false);
       expect(result.error).toBe('Test message');
       expect(result.errorCode).toBe('TEST_CODE');
@@ -65,7 +70,7 @@ describe('ErrorHandling', () => {
     it('should create error result with context', () => {
       const context = { userId: 123, action: 'test' };
       const result = createErrorResult('TEST_CODE', 'Test message', context);
-      
+
       expect(result.context.userId).toBe(123);
       expect(result.context.action).toBe('test');
       expect(result.context.timestamp).toBeDefined();
@@ -75,7 +80,7 @@ describe('ErrorHandling', () => {
       const before = new Date().toISOString();
       const result = createErrorResult('TEST_CODE', 'Test message');
       const after = new Date().toISOString();
-      
+
       expect(result.context.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
       expect(result.context.timestamp >= before).toBe(true);
       expect(result.context.timestamp <= after).toBe(true);
@@ -85,7 +90,7 @@ describe('ErrorHandling', () => {
   describe('createSuccessResult', () => {
     it('should create success result with default values', () => {
       const result = createSuccessResult();
-      
+
       expect(result.success).toBe(true);
       expect(result.metadata).toBeDefined();
       expect(result.metadata.timestamp).toBeDefined();
@@ -94,7 +99,7 @@ describe('ErrorHandling', () => {
     it('should create success result with data', () => {
       const data = { userId: 123, action: 'completed' };
       const result = createSuccessResult(data);
-      
+
       expect(result.success).toBe(true);
       expect(result.userId).toBe(123);
       expect(result.action).toBe('completed');
@@ -104,7 +109,7 @@ describe('ErrorHandling', () => {
     it('should create success result with metadata', () => {
       const metadata = { version: '1.0.0', source: 'test' };
       const result = createSuccessResult({}, metadata);
-      
+
       expect(result.success).toBe(true);
       expect(result.metadata.version).toBe('1.0.0');
       expect(result.metadata.source).toBe('test');
@@ -115,7 +120,7 @@ describe('ErrorHandling', () => {
       const before = new Date().toISOString();
       const result = createSuccessResult();
       const after = new Date().toISOString();
-      
+
       expect(result.metadata.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
       expect(result.metadata.timestamp >= before).toBe(true);
       expect(result.metadata.timestamp <= after).toBe(true);

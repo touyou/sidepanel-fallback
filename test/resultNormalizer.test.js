@@ -13,7 +13,7 @@ describe('resultNormalizer', () => {
           method: 'sidepanel',
           metadata: { timestamp: '2023-01-01' }
         };
-        
+
         const normalized = normalizeResult(result, 'openPanel');
         expect(normalized).toEqual({
           success: true,
@@ -28,7 +28,7 @@ describe('resultNormalizer', () => {
           fallback: true,
           metadata: { timestamp: '2023-01-01' }
         };
-        
+
         const normalized = normalizeResult(result, 'openPanel');
         expect(normalized).toEqual({
           success: true,
@@ -44,7 +44,7 @@ describe('resultNormalizer', () => {
           errorCode: 'PANEL_OPEN_FAILED',
           context: { details: 'some context' }
         };
-        
+
         const normalized = normalizeResult(result, 'openPanel');
         expect(normalized).toEqual({
           success: false,
@@ -59,7 +59,7 @@ describe('resultNormalizer', () => {
           fallback: false,
           metadata: { timestamp: '2023-01-01' }
         };
-        
+
         const normalized = normalizeResult(result, 'openPanel');
         expect(normalized).toEqual({
           success: true,
@@ -76,7 +76,7 @@ describe('resultNormalizer', () => {
           mode: 'auto',
           metadata: { timestamp: '2023-01-01' }
         };
-        
+
         const normalized = normalizeResult(result, 'init');
         expect(normalized).toEqual({
           success: true,
@@ -91,7 +91,7 @@ describe('resultNormalizer', () => {
           error: 'Initialization failed',
           context: { details: 'some context' }
         };
-        
+
         expect(() => normalizeResult(result, 'init')).toThrow('Initialization failed');
       });
     });
@@ -102,7 +102,7 @@ describe('resultNormalizer', () => {
           success: true,
           metadata: { timestamp: '2023-01-01' }
         };
-        
+
         const normalized = normalizeResult(result, 'settings');
         expect(normalized).toEqual({
           success: true
@@ -115,7 +115,7 @@ describe('resultNormalizer', () => {
           error: 'Settings error',
           context: { details: 'some context' }
         };
-        
+
         const normalized = normalizeResult(result, 'settings');
         expect(normalized).toEqual({
           success: false,
@@ -130,7 +130,7 @@ describe('resultNormalizer', () => {
           success: true,
           metadata: { timestamp: '2023-01-01' }
         };
-        
+
         const normalized = normalizeResult(result, 'simple');
         expect(normalized).toEqual({
           success: true
@@ -143,7 +143,7 @@ describe('resultNormalizer', () => {
           error: 'Some error',
           context: { details: 'some context' }
         };
-        
+
         const normalized = normalizeResult(result, 'simple');
         expect(normalized).toEqual({
           success: false,
@@ -156,7 +156,7 @@ describe('resultNormalizer', () => {
           success: true,
           metadata: { timestamp: '2023-01-01' }
         };
-        
+
         const normalized = normalizeResult(result);
         expect(normalized).toEqual({
           success: true
@@ -178,7 +178,7 @@ describe('resultNormalizer', () => {
         success: true,
         metadata: { timestamp: '2023-01-01' }
       };
-      
+
       expect(needsNormalization(result)).toBe(true);
     });
 
@@ -188,7 +188,7 @@ describe('resultNormalizer', () => {
         error: 'Error message',
         context: { details: 'some context' }
       };
-      
+
       expect(needsNormalization(result)).toBe(true);
     });
 
@@ -197,7 +197,7 @@ describe('resultNormalizer', () => {
         success: true,
         method: 'sidepanel'
       };
-      
+
       expect(needsNormalization(result)).toBe(false);
     });
 
@@ -216,7 +216,7 @@ describe('resultNormalizer', () => {
         method: 'sidepanel',
         metadata: { timestamp: '2023-01-01' }
       };
-      
+
       const normalized = smartNormalize(result, 'openPanel');
       expect(normalized).toEqual({
         success: true,
@@ -229,7 +229,7 @@ describe('resultNormalizer', () => {
         success: true,
         method: 'sidepanel'
       };
-      
+
       const normalized = smartNormalize(result, 'openPanel');
       expect(normalized).toBe(result);
     });
@@ -239,7 +239,7 @@ describe('resultNormalizer', () => {
         success: true,
         metadata: { timestamp: '2023-01-01' }
       };
-      
+
       const normalized = smartNormalize(result);
       expect(normalized).toEqual({
         success: true

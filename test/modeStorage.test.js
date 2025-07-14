@@ -112,7 +112,7 @@ describe('ModeStorage - Chrome Extension environment', () => {
           get: jest.fn((key, callback) => {
             callback && callback({});
           }),
-          clear: jest.fn((callback) => {
+          clear: jest.fn(callback => {
             callback && callback();
           })
         }
@@ -152,7 +152,10 @@ describe('ModeStorage - Chrome Extension environment', () => {
     const mode = await storage.getMode('firefox');
 
     expect(mode).toBe('window');
-    expect(mockChrome.storage.sync.get).toHaveBeenCalledWith('sidepanel-fallback-mode-firefox', expect.any(Function));
+    expect(mockChrome.storage.sync.get).toHaveBeenCalledWith(
+      'sidepanel-fallback-mode-firefox',
+      expect.any(Function)
+    );
   });
 
   it('returns null for unset browsers in extension context', async () => {

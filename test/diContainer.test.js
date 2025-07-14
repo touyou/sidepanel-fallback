@@ -17,43 +17,57 @@ describe('DIContainer', () => {
     describe('IStorageProvider', () => {
       it('should throw error for unimplemented setMode', async () => {
         const provider = new IStorageProvider();
-        await expect(provider.setMode('chrome', 'sidepanel')).rejects.toThrow('setMode must be implemented by storage provider');
+        await expect(provider.setMode('chrome', 'sidepanel')).rejects.toThrow(
+          'setMode must be implemented by storage provider'
+        );
       });
 
       it('should throw error for unimplemented getMode', async () => {
         const provider = new IStorageProvider();
-        await expect(provider.getMode('chrome')).rejects.toThrow('getMode must be implemented by storage provider');
+        await expect(provider.getMode('chrome')).rejects.toThrow(
+          'getMode must be implemented by storage provider'
+        );
       });
 
       it('should throw error for unimplemented clear', async () => {
         const provider = new IStorageProvider();
-        await expect(provider.clear()).rejects.toThrow('clear must be implemented by storage provider');
+        await expect(provider.clear()).rejects.toThrow(
+          'clear must be implemented by storage provider'
+        );
       });
     });
 
     describe('IPanelLauncher', () => {
       it('should throw error for unimplemented openPanel', async () => {
         const launcher = new IPanelLauncher();
-        await expect(launcher.openPanel('sidepanel', '/test')).rejects.toThrow('openPanel must be implemented by panel launcher');
+        await expect(launcher.openPanel('sidepanel', '/test')).rejects.toThrow(
+          'openPanel must be implemented by panel launcher'
+        );
       });
 
       it('should throw error for unimplemented isExtensionContext', () => {
         const launcher = new IPanelLauncher();
-        expect(() => launcher.isExtensionContext()).toThrow('isExtensionContext must be implemented by panel launcher');
+        expect(() => launcher.isExtensionContext()).toThrow(
+          'isExtensionContext must be implemented by panel launcher'
+        );
       });
     });
 
     describe('ISettingsUI', () => {
       it('should throw error for unimplemented createSettingsPanel', () => {
         const ui = new ISettingsUI();
-        expect(() => ui.createSettingsPanel({}, () => {})).toThrow('createSettingsPanel must be implemented by settings UI');
+        expect(() => ui.createSettingsPanel({}, () => {})).toThrow(
+          'createSettingsPanel must be implemented by settings UI'
+        );
       });
     });
 
     describe('IBrowserDetector', () => {
       it('should throw error for unimplemented getBrowserInfo', () => {
         const detector = new IBrowserDetector();
-        expect(() => detector.getBrowserInfo('test-user-agent')).toThrow('getBrowserInfo must be implemented by browser detector');
+        expect(() => detector.getBrowserInfo('test-user-agent')).toThrow(
+          'getBrowserInfo must be implemented by browser detector'
+        );
       });
     });
   });
@@ -70,7 +84,7 @@ describe('DIContainer', () => {
       it('should delegate setMode to internal storage', async () => {
         const provider = new DefaultStorageProvider();
         provider._storage.setMode = jest.fn().mockResolvedValue(undefined);
-        
+
         await provider.setMode('chrome', 'sidepanel');
         expect(provider._storage.setMode).toHaveBeenCalledWith('chrome', 'sidepanel');
       });
@@ -78,7 +92,7 @@ describe('DIContainer', () => {
       it('should delegate getMode to internal storage', async () => {
         const provider = new DefaultStorageProvider();
         provider._storage.getMode = jest.fn().mockResolvedValue('sidepanel');
-        
+
         const result = await provider.getMode('chrome');
         expect(provider._storage.getMode).toHaveBeenCalledWith('chrome');
         expect(result).toBe('sidepanel');
@@ -87,7 +101,7 @@ describe('DIContainer', () => {
       it('should delegate clear to internal storage', async () => {
         const provider = new DefaultStorageProvider();
         provider._storage.clear = jest.fn().mockResolvedValue(undefined);
-        
+
         await provider.clear();
         expect(provider._storage.clear).toHaveBeenCalled();
       });
@@ -104,7 +118,7 @@ describe('DIContainer', () => {
       it('should delegate openPanel to internal launcher', async () => {
         const launcher = new DefaultPanelLauncher();
         launcher._launcher.openPanel = jest.fn().mockResolvedValue({ success: true });
-        
+
         const result = await launcher.openPanel('sidepanel', '/test');
         expect(launcher._launcher.openPanel).toHaveBeenCalledWith('sidepanel', '/test');
         expect(result).toEqual({ success: true });
@@ -113,7 +127,7 @@ describe('DIContainer', () => {
       it('should delegate isExtensionContext to internal launcher', () => {
         const launcher = new DefaultPanelLauncher();
         launcher._launcher.isExtensionContext = jest.fn().mockReturnValue(true);
-        
+
         const result = launcher.isExtensionContext();
         expect(launcher._launcher.isExtensionContext).toHaveBeenCalled();
         expect(result).toBe(true);
@@ -132,11 +146,11 @@ describe('DIContainer', () => {
         const ui = new DefaultSettingsUI();
         const mockElement = { tagName: 'DIV' };
         ui._ui.createSettingsPanel = jest.fn().mockReturnValue(mockElement);
-        
+
         const settings = { mode: 'sidepanel' };
         const callback = jest.fn();
         const result = ui.createSettingsPanel(settings, callback);
-        
+
         expect(ui._ui.createSettingsPanel).toHaveBeenCalledWith(settings, callback);
         expect(result).toBe(mockElement);
       });
@@ -151,8 +165,9 @@ describe('DIContainer', () => {
 
       it('should delegate getBrowserInfo to getBrowserInfo function', () => {
         const detector = new DefaultBrowserDetector();
-        const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
-        
+        const userAgent =
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+
         const result = detector.getBrowserInfo(userAgent);
         expect(result).toBeDefined();
         expect(typeof result).toBe('string');
@@ -188,14 +203,14 @@ describe('DIContainer', () => {
     it('should register custom providers', () => {
       class CustomProvider {}
       container.registerProvider('custom', CustomProvider);
-      
+
       expect(container.hasProvider('custom')).toBe(true);
     });
 
     it('should register singleton instances', () => {
       const instance = { test: 'value' };
       container.registerInstance('test', instance);
-      
+
       const retrieved = container.get('test');
       expect(retrieved).toBe(instance);
     });
@@ -203,7 +218,7 @@ describe('DIContainer', () => {
     it('should get singleton instances', () => {
       const instance1 = container.get('storage');
       const instance2 = container.get('storage');
-      
+
       expect(instance1).toBe(instance2);
       expect(instance1).toBeInstanceOf(DefaultStorageProvider);
     });
@@ -211,7 +226,7 @@ describe('DIContainer', () => {
     it('should create fresh instances', () => {
       const instance1 = container.create('storage');
       const instance2 = container.create('storage');
-      
+
       expect(instance1).not.toBe(instance2);
       expect(instance1).toBeInstanceOf(DefaultStorageProvider);
       expect(instance2).toBeInstanceOf(DefaultStorageProvider);
@@ -219,15 +234,17 @@ describe('DIContainer', () => {
 
     it('should throw error for unknown providers', () => {
       expect(() => container.get('unknown')).toThrow('No provider registered for service: unknown');
-      expect(() => container.create('unknown')).toThrow('No provider registered for service: unknown');
+      expect(() => container.create('unknown')).toThrow(
+        'No provider registered for service: unknown'
+      );
     });
 
     it('should clear cached instances when provider changes', () => {
       const instance1 = container.get('storage');
-      
+
       class NewStorageProvider extends IStorageProvider {}
       container.registerProvider('storage', NewStorageProvider);
-      
+
       const instance2 = container.get('storage');
       expect(instance1).not.toBe(instance2);
       expect(instance2).toBeInstanceOf(NewStorageProvider);
@@ -237,7 +254,7 @@ describe('DIContainer', () => {
       const instance1 = container.get('storage');
       container.clear();
       const instance2 = container.get('storage');
-      
+
       expect(instance1).not.toBe(instance2);
     });
 

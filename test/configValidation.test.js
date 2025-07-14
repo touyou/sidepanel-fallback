@@ -14,7 +14,13 @@ describe('configValidation', () => {
       expect(DEFAULT_CONFIG.storagePrefix).toBe('sidepanel-fallback-mode-');
       expect(DEFAULT_CONFIG.enableDebugMode).toBe(false);
       expect(DEFAULT_CONFIG.validModes).toEqual(['sidepanel', 'window', 'auto']);
-      expect(DEFAULT_CONFIG.supportedBrowsers).toEqual(['chrome', 'firefox', 'safari', 'edge', 'dia']);
+      expect(DEFAULT_CONFIG.supportedBrowsers).toEqual([
+        'chrome',
+        'firefox',
+        'safari',
+        'edge',
+        'dia'
+      ]);
     });
   });
 
@@ -33,7 +39,7 @@ describe('configValidation', () => {
         defaultMode: 'sidepanel',
         enableDebugMode: true
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(true);
     });
@@ -54,7 +60,7 @@ describe('configValidation', () => {
       const config = {
         unknownKey: 'value'
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
       expect(result.error).toContain('Configuration validation failed');
@@ -65,7 +71,7 @@ describe('configValidation', () => {
       const config = {
         defaultMode: 'invalid-mode'
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
       expect(result.context.errors[0].error).toContain('must be one of: sidepanel, window, auto');
@@ -75,7 +81,7 @@ describe('configValidation', () => {
       const config = {
         defaultMode: 123
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
       expect(result.context.errors[0].error).toContain('must be of type string, got number');
@@ -85,7 +91,7 @@ describe('configValidation', () => {
       const config = {
         enableDebugMode: 'not-boolean'
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
       expect(result.context.errors[0].error).toContain('must be of type boolean, got string');
@@ -95,7 +101,7 @@ describe('configValidation', () => {
       const config = {
         storagePrefix: ''
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
       expect(result.context.errors[0].error).toContain('must be at least 1 characters long');
@@ -105,7 +111,7 @@ describe('configValidation', () => {
       const config = {
         userAgent: null
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(true);
     });
@@ -114,7 +120,7 @@ describe('configValidation', () => {
       const config = {
         userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(true);
     });
@@ -123,7 +129,7 @@ describe('configValidation', () => {
       const config = {
         userAgent: 123
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
       expect(result.context.errors[0].error).toContain('must be of type string, got number');
@@ -134,7 +140,7 @@ describe('configValidation', () => {
         defaultMode: undefined,
         userAgent: undefined
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(true);
     });
@@ -145,7 +151,7 @@ describe('configValidation', () => {
         enableDebugMode: 'not-boolean',
         unknownKey: 'value'
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
       expect(result.context.errors).toHaveLength(3);
@@ -153,8 +159,7 @@ describe('configValidation', () => {
 
     it('should test required field validation path', () => {
       // Create a mock schema with required field to test the required path
-      const { validateConfiguration: originalValidateConfig } = require('../src/configValidation.js');
-      
+
       // Test with required field missing (undefined) - this triggers the required validation branch
       const CONFIG_SCHEMA_WITH_REQUIRED = {
         requiredField: {
@@ -163,19 +168,21 @@ describe('configValidation', () => {
           description: 'A required field for testing'
         }
       };
-      
+
       // Mock the CONFIG_SCHEMA temporarily
       const originalSchema = require('../src/configValidation.js').CONFIG_SCHEMA;
       Object.assign(originalSchema, CONFIG_SCHEMA_WITH_REQUIRED);
-      
+
       const config = {
         requiredField: undefined // This should trigger the required validation branch
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
-      expect(result.context.errors[0].error).toContain("Configuration key 'requiredField' is required");
-      
+      expect(result.context.errors[0].error).toContain(
+        "Configuration key 'requiredField' is required"
+      );
+
       // Clean up - remove the mock field
       delete originalSchema.requiredField;
     });
@@ -184,10 +191,12 @@ describe('configValidation', () => {
       const config = {
         storagePrefix: null // storagePrefix doesn't allow null
       };
-      
+
       const result = validateConfiguration(config);
       expect(result.success).toBe(false);
-      expect(result.context.errors[0].error).toContain("Configuration key 'storagePrefix' cannot be null");
+      expect(result.context.errors[0].error).toContain(
+        "Configuration key 'storagePrefix' cannot be null"
+      );
     });
   });
 
@@ -197,7 +206,7 @@ describe('configValidation', () => {
         defaultMode: 'sidepanel',
         enableDebugMode: true
       };
-      
+
       const result = createValidatedConfig(userConfig);
       expect(result.success).toBe(true);
       expect(result.config.defaultMode).toBe('sidepanel');
@@ -223,7 +232,7 @@ describe('configValidation', () => {
       const userConfig = {
         defaultMode: 'invalid-mode'
       };
-      
+
       const result = createValidatedConfig(userConfig);
       expect(result.success).toBe(false);
       expect(result.error).toContain('Configuration validation failed');
@@ -233,7 +242,7 @@ describe('configValidation', () => {
       const userConfig = {
         defaultMode: 'window'
       };
-      
+
       const result = createValidatedConfig(userConfig);
       expect(result.success).toBe(true);
       expect(result.metadata.userProvidedKeys).toEqual(['defaultMode']);
@@ -245,7 +254,7 @@ describe('configValidation', () => {
   describe('getConfigurationDocs', () => {
     it('should return documentation for all config options', () => {
       const docs = getConfigurationDocs();
-      
+
       expect(docs.defaultMode).toBeDefined();
       expect(docs.defaultMode.type).toBe('string');
       expect(docs.defaultMode.default).toBe('auto');
@@ -255,14 +264,14 @@ describe('configValidation', () => {
 
     it('should include constraints for each option', () => {
       const docs = getConfigurationDocs();
-      
+
       expect(docs.userAgent.constraints.allowNull).toBe(true);
       expect(docs.storagePrefix.constraints.minLength).toBe(1);
     });
 
     it('should mark all fields as non-required', () => {
       const docs = getConfigurationDocs();
-      
+
       Object.values(docs).forEach(doc => {
         expect(doc.required).toBe(false);
       });
@@ -270,7 +279,7 @@ describe('configValidation', () => {
 
     it('should handle fields without validValues', () => {
       const docs = getConfigurationDocs();
-      
+
       expect(docs.userAgent.validValues).toBeNull();
       expect(docs.enableDebugMode.validValues).toBeNull();
     });
