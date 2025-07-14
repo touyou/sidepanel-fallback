@@ -65,8 +65,9 @@ function normalizeInitResult(result) {
     throw new Error(result.error);
   }
 
-  // Return just the browser and mode data
+  // Return success along with browser and mode data
   return {
+    success: true,
     browser: result.browser,
     mode: result.mode
   };

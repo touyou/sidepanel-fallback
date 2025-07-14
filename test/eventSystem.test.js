@@ -122,8 +122,8 @@ describe('Event System', () => {
     it('should warn about memory leaks', () => {
       const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
 
-      // Add more listeners than the default limit (10)
-      for (let i = 0; i < 11; i++) {
+      // Add more listeners than the current limit (100)
+      for (let i = 0; i < 101; i++) {
         emitter.on('test', jest.fn());
       }
 
@@ -133,7 +133,7 @@ describe('Event System', () => {
     });
 
     it('should manage max listeners setting', () => {
-      expect(emitter.getMaxListeners()).toBe(10);
+      expect(emitter.getMaxListeners()).toBe(100);
 
       emitter.setMaxListeners(5);
       expect(emitter.getMaxListeners()).toBe(5);

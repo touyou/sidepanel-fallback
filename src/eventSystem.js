@@ -61,7 +61,7 @@ export const IEventEmitter = {
 export class EventEmitter {
   constructor() {
     this._events = new Map();
-    this._maxListeners = 10;
+    this._maxListeners = 100;
   }
 
   /**
