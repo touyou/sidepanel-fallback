@@ -22,9 +22,7 @@ module.exports = {
       statements: 84
     }
   },
-  testMatch: [
-    '**/test/*.test.js'
-  ],
+  testMatch: ['**/test/*.test.js'],
   testPathIgnorePatterns: ['node_modules'],
   transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
   // Minimal configuration for stability
