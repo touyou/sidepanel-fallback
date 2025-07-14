@@ -10,7 +10,7 @@ let fallbackInstance = null;
 async function initializeFallback() {
   try {
     // Create instance with Chrome Extension specific options
-    fallbackInstance = new SidepanelFallback({
+    fallbackInstance = new SidepanelFallback.SidepanelFallback({
       defaultMode: 'auto', // Let the library decide based on browser capabilities
       enablePerformanceTracking: true,
       enableCaching: true
