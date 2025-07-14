@@ -28,9 +28,7 @@ export class PanelLauncher {
           // Open the sidepanel (uses current active tab)
           await chrome.sidePanel.open();
           return { success: true, method: 'sidepanel' };
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(`Failed to open sidepanel: ${error.message}`);
+        } catch (_error) {
           // Fallback to window on error (either setOptions or open failed)
           return this._openWindow(path, true);
         }
@@ -77,6 +75,8 @@ export class PanelLauncher {
     // If we're in Chrome Extension context, use chrome.windows.create
     if (this.isChromeExtensionContext()) {
       try {
+        // Set sidepanel behavior to not open on action click
+        await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
         // Resolve relative paths for Chrome Extension context
         const resolvedPath =
           path.startsWith('chrome-extension://') || path.startsWith('http')
