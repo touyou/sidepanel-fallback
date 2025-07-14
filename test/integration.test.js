@@ -261,7 +261,7 @@ describe('Integration Tests', () => {
       // Mock Firefox user agent - temporarily remove Chrome APIs
       const originalChrome = global.chrome;
       delete global.chrome;
-      
+
       fallback.browser = 'firefox';
       fallback.mode = 'auto';
 
@@ -273,7 +273,7 @@ describe('Integration Tests', () => {
         'sidepanel_fallback',
         expect.stringContaining('width=400')
       );
-      
+
       // Restore Chrome APIs for other tests
       global.chrome = originalChrome;
     });
