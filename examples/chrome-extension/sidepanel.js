@@ -53,7 +53,7 @@ async function setupSettingsUI() {
     const container = document.getElementById('settings-container');
 
     // Clear existing content
-    container.innerHTML = '<h3>Display Mode Settings</h3>';
+    container.innerHTML = '';
 
     // Add settings UI
     await fallbackInstance.withSettingsUI(container);

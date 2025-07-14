@@ -24,10 +24,13 @@ export class PanelLauncher {
           if (path) {
             await chrome.sidePanel.setOptions({ path });
           }
+          await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
           // Open the sidepanel (uses current active tab)
           await chrome.sidePanel.open();
           return { success: true, method: 'sidepanel' };
-        } catch (_error) {
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(`Failed to open sidepanel: ${error.message}`);
           // Fallback to window on error (either setOptions or open failed)
           return this._openWindow(path, true);
         }
