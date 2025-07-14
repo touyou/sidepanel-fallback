@@ -1,5 +1,10 @@
 /**
- * Class to manage display mode settings per browser
+ * Class to manage display mode settin  /**
+   * Set browser display mode
+   * @param {string} browser Browser identifier
+   * @param {string} mode Display mode ('sidepanel', 'window', 'auto')
+   * @returns {Promise<void>}
+   */ browser
  * Uses localStorage or Chrome Extension Storage API
  */
 class ModeStorage {
@@ -19,7 +24,7 @@ class ModeStorage {
   /**
    * 入力値のバリデーション
    * @param {string} browser ブラウザ名
-   * @param {string} mode モード名
+   * @param {string} mode Mode name
    */
   _validateInputs(browser, mode) {
     if (!browser || typeof browser !== 'string' || browser.trim() === '') {
@@ -32,7 +37,7 @@ class ModeStorage {
   }
 
   /**
-   * ストレージキーを生成
+   * Generate storage key
    * @param {string} browser ブラウザ名
    * @returns {string}
    */

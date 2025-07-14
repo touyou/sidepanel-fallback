@@ -76,7 +76,8 @@ scripts/                # Utility scripts
 
 ### AI Development Instructions
 
-When working on this project as an AI assistant, **always update the CHANGELOG.md** after completing any significant work:
+When working on this project as an AI assistant, **always update the
+CHANGELOG.md** after completing any significant work:
 
 1. **Add entries to the [Unreleased] section** for any changes made
 2. **Use appropriate categories**: Added, Changed, Fixed, Removed, Security
@@ -90,7 +91,7 @@ When working on this project as an AI assistant, **always update the CHANGELOG.m
 - **Before release**: Entries will be automatically moved to versioned section
 - **Categories to use**:
   - **Added**: New features or capabilities
-  - **Changed**: Changes to existing functionality  
+  - **Changed**: Changes to existing functionality
   - **Fixed**: Bug fixes and corrections
   - **Removed**: Removed features or deprecated functionality
   - **Security**: Security-related changes
@@ -99,20 +100,24 @@ When working on this project as an AI assistant, **always update the CHANGELOG.m
 
 ```markdown
 ### Added
+
 - New browser detection for Edge browser support
 - Automatic fallback mechanism for sidepanel API failures
 
-### Changed  
+### Changed
+
 - **BREAKING**: Updated minimum Node.js requirement to 18.18.0
 - Improved error handling in panel launcher
 
 ### Fixed
+
 - Fixed ESLint configuration for catch block variables
 ```
 
 ### Release Process
 
 The release workflow automatically:
+
 - Moves [Unreleased] content to a versioned section
 - Creates new empty [Unreleased] section
 - Updates version comparison links

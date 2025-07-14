@@ -24,7 +24,7 @@ export class SidepanelFallback {
    * @returns {Promise<{browser: string, mode: string}>}
    */
   async init() {
-    // ブラウザ判定
+    // Browser detection
     const userAgent = this.options.userAgent || navigator.userAgent;
     this.browser = getBrowserInfo(userAgent);
 
@@ -33,7 +33,7 @@ export class SidepanelFallback {
     this.launcher = new PanelLauncher();
     this.settingsUI = new SettingsUI();
 
-    // 保存されたモードを取得
+    // Get saved mode
     const savedMode = await this.storage.getMode(this.browser);
     this.mode = savedMode || this.options.defaultMode;
 
@@ -65,7 +65,7 @@ export class SidepanelFallback {
       };
     }
 
-    // モードの決定
+    // Determine mode
     let actualMode = this.mode;
     if (this.mode === 'auto') {
       actualMode = this._getAutoMode();

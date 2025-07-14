@@ -2,20 +2,20 @@ export class SettingsUI {
   constructor() {}
 
   /**
-   * 設定パネルのHTMLを生成する
-   * @param {Object} currentSettings - 現在の設定（デフォルト: { mode: 'sidepanel' }）
-   * @returns {HTMLElement} 設定パネルのDOM要素
+   * Generate HTML for settings panel
+   * @param {Object} currentSettings - Current settings (default: { mode: 'sidepanel' })
+   * @returns {HTMLElement} DOM element of settings panel
    */
   renderSettingsPanel(currentSettings = { mode: 'sidepanel' }) {
     const container = document.createElement('div');
     container.className = 'sidepanel-settings';
 
-    // タイトル
+    // Title
     const title = document.createElement('h3');
     title.textContent = 'Display Mode Settings';
     container.appendChild(title);
 
-    // ラジオボタングループ作成
+    // Create radio button group
     const radioOptions = [
       { value: 'sidepanel', label: 'Side Panel', checked: currentSettings.mode === 'sidepanel' },
       { value: 'window', label: 'Popup Window', checked: currentSettings.mode === 'window' }
@@ -28,9 +28,9 @@ export class SettingsUI {
   }
 
   /**
-   * 設定変更時のイベントリスナーをバインドする
-   * @param {HTMLElement} panel - 設定パネルのDOM要素
-   * @param {Function} onSettingsChange - 設定変更時のコールバック
+   * Bind event listeners for settings changes
+   * @param {HTMLElement} panel - DOM element of settings panel
+   * @param {Function} onSettingsChange - Callback for settings changes
    */
   bindEvents(panel, onSettingsChange) {
     if (!onSettingsChange) {
@@ -48,10 +48,10 @@ export class SettingsUI {
   }
 
   /**
-   * 完全な設定パネル（描画 + イベントバインド）を作成する
-   * @param {Object} currentSettings - 現在の設定
-   * @param {Function} onSettingsChange - 設定変更時のコールバック
-   * @returns {HTMLElement} 設定パネルのDOM要素
+   * Create complete settings panel (render + event binding)
+   * @param {Object} currentSettings - Current settings
+   * @param {Function} onSettingsChange - Callback for settings changes
+   * @returns {HTMLElement} DOM element of settings panel
    */
   createSettingsPanel(currentSettings, onSettingsChange) {
     const panel = this.renderSettingsPanel(currentSettings);
@@ -60,10 +60,10 @@ export class SettingsUI {
   }
 
   /**
-   * ラジオボタングループを作成する
-   * @param {string} name - ラジオボタンのname属性
-   * @param {Array} options - ラジオボタンのオプション配列
-   * @returns {HTMLElement} ラジオボタングループのDOM要素
+   * Create radio button group
+   * @param {string} name - name attribute for radio buttons
+   * @param {Array} options - Array of radio button options
+   * @returns {HTMLElement} DOM element of radio button group
    */
   createRadioGroup(name, options) {
     const container = document.createElement('div');
