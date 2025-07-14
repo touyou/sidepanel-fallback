@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidepanel Fallback Demo - ポップアップ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ff7139 0%, #ff416c 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 16px;
+            width: 400px;
+            min-height: 600px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff7139 0%, #ff416c 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            opacity: 0.95;
+            font-size: 13px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #ff7139;
+        }
+
+        .section h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e1e5e9;
+            font-size: 13px;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #666;
+        }
+
+        .info-value {
+            font-family: monospace;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .badge {
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .badge.chrome { background: #4285f4; color: white; }
+        .badge.firefox { background: #ff7139; color: white; }
+        .badge.safari { background: #1b88ca; color: white; }
+        .badge.edge { background: #0078d4; color: white; }
+        .badge.unknown { background: #6c757d; color: white; }
+
+        .badge.sidepanel { background: #28a745; color: white; }
+        .badge.window { background: #ffc107; color: #212529; }
+        .badge.auto { background: #17a2b8; color: white; }
+
+        .button {
+            background: #ff7139;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 6px 6px 6px 0;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .button:hover {
+            background: #e55a2b;
+            transform: translateY(-1px);
+        }
+
+        .button:active {
+            transform: translateY(0);
+        }
+
+        .button.secondary {
+            background: #6c757d;
+        }
+
+        .button.secondary:hover {
+            background: #545b62;
+        }
+
+        .settings-container {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+
+        .settings-container h3 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-indicator.active { background: #28a745; }
+        .status-indicator.inactive { background: #dc3545; }
+
+        .performance-stats {
+            font-family: monospace;
+            font-size: 11px;
+            background: #f1f3f4;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-line;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .demo-actions {
+            margin-top: 12px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .fallback-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .fallback-notice .icon {
+            font-size: 18px;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 10px;
+            font-size: 12px;
+        }
+
+        .feature-list li {
+            padding: 4px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: "✓";
+            color: #28a745;
+            font-weight: bold;
+            margin-right: 6px;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🪟 ポップアップモード</h1>
+            <p>フォールバック機能によるウィンドウ表示</p>
+        </div>
+
+        <div class="content">
+            <div class="fallback-notice">
+                <span class="icon">⚠️</span>
+                <strong>フォールバック動作中</strong><br>
+                このブラウザではサイドパネルが利用できないため、<br>
+                ポップアップウィンドウで表示しています。
+            </div>
+
+            <div class="section">
+                <h2>📊 ブラウザ情報</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">ブラウザ</span>
+                        <span class="info-value">
+                            <span class="status-indicator active"></span>
+                            <span class="badge" id="browser-badge">検出中...</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">表示モード</span>
+                        <span class="info-value">
+                            <span class="badge window">WINDOW</span>
+                        </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">フォールバック</span>
+                        <span class="info-value">
+                            <span class="status-indicator active"></span>
+                            有効
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>⚙️ 設定</h2>
+                <div class="settings-container" id="settings-container">
+                    <h3>表示モード設定</h3>
+                    <p>設定を読み込み中...</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>🚀 機能デモ</h2>
+                <div class="demo-actions">
+                    <button class="button" onclick="getPerformanceStats()">
+                        📈 パフォーマンス統計
+                    </button>
+                    <button class="button secondary" onclick="clearCache()">
+                        🗑️ キャッシュクリア
+                    </button>
+                </div>
+                <div class="performance-stats" id="performance-output"></div>
+            </div>
+
+            <div class="section">
+                <h2>✨ フォールバック機能</h2>
+                <ul class="feature-list">
+                    <li>自動ブラウザ検出</li>
+                    <li>サイドパネル非対応ブラウザ対応</li>
+                    <li>ユーザー設定の永続化</li>
+                    <li>シームレスなUI切り替え</li>
+                    <li>パフォーマンス最適化</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="sidepanel-fallback.umd.js"></script>
+    <script>
+        let fallbackInstance = null;
+
+        // 初期化処理
+        async function initializeDemo() {
+            try {
+                // ライブラリのインスタンス作成
+                fallbackInstance = new SidepanelFallback({
+                    defaultMode: 'window', // ポップアップなので明示的にwindowモード
+                    enablePerformanceTracking: true,
+                    enableCaching: true
+                });
+
+                // 初期化
+                const result = await fallbackInstance.init();
+                console.log('Popup fallback initialized:', result);
+
+                // UI更新
+                updateBrowserInfo(result);
+                await setupSettingsUI();
+
+                // パフォーマンス統計の初期表示
+                updatePerformanceStats();
+
+            } catch (error) {
+                console.error('Popup demo initialization failed:', error);
+                document.getElementById('performance-output').textContent = 
+                    `初期化エラー: ${error.message}`;
+            }
+        }
+
+        // ブラウザ情報の表示更新
+        function updateBrowserInfo(result) {
+            const browserBadge = document.getElementById('browser-badge');
+            
+            browserBadge.textContent = result.browser || 'unknown';
+            browserBadge.className = `badge ${result.browser || 'unknown'}`;
+        }
+
+        // 設定UIのセットアップ
+        async function setupSettingsUI() {
+            try {
+                const container = document.getElementById('settings-container');
+                
+                // 既存の内容をクリア
+                container.innerHTML = '<h3>表示モード設定</h3>';
+
+                // 設定UIを追加
+                await fallbackInstance.withSettingsUI(container);
+
+                console.log('Settings UI loaded successfully');
+            } catch (error) {
+                console.error('Failed to setup settings UI:', error);
+                document.getElementById('settings-container').innerHTML = 
+                    '<h3>表示モード設定</h3><p>設定UIの読み込みに失敗しました。</p>';
+            }
+        }
+
+        // パフォーマンス統計の取得
+        function getPerformanceStats() {
+            try {
+                if (!fallbackInstance) {
+                    throw new Error('ライブラリが初期化されていません');
+                }
+
+                const stats = fallbackInstance.getPerformanceStats();
+                document.getElementById('performance-output').textContent = 
+                    `パフォーマンス統計:\n${JSON.stringify(stats, null, 2)}`;
+            } catch (error) {
+                console.error('Failed to get performance stats:', error);
+                document.getElementById('performance-output').textContent = 
+                    `統計取得エラー: ${error.message}`;
+            }
+        }
+
+        // パフォーマンス統計の更新
+        function updatePerformanceStats() {
+            if (fallbackInstance) {
+                const settings = fallbackInstance.getCurrentSettings();
+                if (settings) {
+                    document.getElementById('performance-output').textContent = 
+                        `現在の設定:\nブラウザ: ${settings.browser}\nモード: ${settings.mode}\n\nフォールバック: ポップアップウィンドウ表示中`;
+                }
+            }
+        }
+
+        // キャッシュクリア
+        function clearCache() {
+            try {
+                if (!fallbackInstance) {
+                    throw new Error('ライブラリが初期化されていません');
+                }
+
+                fallbackInstance.clearPerformanceCaches('all');
+                document.getElementById('performance-output').textContent = 
+                    'すべてのキャッシュがクリアされました。';
+            } catch (error) {
+                console.error('Failed to clear cache:', error);
+                document.getElementById('performance-output').textContent = 
+                    `キャッシュクリアエラー: ${error.message}`;
+            }
+        }
+
+        // ページ読み込み時に初期化
+        document.addEventListener('DOMContentLoaded', initializeDemo);
+    </script>
+</body>
+</html>

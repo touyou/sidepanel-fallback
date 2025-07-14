@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Sidepanel Fallback Demo",
+  "version": "1.0.0",
+  "description": "Demonstration of sidepanel-fallback library in a real Chrome Extension",
+  "permissions": [
+    "sidePanel",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Sidepanel Demo"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["*.js", "*.html", "*.css"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
