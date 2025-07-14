@@ -10,10 +10,14 @@ let fallbackInstance = null;
 async function initializeFallback() {
   try {
     // Create instance with Chrome Extension specific options
+    // Note: Disable progressive initialization and lazy loading as they use dynamic imports
+    // which are not supported in service worker environments (Chrome Extension background)
     fallbackInstance = new SidepanelFallback.SidepanelFallback({
       defaultMode: 'auto', // Let the library decide based on browser capabilities
       enablePerformanceTracking: true,
-      enableCaching: true
+      enableCaching: true,
+      enableLazyLoading: false, // Disable - uses dynamic imports not supported in service workers
+      enableProgressiveInit: false // Disable - uses dynamic imports not supported in service workers
     });
 
     // Initialize the library

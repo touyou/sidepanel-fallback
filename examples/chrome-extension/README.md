@@ -43,11 +43,27 @@ chrome-extension/
 - ⚠️ Clear indication of fallback behavior
 - 🔄 Same feature set in compact UI
 
+## ⚠️ Service Worker Compatibility
+
+**Important**: When using this library in Chrome Extension background scripts (service workers), you must disable certain features that use dynamic imports:
+
+```javascript
+const fallbackInstance = new SidepanelFallback.SidepanelFallback({
+  defaultMode: 'auto',
+  enablePerformanceTracking: true,
+  enableCaching: true,
+  enableLazyLoading: false,      // ⚠️ REQUIRED: Disable in service workers
+  enableProgressiveInit: false   // ⚠️ REQUIRED: Disable in service workers
+});
+```
+
+**Why**: Service workers don't support dynamic imports (`import()`) according to the HTML specification. The library's lazy loading and progressive initialization features use dynamic imports and will cause errors if not disabled.
+
 ## 🛠️ Implementation Highlights
 
 ### 1. Service Worker (background.js)
 ```javascript
-// Library initialization
+// Library initialization with service worker compatibility
 const fallbackInstance = new SidepanelFallback({
   defaultMode: 'auto',
   enablePerformanceTracking: true
