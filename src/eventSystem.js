@@ -80,11 +80,13 @@ export class EventEmitter {
     }
 
     const listeners = this._events.get(eventName);
-    
+
     // Warn if too many listeners
     if (listeners.length >= this._maxListeners) {
       // eslint-disable-next-line no-console
-      console.warn(`Warning: Possible EventEmitter memory leak detected. ${listeners.length + 1} listeners added for event "${eventName}". Use setMaxListeners() to increase limit.`);
+      console.warn(
+        `Warning: Possible EventEmitter memory leak detected. ${listeners.length + 1} listeners added for event "${eventName}". Use setMaxListeners() to increase limit.`
+      );
     }
 
     listeners.push(listener);
@@ -120,10 +122,10 @@ export class EventEmitter {
 
     const listeners = this._events.get(eventName);
     const index = listeners.indexOf(listener);
-    
+
     if (index !== -1) {
       listeners.splice(index, 1);
-      
+
       // Clean up empty event arrays
       if (listeners.length === 0) {
         this._events.delete(eventName);
@@ -143,7 +145,7 @@ export class EventEmitter {
     }
 
     const listeners = this._events.get(eventName).slice(); // Copy to avoid issues with modifications during emit
-    
+
     for (const listener of listeners) {
       try {
         listener.apply(this, args);
@@ -215,7 +217,7 @@ export const EVENTS = {
   AFTER_INIT: 'afterInit',
   INIT_ERROR: 'initError',
 
-  // Panel operation events  
+  // Panel operation events
   BEFORE_OPEN_PANEL: 'beforeOpenPanel',
   AFTER_OPEN_PANEL: 'afterOpenPanel',
   PANEL_OPEN_ERROR: 'panelOpenError',

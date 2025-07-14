@@ -39,7 +39,7 @@ export interface SettingsUIOptions {
 export interface SidepanelFallbackOptions {
   defaultMode?: 'sidepanel' | 'window' | 'auto';
   userAgent?: string;
-  
+
   // Dependency injection options
   enableDependencyInjection?: boolean;
   container?: any;
@@ -48,9 +48,45 @@ export interface SidepanelFallbackOptions {
   settingsUI?: any;
   browserDetector?: any;
   eventEmitter?: EventEmitter;
-  
+
+  // Performance options
+  enablePerformanceTracking?: boolean;
+  enableLazyLoading?: boolean;
+  enableProgressiveInit?: boolean;
+
   // Legacy compatibility
   strictValidation?: boolean;
+}
+
+export interface InitOptions {
+  stages?: string[];
+  skipProgressiveInit?: boolean;
+}
+
+export interface PerformanceStats {
+  lazyLoader: {
+    cached: number;
+    loading: number;
+    keys: string[];
+  };
+  progressiveInitializer: {
+    currentStage: string | null;
+    completedStages: string[];
+    totalStages: number;
+    isComplete: boolean;
+  };
+  memorySnapshots: Array<{
+    label: string;
+    timestamp: number;
+    memory: {
+      used: number;
+      total: number;
+      limit: number;
+    };
+  }>;
+  performanceTracking: boolean;
+  lazyLoading: boolean;
+  progressiveInit: boolean;
 }
 
 export interface InitResult {
@@ -170,7 +206,7 @@ export declare class SidepanelFallback {
   /**
    * Initialize the fallback system
    */
-  init(): Promise<InitResult>;
+  init(options?: InitOptions): Promise<InitResult>;
 
   /**
    * Open panel using the best available method
@@ -194,6 +230,13 @@ export declare class SidepanelFallback {
   once(eventName: string, listener: EventListener): () => void;
   off(eventName: string, listener: EventListener): void;
   debug(operation: string, context?: Record<string, any>): void;
+
+  /**
+   * Performance methods
+   */
+  getPerformanceStats(): PerformanceStats;
+  preloadComponents(components?: string[]): Promise<void>;
+  clearPerformanceCaches(cacheType?: 'lazy' | 'memory' | 'all'): void;
 
   /**
    * Static event constants

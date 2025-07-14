@@ -3,7 +3,13 @@
  */
 
 import { SidepanelFallback } from '../src/index.js';
-import { createTestContainer, createMockBrowserDetector, createMockStorage, createMockLauncher, createMockSettingsUI } from './testUtils.js';
+import {
+  createTestContainer,
+  createMockBrowserDetector,
+  createMockStorage,
+  createMockLauncher,
+  createMockSettingsUI
+} from './testUtils.js';
 
 describe('SidepanelFallback - Dependency Injection', () => {
   let mockStorage;
@@ -81,7 +87,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
   describe('Custom Implementation Injection', () => {
     it('uses custom storage implementation', async () => {
       const customStorage = createMockStorage('sidepanel');
-      
+
       const fallback = new SidepanelFallback({
         storage: customStorage
       });
@@ -95,7 +101,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
     it('uses custom launcher implementation', async () => {
       const customLauncher = createMockLauncher({ success: true, method: 'custom' });
       const customStorage = createMockStorage(null); // Return null to use default 'auto' mode
-      
+
       const fallback = new SidepanelFallback({
         launcher: customLauncher,
         storage: customStorage
@@ -111,7 +117,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
     it('uses custom settings UI implementation', async () => {
       const customSettingsUI = createMockSettingsUI();
       const mockContainer = document.createElement('div');
-      
+
       const fallback = new SidepanelFallback({
         settingsUI: customSettingsUI
       });
@@ -124,7 +130,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
 
     it('uses custom browser detector implementation', async () => {
       const customBrowserDetector = createMockBrowserDetector('chrome');
-      
+
       const fallback = new SidepanelFallback({
         browserDetector: customBrowserDetector
       });
@@ -139,7 +145,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
   describe('Mixed DI and Custom Implementations', () => {
     it('prioritizes custom implementations over DI container', async () => {
       const customStorage = createMockStorage('custom-mode');
-      
+
       const fallback = new SidepanelFallback({
         enableDependencyInjection: true,
         container: testContainer,
@@ -157,7 +163,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
   describe('DI Metadata', () => {
     it('includes DI information in initialization metadata', async () => {
       const customStorage = createMockStorage('window');
-      
+
       const fallback = new SidepanelFallback({
         enableDependencyInjection: true,
         container: testContainer,
@@ -166,7 +172,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
 
       // Access the raw result without normalization for testing
       const normalizedResult = await fallback.init();
-      
+
       // The result should have been normalized, but we can check the behavior
       expect(normalizedResult.browser).toBe('firefox');
       expect(normalizedResult.mode).toBe('window');

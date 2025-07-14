@@ -7,7 +7,7 @@ import { ModeStorage } from './modeStorage.js';
 import { PanelLauncher } from './panelLauncher.js';
 import { SettingsUI } from './settingsUI.js';
 import { getBrowserInfo } from './browserInfo.js';
-import { EventEmitter, IEventEmitter } from './eventSystem.js';
+import { EventEmitter } from './eventSystem.js';
 
 /**
  * Interface for storage implementations
@@ -127,7 +127,7 @@ export class DIContainer {
   constructor() {
     this._providers = new Map();
     this._instances = new Map();
-    
+
     // Register default providers
     this.registerProvider('storage', DefaultStorageProvider);
     this.registerProvider('launcher', DefaultPanelLauncher);

@@ -71,7 +71,7 @@ export function createMockLauncher(result = { success: true, method: 'sidepanel'
  */
 export function createMockSettingsUI() {
   const mockElement = { appendChild: jest.fn() };
-  
+
   return {
     createSettingsPanel: jest.fn().mockReturnValue(mockElement)
   };
@@ -87,13 +87,13 @@ export function setupTestEnvironment() {
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
     };
   }
-  
+
   if (typeof global.document === 'undefined') {
     const { JSDOM } = require('jsdom');
     const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
     global.document = dom.window.document;
     global.window = dom.window;
-    
+
     // Mock window.open for JSDOM
     global.window.open = jest.fn(() => ({
       focus: jest.fn(),
@@ -107,20 +107,20 @@ export function setupTestEnvironment() {
     const localStorageMock = (() => {
       let store = {};
       return {
-        getItem: (key) => store[key] || null,
-        setItem: (key, value) => store[key] = value.toString(),
-        removeItem: (key) => delete store[key],
-        clear: () => store = {},
+        getItem: key => store[key] || null,
+        setItem: (key, value) => (store[key] = value.toString()),
+        removeItem: key => delete store[key],
+        clear: () => (store = {}),
         get length() {
           return Object.keys(store).length;
         },
-        key: (i) => {
+        key: i => {
           const keys = Object.keys(store);
           return keys[i] || null;
         }
       };
     })();
-    
+
     global.localStorage = localStorageMock;
   }
 }
@@ -132,10 +132,87 @@ export function setupTestEnvironment() {
 export function mockUserAgent(browser) {
   const userAgents = {
     firefox: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
-    chrome: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-    safari: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
+    chrome:
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    safari:
+      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
     edge: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59'
   };
-  
+
   global.navigator.userAgent = userAgents[browser] || userAgents.firefox;
+}
+
+/**
+ * Setup Chrome extension environment for testing
+ */
+export function mockChromeExtensionEnvironment() {
+  const extensionMock = {
+    runtime: {
+      getManifest: jest.fn().mockReturnValue({
+        manifest_version: 3,
+        name: 'Test Extension'
+      }),
+      sendMessage: jest.fn().mockResolvedValue({}),
+      onMessage: {
+        addListener: jest.fn()
+      }
+    },
+    tabs: {
+      query: jest.fn().mockResolvedValue([]),
+      create: jest.fn().mockResolvedValue({ id: 1 })
+    },
+    sidePanel: {
+      open: jest.fn().mockResolvedValue(undefined),
+      setOptions: jest.fn().mockResolvedValue(undefined)
+    }
+  };
+
+  global.chrome = extensionMock;
+  return extensionMock;
+}
+
+/**
+ * Mock performance API for testing
+ */
+export function mockPerformanceAPI() {
+  if (!global.performance) {
+    global.performance = {
+      now: jest.fn(() => Date.now()),
+      memory: {
+        usedJSHeapSize: 10000000,
+        totalJSHeapSize: 50000000,
+        jsHeapSizeLimit: 100000000
+      }
+    };
+  }
+
+  // Mock requestIdleCallback
+  global.requestIdleCallback = jest.fn(callback => {
+    setTimeout(callback, 0);
+    return 1;
+  });
+
+  global.cancelIdleCallback = jest.fn();
+}
+
+/**
+ * Create async mock with delay
+ */
+export function createAsyncMock(resolveValue, delay = 0) {
+  return jest.fn().mockImplementation(() => {
+    return new Promise(resolve => {
+      setTimeout(() => resolve(resolveValue), delay);
+    });
+  });
+}
+
+/**
+ * Create rejected mock with delay
+ */
+export function createRejectedMock(error, delay = 0) {
+  return jest.fn().mockImplementation(() => {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => reject(error), delay);
+    });
+  });
 }

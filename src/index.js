@@ -7,6 +7,19 @@ import { createValidatedConfig } from './configValidation.js';
 import { smartNormalize } from './resultNormalizer.js';
 import { container } from './diContainer.js';
 import { EVENTS, createDebugEvent, createErrorEvent } from './eventSystem.js';
+import {
+  PerformanceTimer,
+  globalLazyLoader,
+  ProgressiveInitializer,
+  globalMemoryTracker,
+  createModuleLoader
+} from './performanceUtils.js';
+import {
+  globalBrowserCache,
+  globalUICache,
+  createBatchedStorage,
+  globalStorageOptimizer
+} from './cachingUtils.js';
 
 export class SidepanelFallback {
   constructor(options = {}) {
@@ -26,7 +39,15 @@ export class SidepanelFallback {
     // Dependency injection support (experimental feature flag)
     this._enableDI = options.enableDependencyInjection || false;
     this._container = options.container || container;
-    
+
+    // Performance options
+    this._enablePerformanceTracking = options.enablePerformanceTracking !== false;
+    this._enableLazyLoading = options.enableLazyLoading !== false;
+    this._enableProgressiveInit = options.enableProgressiveInit !== false;
+    this._enableCaching = options.enableCaching !== false;
+    this._enableStorageBatching = options.enableStorageBatching !== false;
+    this._performanceTimer = null;
+
     // Support for custom implementations (dependency injection)
     this._customStorage = options.storage || null;
     this._customLauncher = options.launcher || null;
@@ -41,6 +62,234 @@ export class SidepanelFallback {
     this.settingsUI = null;
     this.eventEmitter = null;
     this.initialized = false;
+
+    // Performance and lazy loading
+    this.lazyLoader = globalLazyLoader;
+    this.progressiveInitializer = new ProgressiveInitializer();
+    this.memoryTracker = globalMemoryTracker;
+
+    // Caching and optimization
+    this.browserCache = globalBrowserCache;
+    this.uiCache = globalUICache;
+    this.storageOptimizer = globalStorageOptimizer;
+
+    // Setup progressive initialization stages
+    this._setupProgressiveInitialization();
+
+    // Global instance reference for performance tracking
+    if (typeof globalThis !== 'undefined') {
+      globalThis.sidepanelFallbackInstance = this;
+    }
+  }
+
+  /**
+   * Setup progressive initialization stages
+   * @private
+   */
+  _setupProgressiveInitialization() {
+    if (!this._enableProgressiveInit) {
+      return;
+    }
+
+    // Stage 1: Core browser detection (highest priority, required)
+    this.progressiveInitializer.defineStage(
+      'browser-detection',
+      async () => {
+        const userAgent = this.options.userAgent || navigator.userAgent;
+
+        if (this._customBrowserDetector) {
+          this.browser = this._customBrowserDetector.getBrowserInfo(userAgent);
+        } else if (this._enableDI) {
+          try {
+            const browserDetector = this._container.get('browserDetector');
+            this.browser = browserDetector.getBrowserInfo(userAgent);
+          } catch {
+            // Use cached browser detection if enabled
+            if (this._enableCaching) {
+              this.browser = this.browserCache.get(userAgent, getBrowserInfo);
+            } else {
+              this.browser = getBrowserInfo(userAgent);
+            }
+          }
+        } else {
+          // Use cached browser detection if enabled
+          if (this._enableCaching) {
+            this.browser = this.browserCache.get(userAgent, getBrowserInfo);
+          } else {
+            this.browser = getBrowserInfo(userAgent);
+          }
+        }
+
+        if (!this.browser) {
+          throw new Error('Failed to detect browser from user agent');
+        }
+
+        return { browser: this.browser };
+      },
+      { priority: 100, required: true, timeout: 1000 }
+    );
+
+    // Stage 2: Event system initialization (high priority, required)
+    this.progressiveInitializer.defineStage(
+      'event-system',
+      async () => {
+        if (this._customEventEmitter) {
+          this.eventEmitter = this._customEventEmitter;
+        } else if (this._enableDI) {
+          try {
+            this.eventEmitter = this._container.get('eventEmitter');
+          } catch {
+            if (this._enableLazyLoading) {
+              const EventEmitter = await this.lazyLoader.load(
+                'event-emitter',
+                createModuleLoader('./eventSystem.js')
+              );
+              this.eventEmitter = new EventEmitter.EventEmitter();
+            } else {
+              const { EventEmitter } = await import('./eventSystem.js');
+              this.eventEmitter = new EventEmitter();
+            }
+          }
+        } else {
+          if (this._enableLazyLoading) {
+            const EventEmitter = await this.lazyLoader.load(
+              'event-emitter',
+              createModuleLoader('./eventSystem.js')
+            );
+            this.eventEmitter = new EventEmitter.EventEmitter();
+          } else {
+            const { EventEmitter } = await import('./eventSystem.js');
+            this.eventEmitter = new EventEmitter();
+          }
+        }
+
+        return { eventSystem: 'initialized' };
+      },
+      { priority: 90, required: true, dependencies: ['browser-detection'], timeout: 2000 }
+    );
+
+    // Stage 3: Storage initialization (medium priority, required)
+    this.progressiveInitializer.defineStage(
+      'storage',
+      async () => {
+        if (this._customStorage) {
+          this.storage = this._customStorage;
+        } else if (this._enableDI) {
+          try {
+            this.storage = this._container.get('storage');
+          } catch {
+            if (this._enableLazyLoading) {
+              const ModeStorageModule = await this.lazyLoader.load(
+                'mode-storage',
+                createModuleLoader('./modeStorage.js')
+              );
+              this.storage = new ModeStorageModule.ModeStorage();
+            } else {
+              this.storage = new ModeStorage();
+            }
+          }
+        } else {
+          if (this._enableLazyLoading) {
+            const ModeStorageModule = await this.lazyLoader.load(
+              'mode-storage',
+              createModuleLoader('./modeStorage.js')
+            );
+            this.storage = new ModeStorageModule.ModeStorage();
+          } else {
+            this.storage = new ModeStorage();
+          }
+        }
+
+        // Wrap storage with batching if enabled
+        if (this._enableStorageBatching && !this._customStorage) {
+          this.storage = createBatchedStorage(this.storage, {
+            batchSize: 5,
+            batchTimeout: 300
+          });
+        }
+
+        // Get saved mode
+        const savedMode = await this.storage.getMode(this.browser);
+        this.mode = savedMode || this.options.defaultMode;
+
+        return { mode: this.mode };
+      },
+      { priority: 80, required: true, dependencies: ['browser-detection'], timeout: 3000 }
+    );
+
+    // Stage 4: Panel launcher initialization (medium priority, required)
+    this.progressiveInitializer.defineStage(
+      'panel-launcher',
+      async () => {
+        if (this._customLauncher) {
+          this.launcher = this._customLauncher;
+        } else if (this._enableDI) {
+          try {
+            this.launcher = this._container.get('launcher');
+          } catch {
+            if (this._enableLazyLoading) {
+              const PanelLauncherModule = await this.lazyLoader.load(
+                'panel-launcher',
+                createModuleLoader('./panelLauncher.js')
+              );
+              this.launcher = new PanelLauncherModule.PanelLauncher();
+            } else {
+              this.launcher = new PanelLauncher();
+            }
+          }
+        } else {
+          if (this._enableLazyLoading) {
+            const PanelLauncherModule = await this.lazyLoader.load(
+              'panel-launcher',
+              createModuleLoader('./panelLauncher.js')
+            );
+            this.launcher = new PanelLauncherModule.PanelLauncher();
+          } else {
+            this.launcher = new PanelLauncher();
+          }
+        }
+
+        return { launcher: 'initialized' };
+      },
+      { priority: 70, required: true, dependencies: ['browser-detection'], timeout: 2000 }
+    );
+
+    // Stage 5: Settings UI initialization (low priority, optional)
+    this.progressiveInitializer.defineStage(
+      'settings-ui',
+      async () => {
+        if (this._customSettingsUI) {
+          this.settingsUI = this._customSettingsUI;
+        } else if (this._enableDI) {
+          try {
+            this.settingsUI = this._container.get('settingsUI');
+          } catch {
+            if (this._enableLazyLoading) {
+              const SettingsUIModule = await this.lazyLoader.load(
+                'settings-ui',
+                createModuleLoader('./settingsUI.js')
+              );
+              this.settingsUI = new SettingsUIModule.SettingsUI();
+            } else {
+              this.settingsUI = new SettingsUI();
+            }
+          }
+        } else {
+          if (this._enableLazyLoading) {
+            const SettingsUIModule = await this.lazyLoader.load(
+              'settings-ui',
+              createModuleLoader('./settingsUI.js')
+            );
+            this.settingsUI = new SettingsUIModule.SettingsUI();
+          } else {
+            this.settingsUI = new SettingsUI();
+          }
+        }
+
+        return { settingsUI: 'initialized' };
+      },
+      { priority: 50, required: false, dependencies: ['browser-detection'], timeout: 3000 }
+    );
   }
 
   /**
@@ -61,147 +310,43 @@ export class SidepanelFallback {
 
   /**
    * Initialize SidepanelFallback
+   * @param {Object} [options] - Initialization options
+   * @param {Array<string>} [options.stages] - Specific stages to run
+   * @param {boolean} [options.skipProgressiveInit] - Skip progressive initialization
    * @returns {Promise<{browser: string, mode: string}>}
    */
-  async init() {
+  async init(options = {}) {
     try {
-      // Get userAgent
-      const userAgent = this.options.userAgent || navigator.userAgent;
-      
-      // Browser detection - use DI only if enabled and custom detector provided
-      if (this._customBrowserDetector) {
-        this.browser = this._customBrowserDetector.getBrowserInfo(userAgent);
-      } else if (this._enableDI) {
-        try {
-          const browserDetector = this._container.get('browserDetector');
-          this.browser = browserDetector.getBrowserInfo(userAgent);
-        } catch {
-          // Fallback to direct import
-          this.browser = getBrowserInfo(userAgent);
-        }
+      // Start performance tracking
+      if (this._enablePerformanceTracking) {
+        this._performanceTimer = new PerformanceTimer('initialization');
+        this.memoryTracker.snapshot('init-start');
+      }
+
+      // Use progressive initialization if enabled and not skipped
+      if (this._enableProgressiveInit && !options.skipProgressiveInit) {
+        return await this._progressiveInit(options.stages);
       } else {
-        // Default behavior for backward compatibility
-        this.browser = getBrowserInfo(userAgent);
+        return await this._standardInit();
       }
-
-      if (!this.browser) {
-        throw new Error('Failed to detect browser from user agent');
-      }
-
-      // Initialize dependencies - use DI only if enabled and custom implementations provided
-      if (this._customStorage) {
-        this.storage = this._customStorage;
-      } else if (this._enableDI) {
-        try {
-          this.storage = this._container.get('storage');
-        } catch {
-          this.storage = new ModeStorage();
-        }
-      } else {
-        this.storage = new ModeStorage();
-      }
-
-      if (this._customLauncher) {
-        this.launcher = this._customLauncher;
-      } else if (this._enableDI) {
-        try {
-          this.launcher = this._container.get('launcher');
-        } catch {
-          this.launcher = new PanelLauncher();
-        }
-      } else {
-        this.launcher = new PanelLauncher();
-      }
-
-      if (this._customSettingsUI) {
-        this.settingsUI = this._customSettingsUI;
-      } else if (this._enableDI) {
-        try {
-          this.settingsUI = this._container.get('settingsUI');
-        } catch {
-          this.settingsUI = new SettingsUI();
-        }
-      } else {
-        this.settingsUI = new SettingsUI();
-      }
-
-      // Initialize event emitter
-      if (this._customEventEmitter) {
-        this.eventEmitter = this._customEventEmitter;
-      } else if (this._enableDI) {
-        try {
-          this.eventEmitter = this._container.get('eventEmitter');
-        } catch {
-          // Import dynamically to avoid circular dependencies
-          const { EventEmitter } = await import('./eventSystem.js');
-          this.eventEmitter = new EventEmitter();
-        }
-      } else {
-        // Import dynamically to avoid circular dependencies
-        const { EventEmitter } = await import('./eventSystem.js');
-        this.eventEmitter = new EventEmitter();
-      }
-
-      // Emit initialization start event
-      this.eventEmitter.emit(EVENTS.BEFORE_INIT, {
-        browser: this.browser,
-        userAgent,
-        enableDI: this._enableDI
-      });
-
-      // Get saved mode
-      const savedMode = await this.storage.getMode(this.browser);
-      this.mode = savedMode || this.options.defaultMode;
-
-      this.initialized = true;
-
-      // Emit browser detection event
-      this.eventEmitter.emit(EVENTS.BROWSER_DETECTED, {
-        browser: this.browser,
-        userAgent
-      });
-
-      // Emit storage read event
-      this.eventEmitter.emit(EVENTS.STORAGE_READ, {
-        browser: this.browser,
-        savedMode,
-        finalMode: this.mode
-      });
-
-      const result = createSuccessResult(
-        {
-          browser: this.browser,
-          mode: this.mode
-        },
-        {
-          userAgent: userAgent.substring(0, 50) + '...', // Truncated for logging
-          defaultMode: this.options.defaultMode,
-          dependencyInjectionUsed: {
-            storage: !!this._customStorage,
-            launcher: !!this._customLauncher,
-            settingsUI: !!this._customSettingsUI,
-            browserDetector: !!this._customBrowserDetector,
-            eventEmitter: !!this._customEventEmitter
-          }
-        }
-      );
-
-      // Emit initialization complete event
-      this.eventEmitter.emit(EVENTS.AFTER_INIT, {
-        browser: this.browser,
-        mode: this.mode,
-        result
-      });
-
-      // Normalize for backward compatibility
-      return smartNormalize(result, 'init');
     } catch (error) {
+      // Complete performance tracking on error
+      if (this._performanceTimer) {
+        const perfData = this._performanceTimer.complete({ success: false, error: error.message });
+        if (this.eventEmitter) {
+          this.eventEmitter.emit('performance', perfData);
+        }
+      }
+
       // Emit initialization error event if eventEmitter is available
       if (this.eventEmitter) {
-        this.eventEmitter.emit(EVENTS.INIT_ERROR, createErrorEvent(error, 'init', {
-          userAgent: this.options.userAgent,
-          defaultMode: this.options.defaultMode
-        }));
+        this.eventEmitter.emit(
+          EVENTS.INIT_ERROR,
+          createErrorEvent(error, 'init', {
+            userAgent: this.options.userAgent,
+            defaultMode: this.options.defaultMode
+          })
+        );
       }
 
       const errorResult = createErrorResult(
@@ -217,6 +362,261 @@ export class SidepanelFallback {
       // For init errors, throw the error for backward compatibility
       throw new Error(errorResult.error);
     }
+  }
+
+  /**
+   * Progressive initialization implementation
+   * @param {Array<string>} [stages] - Specific stages to run
+   * @returns {Promise<Object>} Initialization result
+   * @private
+   */
+  async _progressiveInit(stages) {
+    if (this._performanceTimer) {
+      this._performanceTimer.mark('progressive-init-start');
+    }
+
+    const initResult = await this.progressiveInitializer.initialize(stages);
+
+    if (!initResult.success) {
+      throw new Error(`Progressive initialization failed: ${initResult.error.message}`);
+    }
+
+    this.initialized = true;
+
+    // Emit events after successful initialization
+    if (this.eventEmitter) {
+      this.eventEmitter.emit(EVENTS.BROWSER_DETECTED, {
+        browser: this.browser,
+        userAgent: this.options.userAgent || navigator.userAgent
+      });
+
+      this.eventEmitter.emit(EVENTS.STORAGE_READ, {
+        browser: this.browser,
+        savedMode: initResult.results.storage?.mode,
+        finalMode: this.mode
+      });
+
+      this.eventEmitter.emit(EVENTS.AFTER_INIT, {
+        browser: this.browser,
+        mode: this.mode,
+        progressive: true,
+        performance: initResult.performance
+      });
+    }
+
+    // Complete performance tracking
+    if (this._performanceTimer) {
+      this._performanceTimer.mark('progressive-init-complete');
+      this.memoryTracker.snapshot('init-complete');
+
+      const perfData = this._performanceTimer.complete({
+        success: true,
+        progressive: true,
+        memoryDiff: this.memoryTracker.getDiff('init-start', 'init-complete')
+      });
+
+      if (this.eventEmitter) {
+        this.eventEmitter.emit('performance', perfData);
+      }
+    }
+
+    const result = createSuccessResult(
+      {
+        browser: this.browser,
+        mode: this.mode
+      },
+      {
+        userAgent: (this.options.userAgent || navigator.userAgent).substring(0, 50) + '...',
+        defaultMode: this.options.defaultMode,
+        progressive: true,
+        performance: initResult.performance,
+        dependencyInjectionUsed: {
+          storage: !!this._customStorage,
+          launcher: !!this._customLauncher,
+          settingsUI: !!this._customSettingsUI,
+          browserDetector: !!this._customBrowserDetector,
+          eventEmitter: !!this._customEventEmitter
+        }
+      }
+    );
+
+    return smartNormalize(result, 'init');
+  }
+
+  /**
+   * Standard initialization implementation (backward compatibility)
+   * @returns {Promise<Object>} Initialization result
+   * @private
+   */
+  async _standardInit() {
+    if (this._performanceTimer) {
+      this._performanceTimer.mark('standard-init-start');
+    }
+
+    // Get userAgent
+    const userAgent = this.options.userAgent || navigator.userAgent;
+
+    // Browser detection - use DI only if enabled and custom detector provided
+    if (this._customBrowserDetector) {
+      this.browser = this._customBrowserDetector.getBrowserInfo(userAgent);
+    } else if (this._enableDI) {
+      try {
+        const browserDetector = this._container.get('browserDetector');
+        this.browser = browserDetector.getBrowserInfo(userAgent);
+      } catch {
+        // Fallback to cached detection if enabled
+        if (this._enableCaching) {
+          this.browser = this.browserCache.get(userAgent, getBrowserInfo);
+        } else {
+          this.browser = getBrowserInfo(userAgent);
+        }
+      }
+    } else {
+      // Default behavior with optional caching
+      if (this._enableCaching) {
+        this.browser = this.browserCache.get(userAgent, getBrowserInfo);
+      } else {
+        this.browser = getBrowserInfo(userAgent);
+      }
+    }
+
+    if (!this.browser) {
+      throw new Error('Failed to detect browser from user agent');
+    }
+
+    // Initialize dependencies - use DI only if enabled and custom implementations provided
+    if (this._customStorage) {
+      this.storage = this._customStorage;
+    } else if (this._enableDI) {
+      try {
+        this.storage = this._container.get('storage');
+      } catch {
+        this.storage = new ModeStorage();
+      }
+    } else {
+      this.storage = new ModeStorage();
+    }
+
+    // Wrap storage with batching if enabled
+    if (this._enableStorageBatching && !this._customStorage) {
+      this.storage = createBatchedStorage(this.storage, {
+        batchSize: 5,
+        batchTimeout: 300
+      });
+    }
+
+    if (this._customLauncher) {
+      this.launcher = this._customLauncher;
+    } else if (this._enableDI) {
+      try {
+        this.launcher = this._container.get('launcher');
+      } catch {
+        this.launcher = new PanelLauncher();
+      }
+    } else {
+      this.launcher = new PanelLauncher();
+    }
+
+    if (this._customSettingsUI) {
+      this.settingsUI = this._customSettingsUI;
+    } else if (this._enableDI) {
+      try {
+        this.settingsUI = this._container.get('settingsUI');
+      } catch {
+        this.settingsUI = new SettingsUI();
+      }
+    } else {
+      this.settingsUI = new SettingsUI();
+    }
+
+    // Initialize event emitter
+    if (this._customEventEmitter) {
+      this.eventEmitter = this._customEventEmitter;
+    } else if (this._enableDI) {
+      try {
+        this.eventEmitter = this._container.get('eventEmitter');
+      } catch {
+        // Import dynamically to avoid circular dependencies
+        const { EventEmitter } = await import('./eventSystem.js');
+        this.eventEmitter = new EventEmitter();
+      }
+    } else {
+      // Import dynamically to avoid circular dependencies
+      const { EventEmitter } = await import('./eventSystem.js');
+      this.eventEmitter = new EventEmitter();
+    }
+
+    // Emit initialization start event
+    this.eventEmitter.emit(EVENTS.BEFORE_INIT, {
+      browser: this.browser,
+      userAgent,
+      enableDI: this._enableDI
+    });
+
+    // Get saved mode
+    const savedMode = await this.storage.getMode(this.browser);
+    this.mode = savedMode || this.options.defaultMode;
+
+    this.initialized = true;
+
+    // Emit browser detection event
+    this.eventEmitter.emit(EVENTS.BROWSER_DETECTED, {
+      browser: this.browser,
+      userAgent
+    });
+
+    // Emit storage read event
+    this.eventEmitter.emit(EVENTS.STORAGE_READ, {
+      browser: this.browser,
+      savedMode,
+      finalMode: this.mode
+    });
+
+    const result = createSuccessResult(
+      {
+        browser: this.browser,
+        mode: this.mode
+      },
+      {
+        userAgent: userAgent.substring(0, 50) + '...', // Truncated for logging
+        defaultMode: this.options.defaultMode,
+        progressive: false,
+        dependencyInjectionUsed: {
+          storage: !!this._customStorage,
+          launcher: !!this._customLauncher,
+          settingsUI: !!this._customSettingsUI,
+          browserDetector: !!this._customBrowserDetector,
+          eventEmitter: !!this._customEventEmitter
+        }
+      }
+    );
+
+    // Emit initialization complete event
+    this.eventEmitter.emit(EVENTS.AFTER_INIT, {
+      browser: this.browser,
+      mode: this.mode,
+      result,
+      progressive: false
+    });
+
+    // Complete performance tracking
+    if (this._performanceTimer) {
+      this._performanceTimer.mark('standard-init-complete');
+      this.memoryTracker.snapshot('init-complete');
+
+      const perfData = this._performanceTimer.complete({
+        success: true,
+        progressive: false,
+        memoryDiff: this.memoryTracker.getDiff('init-start', 'init-complete')
+      });
+
+      if (this.eventEmitter) {
+        this.eventEmitter.emit('performance', perfData);
+      }
+    }
+
+    // Normalize for backward compatibility
+    return smartNormalize(result, 'init');
   }
 
   /**
@@ -274,12 +674,15 @@ export class SidepanelFallback {
       return smartNormalize(successResult, 'openPanel');
     } catch (error) {
       // Emit panel open error event
-      this.eventEmitter.emit(EVENTS.PANEL_OPEN_ERROR, createErrorEvent(error, 'openPanel', {
-        path,
-        mode: actualMode,
-        requestedMode: this.mode,
-        browser: this.browser
-      }));
+      this.eventEmitter.emit(
+        EVENTS.PANEL_OPEN_ERROR,
+        createErrorEvent(error, 'openPanel', {
+          path,
+          mode: actualMode,
+          requestedMode: this.mode,
+          browser: this.browser
+        })
+      );
 
       const errorResult = createErrorResult(
         ErrorCodes.PANEL_OPEN_FAILED,
@@ -321,6 +724,37 @@ export class SidepanelFallback {
       return smartNormalize(errorResult, 'settings');
     }
 
+    // Ensure settings UI is loaded if using lazy loading
+    if (this._enableLazyLoading && !this.settingsUI) {
+      try {
+        // Try to load from progressive initializer if available
+        if (
+          this._enableProgressiveInit &&
+          !this.progressiveInitializer.isStageCompleted('settings-ui')
+        ) {
+          await this.progressiveInitializer.initialize(['settings-ui']);
+        } else {
+          // Fallback to direct lazy loading
+          const SettingsUIModule = await this.lazyLoader.load(
+            'settings-ui',
+            createModuleLoader('./settingsUI.js')
+          );
+          this.settingsUI = new SettingsUIModule.SettingsUI();
+        }
+      } catch (error) {
+        const errorResult = createErrorResult(
+          ErrorCodes.UI_CREATION_FAILED,
+          `Failed to load settings UI: ${error.message}`,
+          {
+            browser: this.browser,
+            mode: this.mode,
+            originalError: error.message
+          }
+        );
+        return smartNormalize(errorResult, 'settings');
+      }
+    }
+
     // Callback for settings changes
     const onSettingsChange = async newSettings => {
       if (newSettings.mode) {
@@ -333,7 +767,7 @@ export class SidepanelFallback {
 
         try {
           await this.storage.setMode(this.browser, newSettings.mode);
-          
+
           // Emit storage write event
           this.eventEmitter.emit(EVENTS.STORAGE_WRITE, {
             browser: this.browser,
@@ -358,11 +792,14 @@ export class SidepanelFallback {
           });
         } catch (error) {
           // Emit settings error event
-          this.eventEmitter.emit(EVENTS.SETTINGS_ERROR, createErrorEvent(error, 'settingsChange', {
-            oldMode: this.mode,
-            newMode: newSettings.mode,
-            browser: this.browser
-          }));
+          this.eventEmitter.emit(
+            EVENTS.SETTINGS_ERROR,
+            createErrorEvent(error, 'settingsChange', {
+              oldMode: this.mode,
+              newMode: newSettings.mode,
+              browser: this.browser
+            })
+          );
           throw error; // Re-throw to maintain existing error handling
         }
       }
@@ -460,12 +897,15 @@ export class SidepanelFallback {
    */
   debug(operation, context = {}) {
     if (this.eventEmitter) {
-      this.eventEmitter.emit(EVENTS.DEBUG, createDebugEvent(operation, {
-        ...context,
-        browser: this.browser,
-        mode: this.mode,
-        initialized: this.initialized
-      }));
+      this.eventEmitter.emit(
+        EVENTS.DEBUG,
+        createDebugEvent(operation, {
+          ...context,
+          browser: this.browser,
+          mode: this.mode,
+          initialized: this.initialized
+        })
+      );
     }
   }
 
@@ -478,17 +918,217 @@ export class SidepanelFallback {
   }
 
   /**
-   * Determine the actual mode in auto mode
-   * @returns {string}
+   * Get performance statistics
+   * @returns {Object} Performance statistics
+   */
+  getPerformanceStats() {
+    const stats = {
+      lazyLoader: this.lazyLoader.getCacheStats(),
+      progressiveInitializer: this.progressiveInitializer.getStatus(),
+      memorySnapshots: this.memoryTracker.getSnapshots(),
+      performanceTracking: this._enablePerformanceTracking,
+      lazyLoading: this._enableLazyLoading,
+      progressiveInit: this._enableProgressiveInit,
+      caching: this._enableCaching,
+      storageBatching: this._enableStorageBatching
+    };
+
+    // Add caching stats if enabled
+    if (this._enableCaching) {
+      stats.browserCache = this.browserCache.getStats();
+      stats.uiCache = this.uiCache.getStats();
+    }
+
+    // Add storage batching detailed stats if enabled and available
+    if (this._enableStorageBatching && this.storage && this.storage.getBatchStats) {
+      stats.storageBatchingDetails = this.storage.getBatchStats();
+    }
+
+    // Add storage optimization recommendations
+    if (this.storageOptimizer) {
+      stats.storageOptimization = this.storageOptimizer.getRecommendations();
+    }
+
+    return stats;
+  }
+
+  /**
+   * Preload components for better performance
+   * @param {Array<string>} [components] - Specific components to preload
+   * @returns {Promise<void>}
+   */
+  async preloadComponents(components = ['panel-launcher', 'settings-ui']) {
+    if (!this._enableLazyLoading) {
+      return; // Nothing to preload if lazy loading is disabled
+    }
+
+    const preloadList = components
+      .map(component => {
+        let loader;
+        switch (component) {
+          case 'panel-launcher':
+            loader = createModuleLoader('./panelLauncher.js');
+            break;
+          case 'settings-ui':
+            loader = createModuleLoader('./settingsUI.js');
+            break;
+          case 'mode-storage':
+            loader = createModuleLoader('./modeStorage.js');
+            break;
+          case 'event-emitter':
+            loader = createModuleLoader('./eventSystem.js');
+            break;
+          default:
+            return null;
+        }
+
+        return { key: component, loader };
+      })
+      .filter(Boolean);
+
+    await this.lazyLoader.preload(preloadList);
+
+    // Emit preload complete event
+    if (this.eventEmitter) {
+      this.eventEmitter.emit('performance', {
+        operation: 'preload-complete',
+        components: components,
+        cacheStats: this.lazyLoader.getCacheStats()
+      });
+    }
+  }
+
+  /**
+   * Clear performance caches
+   * @param {string} [cacheType] - Specific cache to clear ('lazy', 'memory', 'browser', 'ui', 'all')
+   */
+  clearPerformanceCaches(cacheType = 'all') {
+    switch (cacheType) {
+      case 'lazy':
+        this.lazyLoader.clearCache();
+        break;
+      case 'memory':
+        this.memoryTracker.snapshots.length = 0;
+        break;
+      case 'browser':
+        if (this._enableCaching) {
+          this.browserCache.clear();
+        }
+        break;
+      case 'ui':
+        if (this._enableCaching) {
+          this.uiCache.clear();
+        }
+        break;
+      case 'all':
+        this.lazyLoader.clearCache();
+        this.memoryTracker.snapshots.length = 0;
+        if (this._enableCaching) {
+          this.browserCache.clear();
+          this.uiCache.clear();
+        }
+        break;
+    }
+
+    if (this.eventEmitter) {
+      this.eventEmitter.emit('performance', {
+        operation: 'cache-cleared',
+        cacheType
+      });
+    }
+  }
+
+  /**
+   * Optimize storage performance
+   * @returns {Promise<object>} Optimization recommendations
+   */
+  async optimizeStorage() {
+    if (!this._enableStorageBatching || !this.storage || !this.storage.flush) {
+      return { message: 'Storage batching not enabled or not supported' };
+    }
+
+    // Flush any pending operations
+    await this.storage.flush();
+
+    // Get optimization recommendations
+    const recommendations = this.storageOptimizer.getRecommendations();
+
+    if (this.eventEmitter) {
+      this.eventEmitter.emit('performance', {
+        operation: 'storage-optimized',
+        recommendations
+      });
+    }
+
+    return recommendations;
+  }
+
+  /**
+   * Cleanup expired UI cache entries
+   */
+  cleanupUICache() {
+    if (this._enableCaching && this.uiCache) {
+      this.uiCache.cleanup();
+
+      if (this.eventEmitter) {
+        this.eventEmitter.emit('performance', {
+          operation: 'ui-cache-cleaned',
+          stats: this.uiCache.getStats()
+        });
+      }
+    }
+  }
+
+  /**
+   * Get auto mode based on browser
+   * @returns {string} The appropriate mode for the detected browser
    * @private
    */
   _getAutoMode() {
-    // Chrome-based browsers (Chrome, Edge, Dia) support sidepanel
-    if (['chrome', 'edge', 'dia'].includes(this.browser)) {
+    if (!this.browser) {
+      // Fallback to window mode if browser not detected
+      return 'window';
+    }
+
+    // Chrome and Edge prefer sidepanel mode
+    if (this.browser === 'chrome' || this.browser === 'edge') {
       return 'sidepanel';
     }
 
-    // Firefox, Safari, and others use window
+    // Firefox, Safari, and unknown browsers prefer window mode
     return 'window';
+  }
+
+  /**
+   * Get cache recommendations based on usage patterns
+   * @returns {object} Cache recommendations
+   */
+  getCacheRecommendations() {
+    const recommendations = [];
+
+    if (this._enableCaching) {
+      const browserStats = this.browserCache.getStats();
+      const uiStats = this.uiCache.getStats();
+
+      if (browserStats.hitRate < 0.8 && browserStats.misses > 10) {
+        recommendations.push({
+          type: 'browser-cache',
+          priority: 'medium',
+          description: 'Low browser cache hit rate, consider increasing cache size',
+          currentHitRate: browserStats.hitRate
+        });
+      }
+
+      if (uiStats.evictions > uiStats.hits * 0.1) {
+        recommendations.push({
+          type: 'ui-cache',
+          priority: 'medium',
+          description: 'High UI cache eviction rate, consider increasing cache size or age',
+          evictionRate: uiStats.evictions / (uiStats.hits + uiStats.misses)
+        });
+      }
+    }
+
+    return { recommendations, timestamp: Date.now() };
   }
 }

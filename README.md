@@ -203,9 +203,12 @@ The library is built as a composition of focused modules:
 
 ```
 
-src/ ├── index.js # Main API integration ├── browserInfo.js # User agent
-detection ├── modeStorage.js # Settings persistence ├── panelLauncher.js # Panel
-opening logic └── settingsUI.js # Settings UI component
+src/
+├── index.js # Main API integration
+├── browserInfo.js # User agent detection
+├── modeStorage.js # Settings persistence
+├── panelLauncher.js # Panel opening logic
+└── settingsUI.js # Settings UI component
 
 ```
 

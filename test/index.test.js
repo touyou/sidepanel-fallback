@@ -52,10 +52,22 @@ describe('SidepanelFallback', () => {
     PanelLauncher.mockImplementation(() => mockLauncher);
     SettingsUI.mockImplementation(() => mockSettingsUI);
 
+    // デフォルトのブラウザ検出結果を設定
+    getBrowserInfo.mockReturnValue('chrome');
+
     // グローバルnavigatorをモック
     global.navigator = {
       userAgent: 'Mozilla/5.0 (Windows NT 10.0) Chrome/115.0.0.0'
     };
+
+    // Clear any existing global caches
+    if (typeof globalThis !== 'undefined' && globalThis.sidepanelFallbackInstance) {
+      try {
+        globalThis.sidepanelFallbackInstance.clearPerformanceCaches('all');
+      } catch (_error) {
+        // Ignore errors during cleanup
+      }
+    }
   });
 
   describe('init', () => {
@@ -77,7 +89,10 @@ describe('SidepanelFallback', () => {
       getBrowserInfo.mockReturnValue('firefox');
       mockStorage.getMode.mockResolvedValue(null);
 
-      const fallback = new SidepanelFallback();
+      const fallback = new SidepanelFallback({
+        enableCaching: false, // Disable caching to avoid interference
+        enableProgressiveInit: false // Disable progressive init for simpler testing
+      });
       const result = await fallback.init();
 
       expect(result.browser).toBe('firefox');
@@ -133,7 +148,10 @@ describe('SidepanelFallback', () => {
       mockStorage.getMode.mockResolvedValue('auto');
       mockLauncher.openPanel.mockResolvedValue({ success: true, method: 'window' });
 
-      const fallback = new SidepanelFallback();
+      const fallback = new SidepanelFallback({
+        enableCaching: false, // Disable caching to avoid interference
+        enableProgressiveInit: false // Disable progressive init for simpler testing
+      });
       await fallback.init();
       await fallback.openPanel('/panel.html');
 
