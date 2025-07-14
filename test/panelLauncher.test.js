@@ -17,7 +17,8 @@ describe('PanelLauncher', () => {
       global.chrome = {
         sidePanel: {
           open: jest.fn().mockResolvedValue(undefined),
-          setOptions: jest.fn().mockResolvedValue(undefined)
+          setOptions: jest.fn().mockResolvedValue(undefined),
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
 
@@ -66,7 +67,8 @@ describe('PanelLauncher', () => {
       global.chrome = {
         sidePanel: {
           open: jest.fn().mockRejectedValue(new Error('Permission denied')),
-          setOptions: jest.fn().mockResolvedValue(undefined)
+          setOptions: jest.fn().mockResolvedValue(undefined),
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
       const mockWindow = { focus: jest.fn() };
@@ -105,6 +107,9 @@ describe('PanelLauncher', () => {
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
+        },
+        sidePanel: {
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
 
@@ -129,7 +134,8 @@ describe('PanelLauncher', () => {
         },
         sidePanel: {
           open: jest.fn().mockRejectedValue(new Error('Permission denied')),
-          setOptions: jest.fn().mockResolvedValue(undefined)
+          setOptions: jest.fn().mockResolvedValue(undefined),
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
@@ -159,6 +165,9 @@ describe('PanelLauncher', () => {
         },
         windows: {
           create: jest.fn().mockRejectedValue(new Error('Windows API error'))
+        },
+        sidePanel: {
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
 
@@ -179,6 +188,9 @@ describe('PanelLauncher', () => {
         },
         windows: {
           create: jest.fn().mockResolvedValue({ id: 1 })
+        },
+        sidePanel: {
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         }
       };
 

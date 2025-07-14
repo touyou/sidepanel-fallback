@@ -77,7 +77,8 @@ const mockDOM = () => {
   global.chrome = {
     sidePanel: {
       open: jest.fn().mockResolvedValue(undefined),
-      setOptions: jest.fn().mockResolvedValue(undefined)
+      setOptions: jest.fn().mockResolvedValue(undefined),
+      setPanelBehavior: jest.fn().mockResolvedValue(undefined)
     },
     storage: {
       local: {
@@ -90,6 +91,13 @@ const mockDOM = () => {
           return Promise.resolve();
         })
       }
+    },
+    runtime: {
+      id: 'test-extension-id',
+      getURL: jest.fn().mockImplementation(path => `chrome-extension://test-extension-id${path}`)
+    },
+    windows: {
+      create: jest.fn().mockResolvedValue({ id: 1 })
     }
   };
 };
@@ -239,15 +247,21 @@ describe('Integration Tests', () => {
 
       expect(result.success).toBe(true);
       expect(result.fallback).toBe(true);
-      expect(window.open).toHaveBeenCalledWith(
-        '/test-panel.html',
-        'sidepanel_fallback',
-        expect.stringContaining('width=400')
-      );
+      // In Chrome Extension context, should use chrome.windows.create
+      expect(chrome.windows.create).toHaveBeenCalledWith({
+        url: 'chrome-extension://test-extension-id/test-panel.html',
+        type: 'popup',
+        width: 400,
+        height: 600,
+        focused: true
+      });
     });
 
     it('should use window mode for Firefox', async () => {
-      // Mock Firefox user agent
+      // Mock Firefox user agent - temporarily remove Chrome APIs
+      const originalChrome = global.chrome;
+      delete global.chrome;
+      
       fallback.browser = 'firefox';
       fallback.mode = 'auto';
 
@@ -259,6 +273,9 @@ describe('Integration Tests', () => {
         'sidepanel_fallback',
         expect.stringContaining('width=400')
       );
+      
+      // Restore Chrome APIs for other tests
+      global.chrome = originalChrome;
     });
   });
 
@@ -403,15 +420,15 @@ describe('Integration Tests', () => {
       });
       await fallback.init();
 
-      // Mock both sidepanel and window.open to fail
+      // Mock both sidepanel and chrome.windows.create to fail
       chrome.sidePanel.open.mockRejectedValue(new Error('Sidepanel failed'));
-      window.open.mockReturnValue(null); // Simulate popup blocked
+      chrome.windows.create.mockRejectedValue(new Error('Windows API failed'));
 
       const result = await fallback.openPanel('/test-panel.html');
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
-      expect(result.error).toContain('Failed to open popup window');
+      expect(result.error).toContain('Failed to open panel');
     });
 
     it('should handle settings UI creation errors gracefully', async () => {

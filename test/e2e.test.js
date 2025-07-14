@@ -77,7 +77,8 @@ const createBrowserEnvironment = (browserType, hasExtensionAPI = false) => {
     global.chrome = {
       sidePanel: {
         open: jest.fn().mockResolvedValue(undefined),
-        setOptions: jest.fn().mockResolvedValue(undefined)
+        setOptions: jest.fn().mockResolvedValue(undefined),
+        setPanelBehavior: jest.fn().mockResolvedValue(undefined)
       },
       storage: {
         local: {
