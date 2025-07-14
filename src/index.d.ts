@@ -39,6 +39,18 @@ export interface SettingsUIOptions {
 export interface SidepanelFallbackOptions {
   defaultMode?: 'sidepanel' | 'window' | 'auto';
   userAgent?: string;
+  
+  // Dependency injection options
+  enableDependencyInjection?: boolean;
+  container?: any;
+  storage?: any;
+  launcher?: any;
+  settingsUI?: any;
+  browserDetector?: any;
+  eventEmitter?: EventEmitter;
+  
+  // Legacy compatibility
+  strictValidation?: boolean;
 }
 
 export interface InitResult {
@@ -174,6 +186,19 @@ export declare class SidepanelFallback {
    * Get current settings and configuration
    */
   getCurrentSettings(): CurrentSettings | null;
+
+  /**
+   * Event system methods
+   */
+  on(eventName: string, listener: EventListener): () => void;
+  once(eventName: string, listener: EventListener): () => void;
+  off(eventName: string, listener: EventListener): void;
+  debug(operation: string, context?: Record<string, any>): void;
+
+  /**
+   * Static event constants
+   */
+  static readonly EVENTS: SidepanelEvents;
 }
 
 /**
@@ -205,6 +230,58 @@ export declare class PanelLauncher {
 export declare class SettingsUI {
   constructor();
   createSettingsPanel(currentSettings: any, onSettingsChange: (settings: any) => void): HTMLElement;
+}
+
+/**
+ * Event system interfaces
+ */
+export interface EventListener {
+  (event: any): void;
+}
+
+export interface EventEmitter {
+  on(eventName: string, listener: EventListener): () => void;
+  once(eventName: string, listener: EventListener): () => void;
+  off(eventName: string, listener: EventListener): void;
+  emit(eventName: string, ...args: any[]): boolean;
+  removeAllListeners(eventName?: string): void;
+}
+
+export interface DebugEvent {
+  timestamp: string;
+  operation: string;
+  context: Record<string, any>;
+}
+
+export interface ErrorEvent {
+  timestamp: string;
+  error: {
+    name: string;
+    message: string;
+    stack?: string;
+  };
+  operation: string;
+  context: Record<string, any>;
+}
+
+export interface SidepanelEvents {
+  BEFORE_INIT: 'beforeInit';
+  AFTER_INIT: 'afterInit';
+  INIT_ERROR: 'initError';
+  BEFORE_OPEN_PANEL: 'beforeOpenPanel';
+  AFTER_OPEN_PANEL: 'afterOpenPanel';
+  PANEL_OPEN_ERROR: 'panelOpenError';
+  BEFORE_SETTINGS_CHANGE: 'beforeSettingsChange';
+  AFTER_SETTINGS_CHANGE: 'afterSettingsChange';
+  SETTINGS_ERROR: 'settingsError';
+  MODE_CHANGED: 'modeChanged';
+  BROWSER_DETECTED: 'browserDetected';
+  STORAGE_READ: 'storageRead';
+  STORAGE_WRITE: 'storageWrite';
+  STORAGE_ERROR: 'storageError';
+  DEBUG: 'debug';
+  ERROR: 'error';
+  WARNING: 'warning';
 }
 
 export default SidepanelFallback;

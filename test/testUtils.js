@@ -76,3 +76,66 @@ export function createMockSettingsUI() {
     createSettingsPanel: jest.fn().mockReturnValue(mockElement)
   };
 }
+
+/**
+ * Setup test environment with DOM and user agent
+ */
+export function setupTestEnvironment() {
+  // Setup DOM globals if not already present
+  if (typeof global.navigator === 'undefined') {
+    global.navigator = {
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
+    };
+  }
+  
+  if (typeof global.document === 'undefined') {
+    const { JSDOM } = require('jsdom');
+    const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
+    global.document = dom.window.document;
+    global.window = dom.window;
+    
+    // Mock window.open for JSDOM
+    global.window.open = jest.fn(() => ({
+      focus: jest.fn(),
+      close: jest.fn(),
+      location: { href: '' }
+    }));
+  }
+
+  // Setup localStorage mock
+  if (typeof global.localStorage === 'undefined') {
+    const localStorageMock = (() => {
+      let store = {};
+      return {
+        getItem: (key) => store[key] || null,
+        setItem: (key, value) => store[key] = value.toString(),
+        removeItem: (key) => delete store[key],
+        clear: () => store = {},
+        get length() {
+          return Object.keys(store).length;
+        },
+        key: (i) => {
+          const keys = Object.keys(store);
+          return keys[i] || null;
+        }
+      };
+    })();
+    
+    global.localStorage = localStorageMock;
+  }
+}
+
+/**
+ * Mock user agent for testing
+ * @param {string} browser - Browser type ('firefox', 'chrome', 'safari', 'edge')
+ */
+export function mockUserAgent(browser) {
+  const userAgents = {
+    firefox: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0',
+    chrome: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+    safari: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15',
+    edge: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59'
+  };
+  
+  global.navigator.userAgent = userAgents[browser] || userAgents.firefox;
+}

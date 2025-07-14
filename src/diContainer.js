@@ -7,6 +7,7 @@ import { ModeStorage } from './modeStorage.js';
 import { PanelLauncher } from './panelLauncher.js';
 import { SettingsUI } from './settingsUI.js';
 import { getBrowserInfo } from './browserInfo.js';
+import { EventEmitter, IEventEmitter } from './eventSystem.js';
 
 /**
  * Interface for storage implementations
@@ -111,6 +112,15 @@ export class DefaultBrowserDetector extends IBrowserDetector {
 }
 
 /**
+ * Default event emitter implementation
+ */
+export class DefaultEventEmitter extends EventEmitter {
+  constructor() {
+    super();
+  }
+}
+
+/**
  * Dependency injection container
  */
 export class DIContainer {
@@ -123,6 +133,7 @@ export class DIContainer {
     this.registerProvider('launcher', DefaultPanelLauncher);
     this.registerProvider('settingsUI', DefaultSettingsUI);
     this.registerProvider('browserDetector', DefaultBrowserDetector);
+    this.registerProvider('eventEmitter', DefaultEventEmitter);
   }
 
   /**

@@ -6,6 +6,7 @@ import { ErrorCodes, createErrorResult, createSuccessResult } from './errorHandl
 import { createValidatedConfig } from './configValidation.js';
 import { smartNormalize } from './resultNormalizer.js';
 import { container } from './diContainer.js';
+import { EVENTS, createDebugEvent, createErrorEvent } from './eventSystem.js';
 
 export class SidepanelFallback {
   constructor(options = {}) {
@@ -31,12 +32,14 @@ export class SidepanelFallback {
     this._customLauncher = options.launcher || null;
     this._customSettingsUI = options.settingsUI || null;
     this._customBrowserDetector = options.browserDetector || null;
+    this._customEventEmitter = options.eventEmitter || null;
 
     this.browser = null;
     this.mode = null;
     this.storage = null;
     this.launcher = null;
     this.settingsUI = null;
+    this.eventEmitter = null;
     this.initialized = false;
   }
 
@@ -122,11 +125,48 @@ export class SidepanelFallback {
         this.settingsUI = new SettingsUI();
       }
 
+      // Initialize event emitter
+      if (this._customEventEmitter) {
+        this.eventEmitter = this._customEventEmitter;
+      } else if (this._enableDI) {
+        try {
+          this.eventEmitter = this._container.get('eventEmitter');
+        } catch {
+          // Import dynamically to avoid circular dependencies
+          const { EventEmitter } = await import('./eventSystem.js');
+          this.eventEmitter = new EventEmitter();
+        }
+      } else {
+        // Import dynamically to avoid circular dependencies
+        const { EventEmitter } = await import('./eventSystem.js');
+        this.eventEmitter = new EventEmitter();
+      }
+
+      // Emit initialization start event
+      this.eventEmitter.emit(EVENTS.BEFORE_INIT, {
+        browser: this.browser,
+        userAgent,
+        enableDI: this._enableDI
+      });
+
       // Get saved mode
       const savedMode = await this.storage.getMode(this.browser);
       this.mode = savedMode || this.options.defaultMode;
 
       this.initialized = true;
+
+      // Emit browser detection event
+      this.eventEmitter.emit(EVENTS.BROWSER_DETECTED, {
+        browser: this.browser,
+        userAgent
+      });
+
+      // Emit storage read event
+      this.eventEmitter.emit(EVENTS.STORAGE_READ, {
+        browser: this.browser,
+        savedMode,
+        finalMode: this.mode
+      });
 
       const result = createSuccessResult(
         {
@@ -140,14 +180,30 @@ export class SidepanelFallback {
             storage: !!this._customStorage,
             launcher: !!this._customLauncher,
             settingsUI: !!this._customSettingsUI,
-            browserDetector: !!this._customBrowserDetector
+            browserDetector: !!this._customBrowserDetector,
+            eventEmitter: !!this._customEventEmitter
           }
         }
       );
 
+      // Emit initialization complete event
+      this.eventEmitter.emit(EVENTS.AFTER_INIT, {
+        browser: this.browser,
+        mode: this.mode,
+        result
+      });
+
       // Normalize for backward compatibility
       return smartNormalize(result, 'init');
     } catch (error) {
+      // Emit initialization error event if eventEmitter is available
+      if (this.eventEmitter) {
+        this.eventEmitter.emit(EVENTS.INIT_ERROR, createErrorEvent(error, 'init', {
+          userAgent: this.options.userAgent,
+          defaultMode: this.options.defaultMode
+        }));
+      }
+
       const errorResult = createErrorResult(
         ErrorCodes.INIT_FAILED,
         `Initialization failed: ${error.message}`,
@@ -185,6 +241,13 @@ export class SidepanelFallback {
       return smartNormalize(errorResult, 'openPanel');
     }
 
+    // Emit before open panel event
+    this.eventEmitter.emit(EVENTS.BEFORE_OPEN_PANEL, {
+      path,
+      mode: this.mode,
+      browser: this.browser
+    });
+
     // Determine mode
     let actualMode = this.mode;
     if (this.mode === 'auto') {
@@ -198,8 +261,26 @@ export class SidepanelFallback {
         effectiveMode: actualMode,
         browser: this.browser
       });
+
+      // Emit after open panel event
+      this.eventEmitter.emit(EVENTS.AFTER_OPEN_PANEL, {
+        path,
+        mode: actualMode,
+        requestedMode: this.mode,
+        browser: this.browser,
+        result: successResult
+      });
+
       return smartNormalize(successResult, 'openPanel');
     } catch (error) {
+      // Emit panel open error event
+      this.eventEmitter.emit(EVENTS.PANEL_OPEN_ERROR, createErrorEvent(error, 'openPanel', {
+        path,
+        mode: actualMode,
+        requestedMode: this.mode,
+        browser: this.browser
+      }));
+
       const errorResult = createErrorResult(
         ErrorCodes.PANEL_OPEN_FAILED,
         `Failed to open panel: ${error.message}`,
@@ -243,8 +324,47 @@ export class SidepanelFallback {
     // Callback for settings changes
     const onSettingsChange = async newSettings => {
       if (newSettings.mode) {
-        await this.storage.setMode(this.browser, newSettings.mode);
-        this.mode = newSettings.mode;
+        // Emit before settings change event
+        this.eventEmitter.emit(EVENTS.BEFORE_SETTINGS_CHANGE, {
+          oldMode: this.mode,
+          newMode: newSettings.mode,
+          browser: this.browser
+        });
+
+        try {
+          await this.storage.setMode(this.browser, newSettings.mode);
+          
+          // Emit storage write event
+          this.eventEmitter.emit(EVENTS.STORAGE_WRITE, {
+            browser: this.browser,
+            mode: newSettings.mode
+          });
+
+          const oldMode = this.mode;
+          this.mode = newSettings.mode;
+
+          // Emit mode changed event
+          this.eventEmitter.emit(EVENTS.MODE_CHANGED, {
+            oldMode,
+            newMode: this.mode,
+            browser: this.browser
+          });
+
+          // Emit after settings change event
+          this.eventEmitter.emit(EVENTS.AFTER_SETTINGS_CHANGE, {
+            oldMode,
+            newMode: this.mode,
+            browser: this.browser
+          });
+        } catch (error) {
+          // Emit settings error event
+          this.eventEmitter.emit(EVENTS.SETTINGS_ERROR, createErrorEvent(error, 'settingsChange', {
+            oldMode: this.mode,
+            newMode: newSettings.mode,
+            browser: this.browser
+          }));
+          throw error; // Re-throw to maintain existing error handling
+        }
       }
     };
 
@@ -293,6 +413,68 @@ export class SidepanelFallback {
       browser: this.browser,
       mode: this.mode
     };
+  }
+
+  /**
+   * Add an event listener
+   * @param {string} eventName - The event name
+   * @param {Function} listener - The listener function
+   * @returns {Function} Unsubscribe function
+   */
+  on(eventName, listener) {
+    if (!this.eventEmitter) {
+      throw new Error('Event system not initialized. Call init() first.');
+    }
+    return this.eventEmitter.on(eventName, listener);
+  }
+
+  /**
+   * Add a one-time event listener
+   * @param {string} eventName - The event name
+   * @param {Function} listener - The listener function
+   * @returns {Function} Unsubscribe function
+   */
+  once(eventName, listener) {
+    if (!this.eventEmitter) {
+      throw new Error('Event system not initialized. Call init() first.');
+    }
+    return this.eventEmitter.once(eventName, listener);
+  }
+
+  /**
+   * Remove an event listener
+   * @param {string} eventName - The event name
+   * @param {Function} listener - The listener function
+   */
+  off(eventName, listener) {
+    if (!this.eventEmitter) {
+      throw new Error('Event system not initialized. Call init() first.');
+    }
+    this.eventEmitter.off(eventName, listener);
+  }
+
+  /**
+   * Emit a debug event with context
+   * @param {string} operation - The operation being performed
+   * @param {Object} context - Additional context data
+   */
+  debug(operation, context = {}) {
+    if (this.eventEmitter) {
+      this.eventEmitter.emit(EVENTS.DEBUG, createDebugEvent(operation, {
+        ...context,
+        browser: this.browser,
+        mode: this.mode,
+        initialized: this.initialized
+      }));
+    }
+  }
+
+  /**
+   * Get available event names
+   * @returns {Object} Object containing all available event names
+   */
+  static get EVENTS() {
+    return EVENTS;
   }
 
   /**
