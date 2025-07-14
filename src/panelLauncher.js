@@ -22,7 +22,7 @@ export class PanelLauncher {
         try {
           await chrome.sidePanel.open({ path });
           return { success: true, method: 'sidepanel' };
-        } catch (error) {
+        } catch (_error) {
           // エラーの場合はwindowにフォールバック
           return this._openWindow(path, true);
         }

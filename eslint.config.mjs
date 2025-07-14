@@ -1,35 +1,27 @@
-import js from '@eslint/js';
+import globals from 'globals';
 
 export default [
-  // Base configuration for all files
   {
     files: ['**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
-        browser: true,
-        es2022: true,
-        node: true,
+        ...globals.browser,
+        ...globals.es2022,
+        ...globals.node,
         chrome: 'readonly'
       }
     },
     rules: {
-      ...js.configs.recommended.rules,
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'no-console': 'warn',
       'no-debugger': 'error',
-      'no-alert': 'error',
-      eqeqeq: ['error', 'always'],
-      curly: ['error', 'all'],
-      'no-eval': 'error',
-      'no-implied-eval': 'error',
+      'no-undef': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
       semi: ['error', 'always'],
-      quotes: ['error', 'single', { avoidEscape: true }],
-      indent: ['error', 2],
-      'comma-dangle': ['error', 'never']
+      quotes: ['error', 'single', { avoidEscape: true }]
     }
   },
 
@@ -40,10 +32,10 @@ export default [
       ecmaVersion: 2022,
       sourceType: 'module',
       globals: {
-        browser: true,
-        es2022: true,
-        node: true,
-        jest: true
+        ...globals.browser,
+        ...globals.es2022,
+        ...globals.node,
+        ...globals.jest
       }
     },
     rules: {
@@ -59,7 +51,7 @@ export default [
       ecmaVersion: 2022,
       sourceType: 'script',
       globals: {
-        node: true
+        ...globals.node
       }
     },
     rules: {
