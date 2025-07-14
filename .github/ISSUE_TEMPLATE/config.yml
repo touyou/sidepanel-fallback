@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussion
+    url: https://github.com/touyou/sidepanel-fallback/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: Security Vulnerability
+    url: https://github.com/touyou/sidepanel-fallback/security/advisories/new
+    about: Report security vulnerabilities privately
+  - name: Documentation
+    url: https://github.com/touyou/sidepanel-fallback#readme
+    about: Check the README for usage instructions and examples
