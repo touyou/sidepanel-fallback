@@ -46,7 +46,8 @@ and this project adheres to
 - Updated Jest from v29.7.0 to v30.0.4 for latest testing features
 - Removed legacy .eslintrc.json and .eslintignore files
 - Enhanced ESLint configuration to properly handle catch block variables
-- Improved release workflow with automatic CHANGELOG updates and version management
+- Improved release workflow with automatic CHANGELOG updates and version
+  management
 
 ### Infrastructure
 

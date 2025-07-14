@@ -42,17 +42,17 @@ jobs:
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
           DATE=$(date +%Y-%m-%d)
-          
+
           # Create backup
           cp CHANGELOG.md CHANGELOG.md.bak
-          
+
           # Replace [Unreleased] with version and date
           sed -i "s/## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
-          
+
           # Add new Unreleased section
           sed -i "/## \[$VERSION\] - $DATE/i ## [Unreleased]\n" CHANGELOG.md
           sed -i "/## \[Unreleased\]/a \n### Added\n\n### Changed\n\n### Fixed\n\n### Removed\n" CHANGELOG.md
-          
+
           # Update comparison links
           sed -i "s|\[Unreleased\]: https://github.com/touyou/sidepanel-fallback/compare/v.*\.\.\.HEAD|[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/v$VERSION...HEAD|" CHANGELOG.md
           sed -i "/\[Unreleased\]:/a [$VERSION]: https://github.com/touyou/sidepanel-fallback/compare/v1.0.0...v$VERSION" CHANGELOG.md
@@ -64,7 +64,7 @@ jobs:
           awk "/## \[$VERSION\]/, /## \[/ { if (/## \[/ && !/## \[$VERSION\]/) exit; print }" CHANGELOG.md > release_notes.txt
           tail -n +2 release_notes.txt > release_notes_clean.txt
           sed -i '/^$/N;/^\n$/d' release_notes_clean.txt
-          
+
           {
             echo 'NOTES<<EOF'
             cat release_notes_clean.txt
