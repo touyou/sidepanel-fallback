@@ -46,7 +46,6 @@ jobs:
               PR_BODY=""
             fi
           fi
-          
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "PR_TITLE=$PR_TITLE" >> $GITHUB_OUTPUT
           echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_OUTPUT
@@ -59,10 +58,10 @@ jobs:
         run: |
           PR_TITLE="${{ steps.pr-info.outputs.PR_TITLE }}"
           PR_BODY="${{ steps.pr-info.outputs.PR_BODY }}"
-          
+
           # Determine the type of change based on conventional commits or PR title/body
           SECTION="Changed"
-          
+
           if echo "$PR_TITLE" | grep -iE "^(feat|feature)"; then
             SECTION="Added"
           elif echo "$PR_TITLE" | grep -iE "^(fix|bugfix)"; then
@@ -76,7 +75,6 @@ jobs:
           elif echo "$PR_BODY" | grep -iE "(breaking change|breaking:)"; then
             SECTION="Changed"
           fi
-          
           # Check PR body for explicit section markers
           if echo "$PR_BODY" | grep -iE "changelog:\s*(added|add)"; then
             SECTION="Added"
@@ -87,7 +85,6 @@ jobs:
           elif echo "$PR_BODY" | grep -iE "changelog:\s*(removed|remove)"; then
             SECTION="Removed"
           fi
-          
           echo "SECTION=$SECTION" >> $GITHUB_OUTPUT
 
       - name: Update CHANGELOG
@@ -96,17 +93,16 @@ jobs:
           PR_TITLE="${{ steps.pr-info.outputs.PR_TITLE }}"
           PR_AUTHOR="${{ steps.pr-info.outputs.PR_AUTHOR }}"
           SECTION="${{ steps.change-type.outputs.SECTION }}"
-          
           # Create the changelog entry
           if [ -n "$PR_NUMBER" ]; then
             ENTRY="- $PR_TITLE (#$PR_NUMBER) @$PR_AUTHOR"
           else
             ENTRY="- $PR_TITLE @$PR_AUTHOR"
           fi
-          
+
           # Backup original CHANGELOG
           cp CHANGELOG.md CHANGELOG.md.bak
-          
+
           # Find the line number of the target section under [Unreleased]
           UNRELEASED_LINE=$(grep -n "## \[Unreleased\]" CHANGELOG.md | head -1 | cut -d: -f1)
           SECTION_LINE=$(awk -v start="$UNRELEASED_LINE" -v section="$SECTION" '
@@ -117,7 +113,6 @@ jobs:
               }
             }
           ' CHANGELOG.md)
-          
           if [ -n "$SECTION_LINE" ]; then
             # Add entry after the section header
             sed -i "${SECTION_LINE}a\\${ENTRY}" CHANGELOG.md
@@ -130,7 +125,7 @@ jobs:
                 exit
               }
             ' CHANGELOG.md)
-            
+
             if [ -n "$CHANGED_LINE" ]; then
               sed -i "${CHANGED_LINE}a\\${ENTRY}" CHANGELOG.md
             else

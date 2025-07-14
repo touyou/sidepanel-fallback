@@ -145,6 +145,25 @@ npm run dev
 
 ### 4. Commit Your Changes
 
+**MANDATORY: Run quality checks before committing:**
+
+```bash
+# Must pass before any commit
+npm run quality     # Lint and format checks
+npm run test        # All tests must pass
+
+# Auto-fix issues if needed
+npm run quality:fix # Fix lint and format issues
+```
+
+**Note for Pull Requests**: Our CI automatically checks only the files you've
+changed in your PR to avoid conflicts with main branch content that hasn't been
+merged yet. You can test this locally with:
+
+```bash
+npm run format:check:changed  # Check format for changed files only
+```
+
 We use conventional commits for clear history:
 
 ```bash
@@ -263,10 +282,13 @@ global.document = {
 
 ### Before Submitting
 
-1. **All tests pass**: `npm test` returns 100% success
-2. **Code builds**: `npm run build` completes without errors
-3. **Documentation updated**: README, usage.md, etc.
-4. **Commits are clean**: Use conventional commit messages
+**MANDATORY CHECKS (all must pass):**
+
+1. **Quality checks pass**: `npm run quality` returns no errors
+2. **All tests pass**: `npm test` returns 100% success
+3. **Code builds**: `npm run build` completes without errors
+4. **Documentation updated**: README, usage.md, etc.
+5. **Commits are clean**: Use conventional commit messages
 
 ### PR Requirements
 

@@ -18,6 +18,11 @@ applyTo: 'src/**/*.js,test/**/*.js,**/*.md,package.json,scripts/**/*.js'
 1. **Red Phase**: Write failing test cases that define the desired behavior
 2. **Green Phase**: Write minimal implementation to make tests pass
 3. **Refactor Phase**: Improve code quality while maintaining test coverage
+4. **Quality Phase**: **MANDATORY** - Run quality checks before committing
+   ```bash
+   npm run quality     # Must pass before commit
+   npm run test        # All tests must pass
+   ```
 
 ### Testing Standards
 
@@ -38,6 +43,32 @@ scripts/                # Utility scripts
 ```
 
 ## Code Quality Standards
+
+### Mandatory Quality Checks
+
+**IMPORTANT: Quality checks are mandatory and must pass before any code changes
+are committed or PRs are submitted.**
+
+#### Required Commands Before Any Commit
+
+```bash
+npm run quality     # Run lint and format checks (must pass)
+npm run test        # Run all tests (must pass 100%)
+```
+
+#### Quick Fix Commands
+
+```bash
+npm run quality:fix # Auto-fix lint and format issues
+npm run lint:fix    # Auto-fix ESLint issues only
+npm run format      # Auto-format code with Prettier
+```
+
+#### CI/CD Integration
+
+- All PRs automatically run quality checks via GitHub Actions
+- Lint errors, format violations, or test failures will block merging
+- Coverage thresholds are enforced (statements: 84%, branches: 80%, lines: 85%)
 
 ### Language Requirements
 

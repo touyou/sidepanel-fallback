@@ -139,7 +139,20 @@ export function mockUserAgent(browser) {
     edge: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 Edg/91.0.864.59'
   };
 
-  global.navigator.userAgent = userAgents[browser] || userAgents.firefox;
+  // Use Object.defineProperty to handle read-only userAgent in Node.js 22
+  const targetUserAgent = userAgents[browser] || userAgents.firefox;
+
+  try {
+    // First try direct assignment (works in older Node.js versions)
+    global.navigator.userAgent = targetUserAgent;
+  } catch (_error) {
+    // If direct assignment fails (Node.js 22+), use defineProperty
+    Object.defineProperty(global.navigator, 'userAgent', {
+      value: targetUserAgent,
+      writable: true,
+      configurable: true
+    });
+  }
 }
 
 /**

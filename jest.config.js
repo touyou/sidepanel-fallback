@@ -28,5 +28,9 @@ module.exports = {
   // Enhanced Node.js compatibility for versions 18-22
   maxWorkers: 1,
   // Node 22 specific compatibility
-  preset: undefined
+  preset: undefined,
+  // Node 22 experimental VM modules fix
+  extensionsToTreatAsEsm: [],
+  // Node 22 worker thread compatibility
+  workerIdleMemoryLimit: '512MB'
 };
