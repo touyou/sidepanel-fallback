@@ -21,8 +21,7 @@
             },
             "modules": "commonjs",
             "bugfixes": true,
-            "shippedProposals": true,
-            "exclude": ["proposal-dynamic-import"]
+            "shippedProposals": true
           }
         ]
       ]

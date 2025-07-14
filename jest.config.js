@@ -22,15 +22,11 @@ module.exports = {
       statements: 84
     }
   },
-  testMatch: [
-    '**/test/browserInfo.test.js',
-    '**/test/modeStorage.test.js',
-    '**/test/panelLauncher.test.js',
-    '**/test/settingsUI.test.js'
-  ],
-  // Skip problematic performance tests that cause segfaults
+  testMatch: ['**/test/*.test.js'],
   testPathIgnorePatterns: ['node_modules'],
   transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$))'],
-  // Minimal configuration for stability
-  maxWorkers: 1
+  // Enhanced Node.js compatibility for versions 18-22
+  maxWorkers: 1,
+  // Node 22 specific compatibility
+  preset: undefined
 };
