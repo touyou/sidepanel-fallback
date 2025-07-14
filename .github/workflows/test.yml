@@ -30,7 +30,14 @@ jobs:
         run: npm run lint
 
       - name: Run format check
-        run: npm run format:check
+        run: |
+          # For PRs, only check changed files to avoid checking unmerged main branch content
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run format:check:changed
+          else
+            # For push events, check all files
+            npm run format:check
+          fi
 
       - name: Run tests with timeout
         run: timeout 600 npm test || npm test

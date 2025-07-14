@@ -156,6 +156,14 @@ npm run test        # All tests must pass
 npm run quality:fix # Fix lint and format issues
 ```
 
+**Note for Pull Requests**: Our CI automatically checks only the files you've
+changed in your PR to avoid conflicts with main branch content that hasn't been
+merged yet. You can test this locally with:
+
+```bash
+npm run format:check:changed  # Check format for changed files only
+```
+
 We use conventional commits for clear history:
 
 ```bash
