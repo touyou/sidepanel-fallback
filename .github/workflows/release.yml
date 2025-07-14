@@ -34,10 +34,54 @@ jobs:
       - name: Build package
         run: npm run build
 
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Update CHANGELOG for release
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          DATE=$(date +%Y-%m-%d)
+          
+          # Create backup
+          cp CHANGELOG.md CHANGELOG.md.bak
+          
+          # Replace [Unreleased] with version and date
+          sed -i "s/## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
+          
+          # Add new Unreleased section
+          sed -i "/## \[$VERSION\] - $DATE/i ## [Unreleased]\n" CHANGELOG.md
+          sed -i "/## \[Unreleased\]/a \n### Added\n\n### Changed\n\n### Fixed\n\n### Removed\n" CHANGELOG.md
+          
+          # Update comparison links
+          sed -i "s|\[Unreleased\]: https://github.com/touyou/sidepanel-fallback/compare/v.*\.\.\.HEAD|[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/v$VERSION...HEAD|" CHANGELOG.md
+          sed -i "/\[Unreleased\]:/a [$VERSION]: https://github.com/touyou/sidepanel-fallback/compare/v1.0.0...v$VERSION" CHANGELOG.md
+
+      - name: Extract release notes from CHANGELOG
+        id: changelog
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          awk "/## \[$VERSION\]/, /## \[/ { if (/## \[/ && !/## \[$VERSION\]/) exit; print }" CHANGELOG.md > release_notes.txt
+          tail -n +2 release_notes.txt > release_notes_clean.txt
+          sed -i '/^$/N;/^\n$/d' release_notes_clean.txt
+          
+          {
+            echo 'NOTES<<EOF'
+            cat release_notes_clean.txt
+            echo EOF
+          } >> $GITHUB_OUTPUT
+
+      - name: Commit CHANGELOG updates
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add CHANGELOG.md
+          git commit -m "docs: update CHANGELOG for v${{ steps.version.outputs.VERSION }}" || echo "No changes to commit"
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-build-artifacts
+          name: release-build-artifacts-v${{ steps.version.outputs.VERSION }}
           path: dist/
           retention-days: 90
 
@@ -51,7 +95,7 @@ jobs:
           TAG_NAME=${GITHUB_REF#refs/tags/}
           gh release create "$TAG_NAME" \
             --title "Release $TAG_NAME" \
-            --notes "Release $TAG_NAME - Published to npm" \
+            --notes "${{ steps.changelog.outputs.NOTES }}" \
             --draft=false \
             --prerelease=false \
             dist/*

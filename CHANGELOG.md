@@ -16,16 +16,24 @@ and this project adheres to
 - Updated release workflow to use Node.js 20.x
 - Updated Babel configuration to target Node.js 18.18.0 specifically
 - Updated TypeScript definitions to use correct 'window' mode instead of 'popup'
+- **BREAKING**: Migrated ESLint from v8.57.1 to v9.31.0 with Flat Config format
+- Updated Jest from v29.7.0 to v30.0.4 for latest testing features
+- Removed legacy .eslintrc.json and .eslintignore files
+- Enhanced ESLint configuration to properly handle catch block variables
+
+### Added
+
+- ESLint Flat Config format (eslint.config.mjs) for modern linting
+- Support for globals package in ESLint v9 configuration
+- Improved catch error variable handling in ESLint rules
 
 ### Infrastructure
 
 - Modernized build toolchain for enhanced development experience
 - Improved CI/CD pipeline with latest Node.js LTS versions
 - Enhanced security posture with updated dependencies
-
-### Added
-
-- Initial implementation
+- Updated linting infrastructure to ESLint v9 standards
+- Improved testing infrastructure with Jest v30
 
 ## [1.0.0] - 2025-07-13
 
@@ -76,5 +84,6 @@ and this project adheres to
 - `SidepanelFallback.withSettingsUI(container, options)` - Add settings UI
 - `SidepanelFallback.getCurrentSettings()` - Get current configuration
 
-[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/touyou/sidepanel-fallback/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/touyou/sidepanel-fallback/releases/tag/v1.0.0
