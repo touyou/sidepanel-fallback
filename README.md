@@ -19,7 +19,7 @@ clean developer API.
 - 💾 **Persistent Settings**: Per-browser mode preferences with
   localStorage/Chrome Storage API
 - 🎛️ **Embeddable Settings UI**: Ready-to-use settings component
-- 🧪 **Test Driven**: 46 test cases with 100% coverage using Jest and @t_wada
+- 🧪 **Test Driven**: 150+ test cases with 100% coverage using Jest and @t_wada
   TDD principles
 - 📦 **Zero Dependencies**: Lightweight and self-contained
 - 🔧 **Developer Friendly**: Clean API with TypeScript support
@@ -191,10 +191,13 @@ consistency.
 
 ### Test Coverage
 
-- ✅ **46 test cases** across 5 modules
+- ✅ **150+ test cases** across 13 modules
 - ✅ **100% pass rate**
 - ✅ **Complete API coverage**
-- ✅ **Browser compatibility tests**
+- ✅ **Cross-browser compatibility tests**
+- ✅ **Integration & End-to-End testing**
+- ✅ **Performance benchmarking**
+- ✅ **Memory leak detection**
 - ✅ **Error handling validation**
 
 ## Architecture
@@ -202,17 +205,22 @@ consistency.
 The library is built as a composition of focused modules:
 
 ```
-
 src/
-├── index.js # Main API integration
-├── browserInfo.js # User agent detection
-├── modeStorage.js # Settings persistence
-├── panelLauncher.js # Panel opening logic
-└── settingsUI.js # Settings UI component
+├── index.js              # Main API integration
+├── browserInfo.js        # User agent detection
+├── modeStorage.js        # Settings persistence
+├── panelLauncher.js      # Panel opening logic
+└── settingsUI.js         # Settings UI component
 
+test/
+├── *.test.js             # 13 comprehensive test suites
+├── benchmark.test.js     # Performance benchmarking
+├── integration.test.js   # Integration testing
+├── e2e.test.js          # End-to-end testing
+└── testUtils.js         # Testing utilities
 ```
 
-Each module is fully tested and follows single responsibility principle.
+Each module is fully tested with enterprise-level test coverage including unit tests, integration tests, end-to-end tests, and performance benchmarks.
 
 ## Contributing
 
