@@ -313,11 +313,13 @@
         // 初期化処理
         async function initializeDemo() {
             try {
-                // ライブラリのインスタンス作成
-                fallbackInstance = new SidepanelFallback({
+                // ライブラリのインスタンス作成 (UMDビルドから)
+                fallbackInstance = new SidepanelFallback.SidepanelFallback({
                     defaultMode: 'window', // ポップアップなので明示的にwindowモード
                     enablePerformanceTracking: true,
-                    enableCaching: true
+                    enableCaching: true,
+                    enableLazyLoading: false,      // Disable for web demo
+                    enableProgressiveInit: false   // Disable for web demo
                 });
 
                 // 初期化
