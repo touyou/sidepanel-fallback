@@ -93,6 +93,116 @@ describe('PanelLauncher', () => {
       });
     });
 
+    it('uses chrome.windows.create in Chrome Extension context for window mode', async () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id',
+          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+        },
+        windows: {
+          create: jest.fn().mockResolvedValue({ id: 1 })
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.openPanel('window', '/panel.html');
+
+      expect(chrome.windows.create).toHaveBeenCalledWith({
+        url: 'chrome-extension://extension-id/panel.html',
+        type: 'popup',
+        width: 400,
+        height: 600,
+        focused: true
+      });
+      expect(result).toEqual({ success: true, method: 'window' });
+    });
+
+    it('uses chrome.windows.create for fallback in Chrome Extension context', async () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id',
+          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+        },
+        sidePanel: {
+          open: jest.fn().mockRejectedValue(new Error('Permission denied'))
+        },
+        windows: {
+          create: jest.fn().mockResolvedValue({ id: 1 })
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.openPanel('sidepanel', '/panel.html');
+
+      expect(chrome.sidePanel.open).toHaveBeenCalledWith({ path: '/panel.html' });
+      expect(chrome.windows.create).toHaveBeenCalledWith({
+        url: 'chrome-extension://extension-id/panel.html',
+        type: 'popup',
+        width: 400,
+        height: 600,
+        focused: true
+      });
+      expect(result).toEqual({ success: true, method: 'window', fallback: true });
+    });
+
+    it('handles chrome.windows.create error in Chrome Extension context', async () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id',
+          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+        },
+        windows: {
+          create: jest.fn().mockRejectedValue(new Error('Windows API error'))
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.openPanel('window', '/panel.html');
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Failed to open panel: Windows API error'
+      });
+    });
+
+    it('handles absolute URLs correctly in Chrome Extension context', async () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id',
+          getURL: jest.fn().mockImplementation((path) => `chrome-extension://extension-id${path}`)
+        },
+        windows: {
+          create: jest.fn().mockResolvedValue({ id: 1 })
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.openPanel('window', 'chrome-extension://extension-id/panel.html');
+
+      expect(chrome.windows.create).toHaveBeenCalledWith({
+        url: 'chrome-extension://extension-id/panel.html',
+        type: 'popup',
+        width: 400,
+        height: 600,
+        focused: true
+      });
+      expect(chrome.runtime.getURL).not.toHaveBeenCalled();
+      expect(result).toEqual({ success: true, method: 'window' });
+    });
+
+    it('returns error when window is not defined in non-extension context', async () => {
+      global.chrome = undefined;
+      global.window = undefined;
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.openPanel('window', '/panel.html');
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Failed to open panel: window is not defined'
+      });
+    });
+
     it('returns error for invalid mode (other than sidepanel or window)', async () => {
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('invalid', '/panel.html');
@@ -128,6 +238,42 @@ describe('PanelLauncher', () => {
 
       const launcher = new PanelLauncher();
       expect(launcher.isExtensionContext()).toBe(false);
+    });
+  });
+
+  describe('isChromeExtensionContext', () => {
+    it('returns true when chrome.runtime.id is available', () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id'
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      expect(launcher.isChromeExtensionContext()).toBe(true);
+    });
+
+    it('returns false when chrome object does not exist', () => {
+      global.chrome = undefined;
+
+      const launcher = new PanelLauncher();
+      expect(launcher.isChromeExtensionContext()).toBe(false);
+    });
+
+    it('returns false when chrome object exists but runtime does not', () => {
+      global.chrome = {};
+
+      const launcher = new PanelLauncher();
+      expect(launcher.isChromeExtensionContext()).toBe(false);
+    });
+
+    it('returns false when chrome.runtime exists but id does not', () => {
+      global.chrome = {
+        runtime: {}
+      };
+
+      const launcher = new PanelLauncher();
+      expect(launcher.isChromeExtensionContext()).toBe(false);
     });
   });
 });
