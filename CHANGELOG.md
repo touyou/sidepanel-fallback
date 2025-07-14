@@ -11,16 +11,22 @@ and this project adheres to
 ### Added
 
 - Complete internationalization of codebase for global development
-- Comprehensive project modernization including Node.js 18+, Vite v5, ESLint v9, Jest v30
-- Automated release workflow with CHANGELOG management and GitHub release creation
+- Comprehensive project modernization including Node.js 18+, Vite v5, ESLint v9,
+  Jest v30
+- Automated release workflow with CHANGELOG management and GitHub release
+  creation
 - Development process documentation with CHANGELOG guidelines
 
 ### Changed
 
-- **BREAKING CHANGE**: Minimum Node.js version requirement increased from 16.0.0+ to 18.18.0+
-- Updated all dependencies to latest stable versions (Vite v5.4.19, ESLint v9.31.0, Jest v30.0.4)
-- Migrated ESLint configuration from legacy .eslintrc.json to modern Flat Config (eslint.config.mjs)
-- Converted all Japanese comments and documentation to English for international accessibility
+- **BREAKING CHANGE**: Minimum Node.js version requirement increased from
+  16.0.0+ to 18.18.0+
+- Updated all dependencies to latest stable versions (Vite v5.4.19, ESLint
+  v9.31.0, Jest v30.0.4)
+- Migrated ESLint configuration from legacy .eslintrc.json to modern Flat Config
+  (eslint.config.mjs)
+- Converted all Japanese comments and documentation to English for international
+  accessibility
 - Enhanced GitHub Actions workflow with Node.js 18.x, 20.x, 22.x testing matrix
 
 ### Fixed

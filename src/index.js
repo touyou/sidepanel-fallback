@@ -2,6 +2,7 @@ import { getBrowserInfo } from './browserInfo.js';
 import { ModeStorage } from './modeStorage.js';
 import { PanelLauncher } from './panelLauncher.js';
 import { SettingsUI } from './settingsUI.js';
+import { ErrorCodes, createErrorResult, createSuccessResult } from './errorHandling.js';
 
 export class SidepanelFallback {
   constructor(options = {}) {
@@ -24,25 +25,44 @@ export class SidepanelFallback {
    * @returns {Promise<{browser: string, mode: string}>}
    */
   async init() {
-    // Browser detection
-    const userAgent = this.options.userAgent || navigator.userAgent;
-    this.browser = getBrowserInfo(userAgent);
+    try {
+      // Browser detection
+      const userAgent = this.options.userAgent || navigator.userAgent;
+      this.browser = getBrowserInfo(userAgent);
 
-    // Initialize storage and launcher
-    this.storage = new ModeStorage();
-    this.launcher = new PanelLauncher();
-    this.settingsUI = new SettingsUI();
+      if (!this.browser) {
+        throw new Error('Failed to detect browser from user agent');
+      }
 
-    // Get saved mode
-    const savedMode = await this.storage.getMode(this.browser);
-    this.mode = savedMode || this.options.defaultMode;
+      // Initialize storage and launcher
+      this.storage = new ModeStorage();
+      this.launcher = new PanelLauncher();
+      this.settingsUI = new SettingsUI();
 
-    this.initialized = true;
+      // Get saved mode
+      const savedMode = await this.storage.getMode(this.browser);
+      this.mode = savedMode || this.options.defaultMode;
 
-    return {
-      browser: this.browser,
-      mode: this.mode
-    };
+      this.initialized = true;
+
+      return createSuccessResult({
+        browser: this.browser,
+        mode: this.mode
+      }, {
+        userAgent: userAgent.substring(0, 50) + '...', // Truncated for logging
+        defaultMode: this.options.defaultMode
+      });
+    } catch (error) {
+      return createErrorResult(
+        ErrorCodes.INIT_FAILED,
+        `Initialization failed: ${error.message}`,
+        {
+          userAgent: this.options.userAgent,
+          defaultMode: this.options.defaultMode,
+          originalError: error.message
+        }
+      );
+    }
   }
 
   /**
@@ -52,17 +72,19 @@ export class SidepanelFallback {
    */
   async openPanel(path) {
     if (!this.initialized) {
-      return {
-        success: false,
-        error: 'SidepanelFallback not initialized. Call init() first.'
-      };
+      return createErrorResult(
+        ErrorCodes.NOT_INITIALIZED,
+        'SidepanelFallback not initialized. Call init() first.',
+        { path }
+      );
     }
 
     if (!path) {
-      return {
-        success: false,
-        error: 'Panel path is required'
-      };
+      return createErrorResult(
+        ErrorCodes.INVALID_PATH,
+        'Panel path is required',
+        { providedPath: path }
+      );
     }
 
     // Determine mode
@@ -71,7 +93,25 @@ export class SidepanelFallback {
       actualMode = this._getAutoMode();
     }
 
-    return await this.launcher.openPanel(actualMode, path);
+    try {
+      const result = await this.launcher.openPanel(actualMode, path);
+      return createSuccessResult(result, { 
+        requestedMode: this.mode,
+        effectiveMode: actualMode,
+        browser: this.browser
+      });
+    } catch (error) {
+      return createErrorResult(
+        ErrorCodes.PANEL_OPEN_FAILED,
+        `Failed to open panel: ${error.message}`,
+        { 
+          path, 
+          mode: actualMode, 
+          browser: this.browser,
+          originalError: error.message
+        }
+      );
+    }
   }
 
   /**
@@ -81,17 +121,19 @@ export class SidepanelFallback {
    */
   async withSettingsUI(container) {
     if (!this.initialized) {
-      return {
-        success: false,
-        error: 'SidepanelFallback not initialized. Call init() first.'
-      };
+      return createErrorResult(
+        ErrorCodes.NOT_INITIALIZED,
+        'SidepanelFallback not initialized. Call init() first.',
+        { container }
+      );
     }
 
     if (!container) {
-      return {
-        success: false,
-        error: 'Container element is required'
-      };
+      return createErrorResult(
+        ErrorCodes.INVALID_CONTAINER,
+        'Container element is required',
+        { providedContainer: container }
+      );
     }
 
     // Callback for settings changes
@@ -102,16 +144,31 @@ export class SidepanelFallback {
       }
     };
 
-    // Create settings panel
-    const settingsPanel = this.settingsUI.createSettingsPanel(
-      { mode: this.mode },
-      onSettingsChange
-    );
+    try {
+      // Create settings panel
+      const settingsPanel = this.settingsUI.createSettingsPanel(
+        { mode: this.mode },
+        onSettingsChange
+      );
 
-    // Add to container
-    container.appendChild(settingsPanel);
+      // Add to container
+      container.appendChild(settingsPanel);
 
-    return { success: true };
+      return createSuccessResult({}, { 
+        browser: this.browser,
+        currentMode: this.mode
+      });
+    } catch (error) {
+      return createErrorResult(
+        ErrorCodes.UI_CREATION_FAILED,
+        `Failed to create settings UI: ${error.message}`,
+        { 
+          browser: this.browser,
+          mode: this.mode,
+          originalError: error.message
+        }
+      );
+    }
   }
 
   /**
