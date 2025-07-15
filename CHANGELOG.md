@@ -8,6 +8,8 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.0.0] - 2025-07-16
+
 ### Added
 
 - **Core Library**: Complete sidepanel fallback functionality with automatic
@@ -104,4 +106,5 @@ and this project adheres to
 - Error handling with graceful degradation
 - Performance tracking and debugging capabilities
 
-[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/HEAD...HEAD
+[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/touyou/sidepanel-fallback/releases/tag/v1.0.0
