@@ -1,62 +1,60 @@
 # Chrome Extension Example with Simplified API
 
-この例は、新しい簡潔なAPIを使用してsidepanel-fallbackをChrome拡張機能で使用する方法を示しています。
+This example demonstrates how to use sidepanel-fallback with the new simplified API for Chrome Extensions.
 
-## 新しいAPI概要
+## New API Overview
 
-chrome-extension-switcherで学んだ知見を活かして、以下の簡潔なAPIを追加しました：
+Building on learnings from chrome-extension-switcher, we've added these simplified API methods:
 
-- `setupExtension(options)` - 拡張機能の初期設定
-- `handleActionClick(mode)` - アクションボタンクリック時の処理
-- `toggleMode()` - サイドパネル/ポップアップモードの切り替え
+- `setupExtension(options)` - Extension configuration setup  
+- `handleActionClick(mode)` - Action button click handling
+- `toggleMode()` - Toggle between sidepanel/popup modes
 
-## background.js (簡潔版)
+## background.js (Simplified Version)
 
 ```javascript
 import SidepanelFallback from 'sidepanel-fallback';
 
-// インスタンス作成
+// Create instance
 const sidepanelFallback = new SidepanelFallback({
-  defaultMode: 'auto' // 自動検出
+  defaultMode: 'auto' // Auto-detection
 });
 
-// 拡張機能設定
+// Extension setup
 sidepanelFallback.setupExtension({
   sidepanelPath: 'sidepanel.html',
-  popupPath: 'popup.html',
-  showInstruction: true // サイドパネル案内を表示
+  popupPath: 'popup.html'
 });
 
-// アクションボタンクリック時の処理
+// Action button click handling
 chrome.action.onClicked.addListener(async tab => {
   const result = await sidepanelFallback.handleActionClick();
 
   if (!result.success) {
     console.error('Failed to handle action click:', result.error);
   } else if (result.userAction) {
-    // ユーザーに追加アクションが必要な場合（サイドパネルモード）
+    // User action required (sidepanel mode)
     console.log('User action required:', result.userAction);
   }
 });
 
-// メッセージハンドリング（設定画面からのモード切り替え）
+// Message handling (mode toggle from settings)
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'toggleMode') {
     sidepanelFallback
       .toggleMode()
       .then(result => sendResponse(result))
       .catch(error => sendResponse({ success: false, error: error.message }));
-    return true; // 非同期レスポンス
+    return true; // Async response
   }
 });
 ```
+## Comparison with Traditional Approach
 
-## 従来の方法との比較
-
-### 従来の方法（chrome-extension-switcher）
+### Traditional Approach (chrome-extension-switcher)
 
 ```javascript
-// 複雑な設定とエラーハンドリングが必要
+// Complex setup and error handling required
 chrome.action.onClicked.addListener(async tab => {
   try {
     const result = await chrome.storage.local.get(['mode']);
@@ -69,7 +67,7 @@ chrome.action.onClicked.addListener(async tab => {
         path: 'sidepanel.html'
       });
       await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
-      // 案内ウィンドウを表示...
+      // Show instruction window...
     } else {
       await chrome.windows.create({
         url: chrome.runtime.getURL('popup.html'),
@@ -80,27 +78,27 @@ chrome.action.onClicked.addListener(async tab => {
       });
     }
   } catch (error) {
-    // エラーハンドリング...
+    // Error handling...
   }
 });
 ```
 
-### 新しいAPI
+### New API
 
 ```javascript
-// 簡潔で分かりやすい
+// Simple and clear
 chrome.action.onClicked.addListener(async tab => {
   const result = await sidepanelFallback.handleActionClick();
-  // エラーハンドリングやフォールバックは自動的に処理される
+  // Error handling and fallbacks are automatically managed
 });
 ```
 
-## 利点
+## Benefits
 
-1. **簡潔性**: 複雑なロジックがライブラリ内に隠蔽される
-2. **エラーハンドリング**: 自動的なフォールバック機能
-3. **ブラウザ対応**: 古いブラウザでも動作
-4. **保守性**: APIが変更されてもライブラリが吸収
+1. **Simplicity**: Complex logic is encapsulated within the library
+2. **Error Handling**: Automatic fallback functionality
+3. **Browser Support**: Works on older browsers
+4. **Maintainability**: Library absorbs API changes
 
 ## manifest.json
 

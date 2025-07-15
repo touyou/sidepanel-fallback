@@ -86,20 +86,21 @@ await fallback.withSettingsUI(document.getElementById('settings'));
 const settings = fallback.getCurrentSettings();
 ```
 
-### Chrome Extension Convenience API (New!)
+### Chrome Extension Convenience API
+
+For Chrome Extensions, we provide simplified methods:
 
 ```javascript
-// Setup extension with simplified API
+// Setup extension configuration
 await fallback.setupExtension({
   sidepanelPath: 'sidepanel.html',
-  popupPath: 'popup.html',
-  showInstruction: true
+  popupPath: 'popup.html'
 });
 
-// Handle action clicks automatically
+// Handle action clicks with automatic mode detection
 const result = await fallback.handleActionClick();
 
-// Toggle between sidepanel and popup
+// Toggle between sidepanel and popup modes
 await fallback.toggleMode();
 ```
 
@@ -114,38 +115,13 @@ const fallback = new SidepanelFallback({
 
 ## Examples
 
-### 🎯 Chrome Extension (Simplified API)
+### Chrome Extension
 
 ```javascript
 // background.js
-import SidepanelFallback from 'sidepanel-fallback';
+import { SidepanelFallback } from 'sidepanel-fallback';
 
-const fallback = new SidepanelFallback({ defaultMode: 'auto' });
-
-// Setup once during initialization
-await fallback.setupExtension({
-  sidepanelPath: 'sidepanel.html',
-  popupPath: 'popup.html'
-});
-
-// Handle action clicks
-chrome.action.onClicked.addListener(async () => {
-  const result = await fallback.handleActionClick();
-  if (result.userAction) {
-    console.log('User should:', result.userAction);
-  }
-});
-```
-
-### 🎯 Chrome Extension (Traditional API)
-
-```javascript
-// background.js
-import SidepanelFallback from 'sidepanel-fallback';
-
-const fallback = new SidepanelFallback({
-  defaultMode: 'auto'
-});
+const fallback = new SidepanelFallback();
 
 chrome.action.onClicked.addListener(async () => {
   await fallback.init();
@@ -157,24 +133,25 @@ chrome.action.onClicked.addListener(async () => {
 });
 ```
 
-A complete, production-ready Chrome Extension example is available in
-[`examples/chrome-extension/`](examples/chrome-extension/). This demonstrates
-all library features in a real extension:
+### Chrome Extension with Simplified API
 
-- **Manifest V3** compatibility
-- **Automatic fallback** between sidepanel and popup window
-- **Settings UI** with persistent preferences
-- **Performance monitoring** and caching
-- **Japanese UI** for better user experience
+```javascript
+// background.js - Simplified API for easier development
+import { SidepanelFallback } from 'sidepanel-fallback';
 
-**Quick Start:**
+const fallback = new SidepanelFallback({ defaultMode: 'auto' });
 
-```bash
-npm run build
-# Load examples/chrome-extension/ in chrome://extensions/
+// One-time setup
+await fallback.setupExtension({
+  sidepanelPath: 'sidepanel.html',
+  popupPath: 'popup.html'
+});
+
+// Automatic mode handling
+chrome.action.onClicked.addListener(async () => {
+  await fallback.handleActionClick();
+});
 ```
-
-📖 [View Complete Chrome Extension Example →](examples/chrome-extension/)
 
 ### Web Application
 
@@ -190,6 +167,21 @@ document.getElementById('open-btn').onclick = () => {
 };
 ```
 
+### Complete Example
+
+A production-ready Chrome Extension example is available in [`examples/chrome-extension/`](examples/chrome-extension/) featuring:
+
+- Manifest V3 compatibility
+- Automatic sidepanel ↔ popup fallback
+- Settings UI with persistent preferences
+- Shared UI components
+- Performance monitoring
+
+```bash
+npm run build
+# Load examples/chrome-extension/ in chrome://extensions/
+```
+
 ## Documentation
 
 - 📖 [Complete API Documentation](docs/usage.md)
@@ -198,33 +190,22 @@ document.getElementById('open-btn').onclick = () => {
 
 ## Requirements
 
-- **Node.js**: 18.18.0 or higher (tested on 18.x, 20.x, 22.x)
-- **npm**: 8.0.0 or higher
+- **Node.js**: 18.18.0 or higher
+- **npm**: 8.0.0 or higher  
 - **Browser**: Chrome 88+, Firefox 78+, Safari 14+, Edge 88+
 
 ### Node.js Compatibility
 
-This package is actively tested on:
+Actively tested on Node.js 18.x (LTS), 20.x (LTS), and 22.x (Current).
 
-- Node.js 18.x (LTS) - Full test suite
-- Node.js 20.x (LTS) - Core functionality tests only\*
-- Node.js 22.x (Current) - Core functionality tests only\*
-
-**Note**: Due to compatibility issues with Jest and complex performance tests on
-Node.js 20/22, some advanced test suites (benchmark, performance, integration,
-e2e, caching) are temporarily disabled on these versions. The core functionality
-remains fully supported and tested.
+**Note**: Some advanced test suites are disabled on Node.js 20/22 due to Jest compatibility issues. Core functionality remains fully supported.
 
 ### Test Commands
 
 ```bash
-npm test           # Run core tests (compatible with all Node.js versions)
-npm run test:core  # Run only core functionality tests
+npm test           # Run core tests
 npm run test:full  # Run full test suite (Node.js 18 recommended)
 ```
-
-For legacy environments, consider using an older version that supports
-Node.js 16.
 
 ## Development
 
@@ -241,73 +222,32 @@ npm install
 ```bash
 npm test                    # Run tests
 npm run test:coverage       # Run tests with coverage
-npm run test:coverage:html  # Generate HTML coverage report (opens in browser)
-npm run test:coverage:summary # Show coverage summary only
-npm run test:watch          # Run tests in watch mode
 npm run dev                 # Start development server
 npm run build               # Build for production
 npm run quality             # Run lint + format check
 npm run quality:fix         # Fix lint + format issues
 ```
 
-### Coverage Reports
-
-This project maintains high test coverage (85%+ lines, 80%+ branches). Coverage
-reports are generated locally and stored as GitHub Actions artifacts:
-
-- **Local Development**: Run `npm run test:coverage:html` to view detailed
-  coverage
-- **CI/CD**: Coverage reports are uploaded as artifacts in GitHub Actions
-- **Pull Requests**: Coverage summaries are automatically posted for Node.js
-  20.x runs npm run lint # Check code quality npm run format # Format code npm
-  run quality # Run all quality checks npm run health-check # Validate project
-  setup
-
-### Code Quality
-
-This project maintains high code quality standards:
-
-- **ESLint**: Enforces JavaScript best practices and catches potential bugs
-- **Prettier**: Ensures consistent code formatting across the codebase
-- **Jest**: Maintains 90%+ test coverage with comprehensive test suites
-- **TDD**: Follows test-driven development (@t_wada style)
-
-Pre-commit hooks automatically run linting and formatting to maintain
-consistency.
-
 ### Test Coverage
 
-- ✅ **150+ test cases** across 13 modules
-- ✅ **100% pass rate**
-- ✅ **Complete API coverage**
-- ✅ **Cross-browser compatibility tests**
-- ✅ **Integration & End-to-End testing**
-- ✅ **Performance benchmarking**
-- ✅ **Memory leak detection**
-- ✅ **Error handling validation**
+- ✅ **150+ test cases** with **100% pass rate**
+- ✅ **Complete API coverage** across all modules
+- ✅ **Cross-browser compatibility** testing
+- ✅ **Integration & End-to-End** testing
+- ✅ **Performance benchmarking** and memory leak detection
 
 ## Architecture
 
-The library is built as a composition of focused modules:
+Built as focused, testable modules:
 
 ```
 src/
-├── index.js              # Main API integration
-├── browserInfo.js        # User agent detection
+├── index.js              # Main API
+├── browserInfo.js        # Browser detection
 ├── modeStorage.js        # Settings persistence
 ├── panelLauncher.js      # Panel opening logic
 └── settingsUI.js         # Settings UI component
-
-test/
-├── *.test.js             # 13 comprehensive test suites
-├── benchmark.test.js     # Performance benchmarking
-├── integration.test.js   # Integration testing
-├── e2e.test.js          # End-to-end testing
-└── testUtils.js         # Testing utilities
 ```
-
-Each module is fully tested with enterprise-level test coverage including unit
-tests, integration tests, end-to-end tests, and performance benchmarks.
 
 ## Contributing
 

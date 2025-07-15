@@ -17,7 +17,7 @@ npm install sidepanel-fallback
 ### Local Build
 
 ```bash
-git clone https://github.com/your-username/sidepanel-fallback.git
+git clone https://github.com/touyou/sidepanel-fallback.git
 cd sidepanel-fallback
 npm install
 npm run build
