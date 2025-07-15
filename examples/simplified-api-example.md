@@ -1,12 +1,14 @@
 # Chrome Extension Example with Simplified API
 
-This example demonstrates how to use sidepanel-fallback with the new simplified API for Chrome Extensions.
+This example demonstrates how to use sidepanel-fallback with the new simplified
+API for Chrome Extensions.
 
 ## New API Overview
 
-Building on learnings from chrome-extension-switcher, we've added these simplified API methods:
+Building on learnings from chrome-extension-switcher, we've added these
+simplified API methods:
 
-- `setupExtension(options)` - Extension configuration setup  
+- `setupExtension(options)` - Extension configuration setup
 - `handleActionClick(mode)` - Action button click handling
 - `toggleMode()` - Toggle between sidepanel/popup modes
 
@@ -49,6 +51,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 ```
+
 ## Comparison with Traditional Approach
 
 ### Traditional Approach (chrome-extension-switcher)

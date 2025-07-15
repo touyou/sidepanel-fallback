@@ -169,7 +169,8 @@ document.getElementById('open-btn').onclick = () => {
 
 ### Complete Example
 
-A production-ready Chrome Extension example is available in [`examples/chrome-extension/`](examples/chrome-extension/) featuring:
+A production-ready Chrome Extension example is available in
+[`examples/chrome-extension/`](examples/chrome-extension/) featuring:
 
 - Manifest V3 compatibility
 - Automatic sidepanel ↔ popup fallback
@@ -191,14 +192,15 @@ npm run build
 ## Requirements
 
 - **Node.js**: 18.18.0 or higher
-- **npm**: 8.0.0 or higher  
+- **npm**: 8.0.0 or higher
 - **Browser**: Chrome 88+, Firefox 78+, Safari 14+, Edge 88+
 
 ### Node.js Compatibility
 
 Actively tested on Node.js 18.x (LTS), 20.x (LTS), and 22.x (Current).
 
-**Note**: Some advanced test suites are disabled on Node.js 20/22 due to Jest compatibility issues. Core functionality remains fully supported.
+**Note**: Some advanced test suites are disabled on Node.js 20/22 due to Jest
+compatibility issues. Core functionality remains fully supported.
 
 ### Test Commands
 
