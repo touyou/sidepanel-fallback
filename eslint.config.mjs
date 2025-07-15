@@ -68,12 +68,6 @@ export default [
 
   // Ignore patterns
   {
-    ignores: [
-      'dist/**',
-      'coverage/**',
-      'node_modules/**',
-      '*.min.js',
-      'examples/chrome-extension/**'
-    ]
+    ignores: ['dist/**', 'coverage/**', 'node_modules/**', '*.min.js', 'examples/**']
   }
 ];
