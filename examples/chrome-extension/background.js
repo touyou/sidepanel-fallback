@@ -63,32 +63,19 @@ chrome.action.onClicked.addListener(async tab => {
   }
 
   try {
-    // Attempt to open the panel using the fallback library
+    // The library automatically handles fallback logic:
+    // 1. In Chrome/Edge, it first tries sidepanel mode
+    // 2. If sidepanel fails (due to conflicts, permissions, etc.), it automatically falls back to window mode
+    // 3. In Firefox/Safari, it directly uses window mode
+    // 4. The library uses chrome.windows.create for extension context and window.open for web context
     const result = await fallbackInstance.openPanel('sidepanel.html');
     console.log('Panel open result:', result);
 
-    // If sidepanel method failed or not available, try popup fallback
-    if (!result.success && result.method !== 'sidepanel') {
-      console.log('Sidepanel not available, using popup fallback...');
-      // Open popup window as fallback
-      chrome.windows.create({
-        url: chrome.runtime.getURL('popup.html'),
-        type: 'popup',
-        width: 400,
-        height: 600,
-        focused: true
-      });
+    if (!result.success) {
+      console.error('Failed to open panel with fallback library:', result.error);
     }
   } catch (error) {
     console.error('Failed to open panel:', error);
-    // Last resort: open popup window
-    chrome.windows.create({
-      url: chrome.runtime.getURL('popup.html'),
-      type: 'popup',
-      width: 400,
-      height: 600,
-      focused: true
-    });
   }
 });
 

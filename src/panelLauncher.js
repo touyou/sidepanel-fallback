@@ -24,16 +24,16 @@ export class PanelLauncher {
           if (path) {
             await chrome.sidePanel.setOptions({ path });
           }
-          await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
-          // Open the sidepanel (uses current active tab)
+
+          // Try to open the sidepanel
           await chrome.sidePanel.open();
           return { success: true, method: 'sidepanel' };
         } catch (_error) {
-          // Fallback to window on error (either setOptions or open failed)
+          // If sidepanel fails, automatically fallback to window mode
           return this._openWindow(path, true);
         }
       } else {
-        // Fallback to window when not in Extension context
+        // Not in extension context, fallback to window mode
         return this._openWindow(path, true);
       }
     }
@@ -42,7 +42,10 @@ export class PanelLauncher {
     if (mode === 'window') {
       // In Chrome Extension context, disable automatic sidepanel opening on action click
       // so that the background script can handle popup creation
-      if (this.isChromeExtensionContext() && typeof chrome.sidePanel?.setPanelBehavior === 'function') {
+      if (
+        this.isChromeExtensionContext() &&
+        typeof chrome.sidePanel?.setPanelBehavior === 'function'
+      ) {
         try {
           await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
         } catch (_error) {
