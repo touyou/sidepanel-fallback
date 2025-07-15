@@ -68,10 +68,15 @@ export class SettingsUI {
   createRadioGroup(name, options) {
     const container = document.createElement('div');
     container.className = 'radio-group';
+    container.style.display = 'flex';
+    container.style.gap = '4px';
 
     options.forEach(option => {
       const label = document.createElement('label');
       label.className = 'radio-label';
+      label.style.display = 'flex';
+      label.style.alignItems = 'center';
+      label.style.gap = '2px';
 
       const radio = document.createElement('input');
       radio.type = 'radio';

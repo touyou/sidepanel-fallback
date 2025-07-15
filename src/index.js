@@ -622,9 +622,10 @@ export class SidepanelFallback {
   /**
    * Open a panel
    * @param {string} path - Panel path
+   * @param {Object} [options] - Panel options
    * @returns {Promise<{success: boolean, method?: string, fallback?: boolean, error?: string}>}
    */
-  async openPanel(path) {
+  async openPanel(path, options = {}) {
     if (!this.initialized) {
       const errorResult = createErrorResult(
         ErrorCodes.NOT_INITIALIZED,
@@ -655,7 +656,7 @@ export class SidepanelFallback {
     }
 
     try {
-      const result = await this.launcher.openPanel(actualMode, path);
+      const result = await this.launcher.openPanel(actualMode, path, options);
       const successResult = createSuccessResult(result, {
         requestedMode: this.mode,
         effectiveMode: actualMode,
@@ -1097,6 +1098,145 @@ export class SidepanelFallback {
 
     // Firefox, Safari, and unknown browsers prefer window mode
     return 'window';
+  }
+
+  /**
+   * Chrome Extension convenience methods
+   * Simplified API for common Chrome Extension use cases
+   */
+
+  /**
+   * Setup Chrome Extension with automatic mode switching
+   * @param {Object} options - Configuration options
+   * @param {string} options.sidepanelPath - Path to sidepanel HTML
+   * @param {string} options.popupPath - Path to popup HTML
+   * @returns {Promise<{success: boolean, mode: string, error?: string}>}
+   */
+  async setupExtension(options = {}) {
+    const { sidepanelPath, popupPath } = options;
+
+    if (!sidepanelPath && !popupPath) {
+      return {
+        success: false,
+        error: 'Either sidepanelPath or popupPath must be provided'
+      };
+    }
+
+    try {
+      // Initialize if not already done
+      if (!this.initialized) {
+        await this.init();
+      }
+
+      // Store configuration for later use
+      this._extensionConfig = {
+        sidepanelPath,
+        popupPath
+      };
+
+      return {
+        success: true,
+        mode: this.mode
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Handle Chrome Extension action click
+   * Automatically chooses between sidepanel and popup based on current mode
+   * @param {string} [mode] - Force specific mode ('sidepanel' or 'popup')
+   * @returns {Promise<{success: boolean, method: string, userAction?: string, error?: string}>}
+   */
+  async handleActionClick(mode = null) {
+    if (!this._extensionConfig) {
+      return {
+        success: false,
+        error: 'Extension not configured. Call setupExtension() first.'
+      };
+    }
+
+    try {
+      const targetMode = mode || (this.mode === 'auto' ? this._getAutoMode() : this.mode);
+
+      if (targetMode === 'sidepanel' && this._extensionConfig.sidepanelPath) {
+        const result = await this.launcher.openPanel(
+          'sidepanel',
+          this._extensionConfig.sidepanelPath
+        );
+        return result;
+      } else if (this._extensionConfig.popupPath) {
+        const result = await this.launcher.openPanel('window', this._extensionConfig.popupPath);
+        return result;
+      } else {
+        return {
+          success: false,
+          error: `No ${targetMode} path configured`
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
+  }
+
+  /**
+   * Toggle between sidepanel and popup modes
+   * @returns {Promise<{success: boolean, mode: string, oldMode: string, error?: string}>}
+   */
+  async toggleMode() {
+    try {
+      // Initialize if not already done
+      if (!this.initialized) {
+        await this.init();
+      }
+
+      const currentMode = this.mode === 'auto' ? this._getAutoMode() : this.mode;
+      const newMode = currentMode === 'sidepanel' ? 'window' : 'sidepanel';
+
+      // Use the launcher's setMode method
+      const result = await this.launcher.setMode(newMode);
+
+      if (result.success) {
+        // Update the internal mode
+        this.mode = newMode;
+
+        // Store the new mode using storage
+        if (this.storage) {
+          await this.storage.setMode(this.browser, newMode);
+        }
+
+        // Emit mode change event
+        if (this.eventEmitter) {
+          this.eventEmitter.emit('modeChanged', {
+            oldMode: currentMode,
+            newMode: newMode
+          });
+        }
+
+        return {
+          success: true,
+          mode: newMode,
+          oldMode: currentMode
+        };
+      } else {
+        return {
+          success: false,
+          error: result.error || 'Failed to set mode'
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message
+      };
+    }
   }
 
   /**

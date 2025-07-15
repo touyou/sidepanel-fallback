@@ -42,9 +42,9 @@
       const s = this._getStorageKey(e);
       return this._isExtensionContext()
         ? new Promise((i, n) => {
-            const a = {};
-            ((a[s] = t),
-              chrome.storage.sync.set(a, () => {
+            const o = {};
+            ((o[s] = t),
+              chrome.storage.sync.set(o, () => {
                 chrome.runtime.lastError ? n(new Error(chrome.runtime.lastError.message)) : i();
               }));
           })
@@ -84,36 +84,106 @@
   class p {
     constructor() {}
     async openPanel(e, t) {
+      var s;
       if (e !== 'sidepanel' && e !== 'window')
         return { success: !1, error: `Invalid mode: ${e}. Must be "sidepanel" or "window"` };
-      if (e === 'sidepanel')
+      if ((console.log(`Opening panel in ${e} mode with path: ${t}`), e === 'sidepanel'))
         if (this.isExtensionContext())
           try {
-            return (await chrome.sidePanel.open({ path: t }), { success: !0, method: 'sidepanel' });
-          } catch {
-            return this._openWindow(t, !0);
+            return (
+              t && (await chrome.sidePanel.setOptions({ path: t, enabled: !0 })),
+              await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: !0 }),
+              {
+                success: !0,
+                method: 'sidepanel',
+                userAction: 'Click the sidepanel icon in browser toolbar'
+              }
+            );
+          } catch (i) {
+            return (
+              console.warn('Failed to setup sidepanel, falling back to window mode:', i),
+              this._openWindow(t, !0)
+            );
           }
         else return this._openWindow(t, !0);
-      if (e === 'window') return this._openWindow(t, !1);
+      if (e === 'window') {
+        if (
+          this.isChromeExtensionContext() &&
+          typeof ((s = chrome.sidePanel) == null ? void 0 : s.setPanelBehavior) == 'function'
+        )
+          try {
+            (await chrome.sidePanel.setOptions({ enabled: !1 }),
+              await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: !1 }));
+          } catch {}
+        return this._openWindow(t, !1);
+      }
     }
     isExtensionContext() {
       return !!(
         typeof chrome < 'u' &&
         chrome.sidePanel &&
-        typeof chrome.sidePanel.open == 'function'
+        typeof chrome.sidePanel.open == 'function' &&
+        typeof chrome.sidePanel.setOptions == 'function'
       );
     }
+    isChromeExtensionContext() {
+      return !!(typeof chrome < 'u' && chrome.runtime && chrome.runtime.id);
+    }
     async _openWindow(e, t) {
-      const i = window.open(
-        e,
-        'sidepanel_fallback',
-        'width=400,height=600,scrollbars=yes,resizable=yes'
-      );
-      if (i) {
-        i.focus();
-        const n = { success: !0, method: 'window' };
-        return (t && (n.fallback = !0), n);
-      } else return { success: !1, error: 'Failed to open popup window' };
+      if (this.isChromeExtensionContext())
+        try {
+          const s =
+              e.startsWith('chrome-extension://') || e.startsWith('http')
+                ? e
+                : chrome.runtime.getURL(e),
+            i = await chrome.windows.create({
+              url: s,
+              type: 'popup',
+              width: 400,
+              height: 600,
+              focused: !0
+            }),
+            n = { success: !0, method: 'window' };
+          return (t && (n.fallback = !0), n);
+        } catch (s) {
+          return { success: !1, error: `Failed to open panel: ${s.message}` };
+        }
+      else {
+        if (typeof window > 'u')
+          return { success: !1, error: 'Failed to open panel: window is not defined' };
+        const i = window.open(
+          e,
+          'sidepanel_fallback',
+          'width=400,height=600,scrollbars=yes,resizable=yes'
+        );
+        if (i) {
+          i.focus();
+          const n = { success: !0, method: 'window' };
+          return (t && (n.fallback = !0), n);
+        } else return { success: !1, error: 'Failed to open popup window' };
+      }
+    }
+    async setMode(e) {
+      var t, s;
+      if (e !== 'sidepanel' && e !== 'window')
+        return { success: !1, error: `Invalid mode: ${e}. Must be "sidepanel" or "window"` };
+      try {
+        return (
+          e === 'sidepanel'
+            ? this.isChromeExtensionContext() &&
+              typeof ((t = chrome.sidePanel) == null ? void 0 : t.setOptions) == 'function' &&
+              (await chrome.sidePanel.setOptions({ enabled: !0 }),
+              await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: !0 }))
+            : e === 'window' &&
+              this.isChromeExtensionContext() &&
+              typeof ((s = chrome.sidePanel) == null ? void 0 : s.setOptions) == 'function' &&
+              (await chrome.sidePanel.setOptions({ enabled: !1 }),
+              await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: !1 })),
+          { success: !0, mode: e }
+        );
+      } catch (i) {
+        return { success: !1, mode: e, error: i.message };
+      }
     }
   }
   class w {
@@ -146,13 +216,18 @@
       const s = document.createElement('div');
       return (
         (s.className = 'radio-group'),
+        (s.style.display = 'flex'),
+        (s.style.gap = '4px'),
         t.forEach(i => {
           const n = document.createElement('label');
-          n.className = 'radio-label';
-          const a = document.createElement('input');
-          ((a.type = 'radio'), (a.name = e), (a.value = i.value), (a.checked = i.checked));
-          const m = document.createElement('span');
-          ((m.textContent = i.label), n.appendChild(a), n.appendChild(m), s.appendChild(n));
+          ((n.className = 'radio-label'),
+            (n.style.display = 'flex'),
+            (n.style.alignItems = 'center'),
+            (n.style.gap = '2px'));
+          const o = document.createElement('input');
+          ((o.type = 'radio'), (o.name = e), (o.value = i.value), (o.checked = i.checked));
+          const d = document.createElement('span');
+          ((d.textContent = i.label), n.appendChild(o), n.appendChild(d), s.appendChild(n));
         }),
         s
       );
@@ -178,7 +253,7 @@
   function b(r = {}, e = {}) {
     return { success: !0, ...r, metadata: { ...e, timestamp: new Date().toISOString() } };
   }
-  const y = {
+  const E = {
       defaultMode: 'auto',
       userAgent: null,
       storagePrefix: 'sidepanel-fallback-mode-',
@@ -190,7 +265,7 @@
       defaultMode: {
         type: 'string',
         required: !1,
-        validValues: y.validModes,
+        validValues: E.validModes,
         description: 'Default display mode when no saved preference exists'
       },
       userAgent: {
@@ -211,7 +286,7 @@
         description: 'Enable debug logging and additional context'
       }
     };
-  function C(r, e, t) {
+  function z(r, e, t) {
     if (e === void 0)
       return t.required
         ? h(c.INVALID_INPUT, `Configuration key '${r}' is required`, { key: r, schema: t })
@@ -256,7 +331,7 @@
         e.push({ key: t, error: `Unknown configuration key '${t}'`, validKeys: Object.keys(I) });
         continue;
       }
-      const n = C(t, s, i);
+      const n = z(t, s, i);
       n.success || e.push({ key: t, error: n.error, context: n.context });
     }
     return e.length > 0
@@ -266,56 +341,60 @@
         })
       : { success: !0 };
   }
-  function D(r = {}) {
+  function A(r = {}) {
     const e = L(r);
     if (!e.success) return e;
-    const t = { ...y, ...r };
+    const t = { ...E, ...r };
     return {
       success: !0,
       config: t,
       metadata: {
         userProvidedKeys: Object.keys(r),
-        defaultKeys: Object.keys(y),
+        defaultKeys: Object.keys(E),
         finalKeys: Object.keys(t)
       }
     };
   }
-  function A(r, e = 'simple') {
+  function D(r, e = 'simple') {
     if (!r || typeof r != 'object') return r;
     switch (e) {
       case 'openPanel':
-        return R(r);
-      case 'init':
         return M(r);
-      case 'settings':
+      case 'init':
         return O(r);
+      case 'settings':
+        return R(r);
       default:
-        return N(r);
+        return x(r);
     }
   }
-  function R(r) {
+  function M(r) {
     if (!r.success) return { success: !1, error: r.error };
     const e = { success: !0, method: r.method };
-    return (r.fallback === !0 && (e.fallback = !0), e);
+    return (
+      r.userAction && (e.userAction = r.userAction),
+      r.fallback === !0 && (e.fallback = !0),
+      e
+    );
   }
-  function M(r) {
+  function O(r) {
     if (!r.success) throw new Error(r.error);
     return { success: !0, browser: r.browser, mode: r.mode };
   }
-  function O(r) {
+  function R(r) {
     return { success: r.success, ...(r.error && { error: r.error }) };
   }
-  function N(r) {
+  function x(r) {
     const e = { success: r.success };
     return (!r.success && r.error && (e.error = r.error), e);
   }
-  function k(r) {
+  function N(r) {
     return (
       r && typeof r == 'object' && (r.hasOwnProperty('metadata') || r.hasOwnProperty('context'))
     );
   }
-  function d(r, e = 'simple') {
-    return k(r) ? A(r, e) : r;
+  function m(r, e = 'simple') {
+    return N(r) ? D(r, e) : r;
   }
   class S {
     constructor() {
@@ -374,7 +453,7 @@
       return Array.from(this._events.keys());
     }
   }
-  const o = {
+  const a = {
     BEFORE_INIT: 'beforeInit',
     AFTER_INIT: 'afterInit',
     INIT_ERROR: 'initError',
@@ -393,7 +472,7 @@
     ERROR: 'error',
     WARNING: 'warning'
   };
-  function T(r, e = {}) {
+  function P(r, e = {}) {
     return { timestamp: new Date().toISOString(), operation: r, context: e };
   }
   function _(r, e, t = {}) {
@@ -404,14 +483,14 @@
       context: t
     };
   }
-  const E = Object.freeze(
+  const y = Object.freeze(
     Object.defineProperty(
-      { __proto__: null, EVENTS: o, EventEmitter: S, createDebugEvent: T, createErrorEvent: _ },
+      { __proto__: null, EVENTS: a, EventEmitter: S, createDebugEvent: P, createErrorEvent: _ },
       Symbol.toStringTag,
       { value: 'Module' }
     )
   );
-  class x {
+  class k {
     async setMode(e, t) {
       throw new Error('setMode must be implemented by storage provider');
     }
@@ -440,7 +519,7 @@
       throw new Error('getBrowserInfo must be implemented by browser detector');
     }
   }
-  class $ extends x {
+  class $ extends k {
     constructor() {
       (super(), (this._storage = new f()));
     }
@@ -625,23 +704,23 @@
         s = {},
         i = {};
       try {
-        const n = e ? e.map(a => this.stages.get(a)).filter(Boolean) : this._getSortedStages();
+        const n = e ? e.map(o => this.stages.get(o)).filter(Boolean) : this._getSortedStages();
         t.mark('stages-start', { count: n.length });
-        for (const a of n)
-          if (!this.completedStages.has(a.name))
+        for (const o of n)
+          if (!this.completedStages.has(o.name))
             try {
-              ((this.currentStage = a.name), t.mark(`stage-${a.name}-start`));
-              for (const z of a.dependencies)
-                if (!this.completedStages.has(z))
-                  throw new Error(`Dependency ${z} not completed for stage ${a.name}`);
-              const m = await this._runStageWithTimeout(a);
-              ((s[a.name] = m),
-                this.completedStages.add(a.name),
-                t.mark(`stage-${a.name}-complete`));
-            } catch (m) {
-              if ((t.mark(`stage-${a.name}-error`), (i[a.name] = m), a.required))
-                throw new Error(`Required stage ${a.name} failed: ${m.message}`);
-              console.warn(`Optional stage ${a.name} failed:`, m);
+              ((this.currentStage = o.name), t.mark(`stage-${o.name}-start`));
+              for (const C of o.dependencies)
+                if (!this.completedStages.has(C))
+                  throw new Error(`Dependency ${C} not completed for stage ${o.name}`);
+              const d = await this._runStageWithTimeout(o);
+              ((s[o.name] = d),
+                this.completedStages.add(o.name),
+                t.mark(`stage-${o.name}-complete`));
+            } catch (d) {
+              if ((t.mark(`stage-${o.name}-error`), (i[o.name] = d), o.required))
+                throw new Error(`Required stage ${o.name} failed: ${d.message}`);
+              console.warn(`Optional stage ${o.name} failed:`, d);
             }
         return (
           (this.currentStage = null),
@@ -946,7 +1025,7 @@
   }
   const se = new Y(50),
     ie = new te(30, 6e5);
-  function P(r, e = {}) {
+  function T(r, e = {}) {
     return new ee(r, e);
   }
   class re {
@@ -967,14 +1046,14 @@
     getRecommendations() {
       const e = [],
         t = Array.from(this.patterns.frequentKeys.entries())
-          .sort((a, m) => m[1] - a[1])
+          .sort((o, d) => d[1] - o[1])
           .slice(0, 10);
       t.length > 0 &&
         e.push({
           type: 'caching',
           priority: 'high',
           description: 'Consider caching frequently accessed keys',
-          keys: t.map(([a]) => a)
+          keys: t.map(([o]) => o)
         });
       const s = this.patterns.operationTypes.get('set') || 0,
         i = this.patterns.operationTypes.get('get') || 0;
@@ -987,7 +1066,7 @@
         });
       const n =
         this.operations.length > 0
-          ? this.operations.reduce((a, m) => a + m.duration, 0) / this.operations.length
+          ? this.operations.reduce((o, d) => o + d.duration, 0) / this.operations.length
           : 0;
       return (
         n > 10 &&
@@ -1021,9 +1100,9 @@
     }
   }
   const ne = new re();
-  class ae {
+  class oe {
     constructor(e = {}) {
-      let s;
+      var s;
       const t = this._validateConfig(e);
       if (!t.success && e.strictValidation)
         throw new Error(((s = t.error) == null ? void 0 : s.message) || 'Invalid configuration');
@@ -1095,7 +1174,7 @@
                   const e = await this.lazyLoader.load('event-emitter', u('./eventSystem.js'));
                   this.eventEmitter = new e.EventEmitter();
                 } else {
-                  const { EventEmitter: e } = await Promise.resolve().then(() => E);
+                  const { EventEmitter: e } = await Promise.resolve().then(() => y);
                   this.eventEmitter = new e();
                 }
               }
@@ -1103,7 +1182,7 @@
               const e = await this.lazyLoader.load('event-emitter', u('./eventSystem.js'));
               this.eventEmitter = new e.EventEmitter();
             } else {
-              const { EventEmitter: e } = await Promise.resolve().then(() => E);
+              const { EventEmitter: e } = await Promise.resolve().then(() => y);
               this.eventEmitter = new e();
             }
             return { eventSystem: 'initialized' };
@@ -1129,7 +1208,7 @@
             } else this.storage = new f();
             this._enableStorageBatching &&
               !this._customStorage &&
-              (this.storage = P(this.storage, { batchSize: 5, batchTimeout: 300 }));
+              (this.storage = T(this.storage, { batchSize: 5, batchTimeout: 300 }));
             const e = await this.storage.getMode(this.browser);
             return ((this.mode = e || this.options.defaultMode), { mode: this.mode });
           },
@@ -1180,7 +1259,7 @@
     }
     _validateConfig(e) {
       try {
-        return D(e);
+        return A(e);
       } catch (t) {
         return h(c.VALIDATION_ERROR, 'Configuration validation failed', {
           originalError: t.message
@@ -1204,7 +1283,7 @@
         }
         this.eventEmitter &&
           this.eventEmitter.emit(
-            o.INIT_ERROR,
+            a.INIT_ERROR,
             _(t, 'init', {
               userAgent: this.options.userAgent,
               defaultMode: this.options.defaultMode
@@ -1219,23 +1298,23 @@
       }
     }
     async _progressiveInit(e) {
-      let i;
+      var i;
       this._performanceTimer && this._performanceTimer.mark('progressive-init-start');
       const t = await this.progressiveInitializer.initialize(e);
       if (!t.success) throw new Error(`Progressive initialization failed: ${t.error.message}`);
       if (
         ((this.initialized = !0),
         this.eventEmitter &&
-          (this.eventEmitter.emit(o.BROWSER_DETECTED, {
+          (this.eventEmitter.emit(a.BROWSER_DETECTED, {
             browser: this.browser,
             userAgent: this.options.userAgent || navigator.userAgent
           }),
-          this.eventEmitter.emit(o.STORAGE_READ, {
+          this.eventEmitter.emit(a.STORAGE_READ, {
             browser: this.browser,
             savedMode: (i = t.results.storage) == null ? void 0 : i.mode,
             finalMode: this.mode
           }),
-          this.eventEmitter.emit(o.AFTER_INIT, {
+          this.eventEmitter.emit(a.AFTER_INIT, {
             browser: this.browser,
             mode: this.mode,
             progressive: !0,
@@ -1268,7 +1347,7 @@
           }
         }
       );
-      return d(s, 'init');
+      return m(s, 'init');
     }
     async _standardInit() {
       this._performanceTimer && this._performanceTimer.mark('standard-init-start');
@@ -1297,7 +1376,7 @@
       if (
         (this._enableStorageBatching &&
           !this._customStorage &&
-          (this.storage = P(this.storage, { batchSize: 5, batchTimeout: 300 })),
+          (this.storage = T(this.storage, { batchSize: 5, batchTimeout: 300 })),
         this._customLauncher)
       )
         this.launcher = this._customLauncher;
@@ -1321,14 +1400,14 @@
         try {
           this.eventEmitter = this._container.get('eventEmitter');
         } catch {
-          const { EventEmitter: i } = await Promise.resolve().then(() => E);
+          const { EventEmitter: i } = await Promise.resolve().then(() => y);
           this.eventEmitter = new i();
         }
       else {
-        const { EventEmitter: i } = await Promise.resolve().then(() => E);
+        const { EventEmitter: i } = await Promise.resolve().then(() => y);
         this.eventEmitter = new i();
       }
-      this.eventEmitter.emit(o.BEFORE_INIT, {
+      this.eventEmitter.emit(a.BEFORE_INIT, {
         browser: this.browser,
         userAgent: e,
         enableDI: this._enableDI
@@ -1336,8 +1415,8 @@
       const t = await this.storage.getMode(this.browser);
       ((this.mode = t || this.options.defaultMode),
         (this.initialized = !0),
-        this.eventEmitter.emit(o.BROWSER_DETECTED, { browser: this.browser, userAgent: e }),
-        this.eventEmitter.emit(o.STORAGE_READ, {
+        this.eventEmitter.emit(a.BROWSER_DETECTED, { browser: this.browser, userAgent: e }),
+        this.eventEmitter.emit(a.STORAGE_READ, {
           browser: this.browser,
           savedMode: t,
           finalMode: this.mode
@@ -1358,7 +1437,7 @@
         }
       );
       if (
-        (this.eventEmitter.emit(o.AFTER_INIT, {
+        (this.eventEmitter.emit(a.AFTER_INIT, {
           browser: this.browser,
           mode: this.mode,
           result: s,
@@ -1375,51 +1454,51 @@
         });
         this.eventEmitter && this.eventEmitter.emit('performance', i);
       }
-      return d(s, 'init');
+      return m(s, 'init');
     }
-    async openPanel(e) {
+    async openPanel(e, t = {}) {
       if (!this.initialized) {
-        const s = h(c.NOT_INITIALIZED, 'SidepanelFallback not initialized. Call init() first.', {
+        const i = h(c.NOT_INITIALIZED, 'SidepanelFallback not initialized. Call init() first.', {
           path: e
         });
-        return d(s, 'openPanel');
+        return m(i, 'openPanel');
       }
       if (!e) {
-        const s = h(c.INVALID_PATH, 'Panel path is required', { providedPath: e });
-        return d(s, 'openPanel');
+        const i = h(c.INVALID_PATH, 'Panel path is required', { providedPath: e });
+        return m(i, 'openPanel');
       }
-      this.eventEmitter.emit(o.BEFORE_OPEN_PANEL, {
+      this.eventEmitter.emit(a.BEFORE_OPEN_PANEL, {
         path: e,
         mode: this.mode,
         browser: this.browser
       });
-      let t = this.mode;
-      this.mode === 'auto' && (t = this._getAutoMode());
+      let s = this.mode;
+      this.mode === 'auto' && (s = this._getAutoMode());
       try {
-        const s = await this.launcher.openPanel(t, e),
-          i = b(s, { requestedMode: this.mode, effectiveMode: t, browser: this.browser });
+        const i = await this.launcher.openPanel(s, e, t),
+          n = b(i, { requestedMode: this.mode, effectiveMode: s, browser: this.browser });
         return (
-          this.eventEmitter.emit(o.AFTER_OPEN_PANEL, {
+          this.eventEmitter.emit(a.AFTER_OPEN_PANEL, {
             path: e,
-            mode: t,
+            mode: s,
             requestedMode: this.mode,
             browser: this.browser,
-            result: i
+            result: n
           }),
-          d(i, 'openPanel')
+          m(n, 'openPanel')
         );
-      } catch (s) {
+      } catch (i) {
         this.eventEmitter.emit(
-          o.PANEL_OPEN_ERROR,
-          _(s, 'openPanel', { path: e, mode: t, requestedMode: this.mode, browser: this.browser })
+          a.PANEL_OPEN_ERROR,
+          _(i, 'openPanel', { path: e, mode: s, requestedMode: this.mode, browser: this.browser })
         );
-        const i = h(c.PANEL_OPEN_FAILED, `Failed to open panel: ${s.message}`, {
+        const n = h(c.PANEL_OPEN_FAILED, `Failed to open panel: ${i.message}`, {
           path: e,
-          mode: t,
+          mode: s,
           browser: this.browser,
-          originalError: s.message
+          originalError: i.message
         });
-        return d(i, 'openPanel');
+        return m(n, 'openPanel');
       }
     }
     async withSettingsUI(e) {
@@ -1427,11 +1506,11 @@
         const s = h(c.NOT_INITIALIZED, 'SidepanelFallback not initialized. Call init() first.', {
           container: e
         });
-        return d(s, 'settings');
+        return m(s, 'settings');
       }
       if (!e) {
         const s = h(c.INVALID_CONTAINER, 'Container element is required', { providedContainer: e });
-        return d(s, 'settings');
+        return m(s, 'settings');
       }
       if (this._enableLazyLoading && !this.settingsUI)
         try {
@@ -1450,26 +1529,26 @@
             mode: this.mode,
             originalError: s.message
           });
-          return d(i, 'settings');
+          return m(i, 'settings');
         }
       const t = async s => {
         if (s.mode) {
-          this.eventEmitter.emit(o.BEFORE_SETTINGS_CHANGE, {
+          this.eventEmitter.emit(a.BEFORE_SETTINGS_CHANGE, {
             oldMode: this.mode,
             newMode: s.mode,
             browser: this.browser
           });
           try {
             (await this.storage.setMode(this.browser, s.mode),
-              this.eventEmitter.emit(o.STORAGE_WRITE, { browser: this.browser, mode: s.mode }));
+              this.eventEmitter.emit(a.STORAGE_WRITE, { browser: this.browser, mode: s.mode }));
             const i = this.mode;
             ((this.mode = s.mode),
-              this.eventEmitter.emit(o.MODE_CHANGED, {
+              this.eventEmitter.emit(a.MODE_CHANGED, {
                 oldMode: i,
                 newMode: this.mode,
                 browser: this.browser
               }),
-              this.eventEmitter.emit(o.AFTER_SETTINGS_CHANGE, {
+              this.eventEmitter.emit(a.AFTER_SETTINGS_CHANGE, {
                 oldMode: i,
                 newMode: this.mode,
                 browser: this.browser
@@ -1477,7 +1556,7 @@
           } catch (i) {
             throw (
               this.eventEmitter.emit(
-                o.SETTINGS_ERROR,
+                a.SETTINGS_ERROR,
                 _(i, 'settingsChange', {
                   oldMode: this.mode,
                   newMode: s.mode,
@@ -1493,14 +1572,14 @@
         const s = this.settingsUI.createSettingsPanel({ mode: this.mode }, t);
         e.appendChild(s);
         const i = b({}, { browser: this.browser, currentMode: this.mode });
-        return d(i, 'settings');
+        return m(i, 'settings');
       } catch (s) {
         const i = h(c.UI_CREATION_FAILED, `Failed to create settings UI: ${s.message}`, {
           browser: this.browser,
           mode: this.mode,
           originalError: s.message
         });
-        return d(i, 'settings');
+        return m(i, 'settings');
       }
     }
     getCurrentSettings() {
@@ -1521,12 +1600,12 @@
     debug(e, t = {}) {
       this.eventEmitter &&
         this.eventEmitter.emit(
-          o.DEBUG,
-          T(e, { ...t, browser: this.browser, mode: this.mode, initialized: this.initialized })
+          a.DEBUG,
+          P(e, { ...t, browser: this.browser, mode: this.mode, initialized: this.initialized })
         );
     }
     static get EVENTS() {
-      return o;
+      return a;
     }
     getPerformanceStats() {
       const e = {
@@ -1635,6 +1714,50 @@
         ? 'sidepanel'
         : 'window';
     }
+    async setupExtension(e = {}) {
+      const { sidepanelPath: t, popupPath: s } = e;
+      if (!t && !s)
+        return { success: !1, error: 'Either sidepanelPath or popupPath must be provided' };
+      try {
+        return (
+          this.initialized || (await this.init()),
+          (this._extensionConfig = { sidepanelPath: t, popupPath: s }),
+          { success: !0, mode: this.mode }
+        );
+      } catch (i) {
+        return { success: !1, error: i.message };
+      }
+    }
+    async handleActionClick(e = null) {
+      if (!this._extensionConfig)
+        return { success: !1, error: 'Extension not configured. Call setupExtension() first.' };
+      try {
+        const t = e || (this.mode === 'auto' ? this._getAutoMode() : this.mode);
+        return t === 'sidepanel' && this._extensionConfig.sidepanelPath
+          ? await this.launcher.openPanel('sidepanel', this._extensionConfig.sidepanelPath)
+          : this._extensionConfig.popupPath
+            ? await this.launcher.openPanel('window', this._extensionConfig.popupPath)
+            : { success: !1, error: `No ${t} path configured` };
+      } catch (t) {
+        return { success: !1, error: t.message };
+      }
+    }
+    async toggleMode() {
+      try {
+        this.initialized || (await this.init());
+        const e = this.mode === 'auto' ? this._getAutoMode() : this.mode,
+          t = e === 'sidepanel' ? 'window' : 'sidepanel',
+          s = await this.launcher.setMode(t);
+        return s.success
+          ? ((this.mode = t),
+            this.storage && (await this.storage.setMode(this.browser, t)),
+            this.eventEmitter && this.eventEmitter.emit('modeChanged', { oldMode: e, newMode: t }),
+            { success: !0, mode: t, oldMode: e })
+          : { success: !1, error: s.error || 'Failed to set mode' };
+      } catch (e) {
+        return { success: !1, error: e.message };
+      }
+    }
     getCacheRecommendations() {
       const e = [];
       if (this._enableCaching) {
@@ -1659,5 +1782,5 @@
       return { recommendations: e, timestamp: Date.now() };
     }
   }
-  ((g.SidepanelFallback = ae), Object.defineProperty(g, Symbol.toStringTag, { value: 'Module' }));
+  ((g.SidepanelFallback = oe), Object.defineProperty(g, Symbol.toStringTag, { value: 'Module' }));
 });
