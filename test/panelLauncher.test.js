@@ -19,15 +19,28 @@ describe('PanelLauncher', () => {
           open: jest.fn().mockResolvedValue(undefined),
           setOptions: jest.fn().mockResolvedValue(undefined),
           setPanelBehavior: jest.fn().mockResolvedValue(undefined)
+        },
+        windows: {
+          create: jest.fn().mockResolvedValue({ id: 1 })
         }
       };
 
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('sidepanel', '/panel.html');
 
-      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: '/panel.html' });
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
-      expect(result).toEqual({ success: true, method: 'sidepanel' });
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({
+        path: '/panel.html',
+        enabled: true
+      });
+      expect(chrome.sidePanel.setPanelBehavior).toHaveBeenCalledWith({
+        openPanelOnActionClick: true
+      });
+      // Note: chrome.sidePanel.open() is not called due to user gesture restrictions
+      expect(result).toEqual({
+        success: true,
+        method: 'sidepanel',
+        userAction: 'Click the sidepanel icon in browser toolbar'
+      });
     });
 
     it('uses window.open to open popup in window mode', async () => {
@@ -67,23 +80,29 @@ describe('PanelLauncher', () => {
       global.chrome = {
         sidePanel: {
           open: jest.fn().mockRejectedValue(new Error('Permission denied')),
-          setOptions: jest.fn().mockResolvedValue(undefined),
+          setOptions: jest.fn().mockRejectedValue(new Error('Permission denied')),
           setPanelBehavior: jest.fn().mockResolvedValue(undefined)
+        },
+        runtime: {
+          id: 'extension-id',
+          getURL: jest.fn().mockImplementation(path => `chrome-extension://extension-id${path}`)
+        },
+        windows: {
+          create: jest.fn().mockResolvedValue({ id: 1 })
         }
       };
-      const mockWindow = { focus: jest.fn() };
-      global.window.open.mockReturnValue(mockWindow);
 
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('sidepanel', '/panel.html');
 
-      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: '/panel.html' });
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
-      expect(global.window.open).toHaveBeenCalledWith(
-        '/panel.html',
-        'sidepanel_fallback',
-        'width=400,height=600,scrollbars=yes,resizable=yes'
-      );
+      // Since setOptions fails, it should fallback to chrome.windows.create
+      expect(chrome.windows.create).toHaveBeenCalledWith({
+        url: 'chrome-extension://extension-id/panel.html',
+        type: 'popup',
+        width: 400,
+        height: 600,
+        focused: true
+      });
       expect(result).toEqual({ success: true, method: 'window', fallback: true });
     });
 
@@ -131,7 +150,7 @@ describe('PanelLauncher', () => {
         },
         sidePanel: {
           open: jest.fn().mockRejectedValue(new Error('Permission denied')),
-          setOptions: jest.fn().mockResolvedValue(undefined),
+          setOptions: jest.fn().mockRejectedValue(new Error('Permission denied')),
           setPanelBehavior: jest.fn().mockResolvedValue(undefined)
         },
         windows: {
@@ -142,8 +161,7 @@ describe('PanelLauncher', () => {
       const launcher = new PanelLauncher();
       const result = await launcher.openPanel('sidepanel', '/panel.html');
 
-      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ path: '/panel.html' });
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
+      // Since setOptions fails, it should fallback to chrome.windows.create
       expect(chrome.windows.create).toHaveBeenCalledWith({
         url: 'chrome-extension://extension-id/panel.html',
         type: 'popup',
@@ -287,6 +305,90 @@ describe('PanelLauncher', () => {
 
       const launcher = new PanelLauncher();
       expect(launcher.isChromeExtensionContext()).toBe(false);
+    });
+  });
+
+  describe('setMode', () => {
+    it('successfully sets mode to sidepanel when chrome.sidePanel API is available', async () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id'
+        },
+        sidePanel: {
+          setOptions: jest.fn().mockResolvedValue(undefined),
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.setMode('sidepanel');
+
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ enabled: true });
+      expect(chrome.sidePanel.setPanelBehavior).toHaveBeenCalledWith({
+        openPanelOnActionClick: true
+      });
+      expect(result).toEqual({ success: true, mode: 'sidepanel' });
+    });
+
+    it('successfully sets mode to window', async () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id'
+        },
+        sidePanel: {
+          setOptions: jest.fn().mockResolvedValue(undefined),
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.setMode('window');
+
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({ enabled: false });
+      expect(chrome.sidePanel.setPanelBehavior).toHaveBeenCalledWith({
+        openPanelOnActionClick: false
+      });
+      expect(result).toEqual({ success: true, mode: 'window' });
+    });
+
+    it('handles chrome.sidePanel API errors gracefully', async () => {
+      global.chrome = {
+        runtime: {
+          id: 'extension-id'
+        },
+        sidePanel: {
+          setOptions: jest.fn().mockResolvedValue(undefined),
+          setPanelBehavior: jest.fn().mockRejectedValue(new Error('API error'))
+        }
+      };
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.setMode('sidepanel');
+
+      expect(result).toEqual({
+        success: false,
+        mode: 'sidepanel',
+        error: 'API error'
+      });
+    });
+
+    it('returns success when chrome.sidePanel is not available', async () => {
+      global.chrome = undefined;
+
+      const launcher = new PanelLauncher();
+      const result = await launcher.setMode('sidepanel');
+
+      expect(result).toEqual({ success: true, mode: 'sidepanel' });
+    });
+
+    it('returns error for invalid mode', async () => {
+      const launcher = new PanelLauncher();
+      const result = await launcher.setMode('invalid');
+
+      expect(result).toEqual({
+        success: false,
+        error: 'Invalid mode: invalid. Must be "sidepanel" or "window"'
+      });
     });
   });
 });

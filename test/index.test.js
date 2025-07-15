@@ -14,7 +14,8 @@ jest.mock('../src/modeStorage.js', () => ({
 
 jest.mock('../src/panelLauncher.js', () => ({
   PanelLauncher: jest.fn().mockImplementation(() => ({
-    openPanel: jest.fn()
+    openPanel: jest.fn(),
+    setMode: jest.fn().mockResolvedValue({ success: true })
   }))
 }));
 
@@ -41,7 +42,8 @@ describe('SidepanelFallback', () => {
       setMode: jest.fn()
     };
     mockLauncher = {
-      openPanel: jest.fn()
+      openPanel: jest.fn(),
+      setMode: jest.fn().mockResolvedValue({ success: true })
     };
     mockSettingsUI = {
       createSettingsPanel: jest.fn()
@@ -125,7 +127,7 @@ describe('SidepanelFallback', () => {
       const result = await fallback.openPanel('/panel.html');
 
       expect(PanelLauncher).toHaveBeenCalled();
-      expect(mockLauncher.openPanel).toHaveBeenCalledWith('sidepanel', '/panel.html');
+      expect(mockLauncher.openPanel).toHaveBeenCalledWith('sidepanel', '/panel.html', {});
       expect(result.success).toBe(true);
       expect(result.method).toBe('sidepanel');
     });
@@ -140,7 +142,7 @@ describe('SidepanelFallback', () => {
       await fallback.openPanel('/panel.html');
 
       // Chromeの場合はsidepanelを選択
-      expect(mockLauncher.openPanel).toHaveBeenCalledWith('sidepanel', '/panel.html');
+      expect(mockLauncher.openPanel).toHaveBeenCalledWith('sidepanel', '/panel.html', {});
     });
 
     it('selects window mode for Firefox in auto mode', async () => {
@@ -156,7 +158,7 @@ describe('SidepanelFallback', () => {
       await fallback.openPanel('/panel.html');
 
       // Firefoxの場合はwindowを選択
-      expect(mockLauncher.openPanel).toHaveBeenCalledWith('window', '/panel.html');
+      expect(mockLauncher.openPanel).toHaveBeenCalledWith('window', '/panel.html', {});
     });
 
     it('returns error when openPanel is called before init', async () => {
@@ -266,6 +268,219 @@ describe('SidepanelFallback', () => {
       const settings = fallback.getCurrentSettings();
 
       expect(settings).toBeNull();
+    });
+  });
+
+  describe('Chrome Extension Simplified API', () => {
+    beforeEach(() => {
+      // Mock chrome extension environment
+      global.chrome = {
+        sidePanel: {
+          open: jest.fn().mockResolvedValue(undefined),
+          setOptions: jest.fn().mockResolvedValue(undefined),
+          setPanelBehavior: jest.fn().mockResolvedValue(undefined)
+        },
+        runtime: {
+          id: 'test-extension-id',
+          getURL: jest
+            .fn()
+            .mockImplementation(path => `chrome-extension://test-extension-id${path}`)
+        },
+        windows: {
+          create: jest.fn().mockResolvedValue({ id: 1 })
+        }
+      };
+
+      // Update the mock to include setMode
+      mockLauncher.setMode = jest.fn().mockResolvedValue({ success: true });
+      mockLauncher.openPanel = jest.fn().mockResolvedValue({ success: true, method: 'sidepanel' });
+    });
+
+    describe('setupExtension', () => {
+      it('sets up extension configuration successfully', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('auto');
+
+        const fallback = new SidepanelFallback();
+        const result = await fallback.setupExtension({
+          sidepanelPath: '/sidepanel.html',
+          popupPath: '/popup.html'
+        });
+
+        expect(result.success).toBe(true);
+        expect(result.mode).toBe('auto');
+        expect(fallback._extensionConfig).toEqual({
+          sidepanelPath: '/sidepanel.html',
+          popupPath: '/popup.html'
+        });
+      });
+
+      it('returns error when no paths are provided', async () => {
+        const fallback = new SidepanelFallback();
+        const result = await fallback.setupExtension({});
+
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Either sidepanelPath or popupPath must be provided');
+      });
+
+      it('initializes automatically if not already initialized', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('auto');
+
+        const fallback = new SidepanelFallback();
+        expect(fallback.initialized).toBe(false);
+
+        const result = await fallback.setupExtension({
+          sidepanelPath: '/sidepanel.html'
+        });
+
+        expect(result.success).toBe(true);
+        expect(fallback.initialized).toBe(true);
+      });
+    });
+
+    describe('handleActionClick', () => {
+      it('handles action click for sidepanel mode', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('sidepanel');
+
+        const fallback = new SidepanelFallback();
+        await fallback.setupExtension({
+          sidepanelPath: '/sidepanel.html',
+          popupPath: '/popup.html'
+        });
+
+        const result = await fallback.handleActionClick();
+
+        expect(mockLauncher.openPanel).toHaveBeenCalledWith('sidepanel', '/sidepanel.html');
+        expect(result.success).toBe(true);
+      });
+
+      it('handles action click for window mode', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('window');
+
+        const fallback = new SidepanelFallback();
+        await fallback.setupExtension({
+          sidepanelPath: '/sidepanel.html',
+          popupPath: '/popup.html'
+        });
+
+        const result = await fallback.handleActionClick();
+
+        expect(mockLauncher.openPanel).toHaveBeenCalledWith('window', '/popup.html');
+        expect(result.success).toBe(true);
+      });
+
+      it('returns error when extension not configured', async () => {
+        const fallback = new SidepanelFallback();
+        const result = await fallback.handleActionClick();
+
+        expect(result.success).toBe(false);
+        expect(result.error).toContain('Extension not configured');
+      });
+
+      it('forces specific mode when provided', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('sidepanel');
+
+        const fallback = new SidepanelFallback();
+        await fallback.setupExtension({
+          sidepanelPath: '/sidepanel.html',
+          popupPath: '/popup.html'
+        });
+
+        const result = await fallback.handleActionClick('window');
+
+        expect(mockLauncher.openPanel).toHaveBeenCalledWith('window', '/popup.html');
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('toggleMode', () => {
+      it('toggles from sidepanel to window mode', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('sidepanel');
+        mockLauncher.setMode.mockResolvedValue({ success: true });
+        mockStorage.setMode.mockResolvedValue();
+
+        const fallback = new SidepanelFallback();
+        await fallback.init();
+
+        const result = await fallback.toggleMode();
+
+        expect(mockLauncher.setMode).toHaveBeenCalledWith('window');
+        expect(mockStorage.setMode).toHaveBeenCalledWith('chrome', 'window');
+        expect(result.success).toBe(true);
+        expect(result.mode).toBe('window');
+        expect(result.oldMode).toBe('sidepanel');
+        expect(fallback.mode).toBe('window');
+      });
+
+      it('toggles from window to sidepanel mode', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('window');
+        mockLauncher.setMode.mockResolvedValue({ success: true });
+        mockStorage.setMode.mockResolvedValue();
+
+        const fallback = new SidepanelFallback();
+        await fallback.init();
+
+        const result = await fallback.toggleMode();
+
+        expect(mockLauncher.setMode).toHaveBeenCalledWith('sidepanel');
+        expect(mockStorage.setMode).toHaveBeenCalledWith('chrome', 'sidepanel');
+        expect(result.success).toBe(true);
+        expect(result.mode).toBe('sidepanel');
+        expect(result.oldMode).toBe('window');
+        expect(fallback.mode).toBe('sidepanel');
+      });
+
+      it('handles auto mode correctly', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('auto');
+        mockLauncher.setMode.mockResolvedValue({ success: true });
+        mockStorage.setMode.mockResolvedValue();
+
+        const fallback = new SidepanelFallback();
+        await fallback.init();
+
+        const result = await fallback.toggleMode();
+
+        // Auto mode for Chrome should resolve to sidepanel, so toggle to window
+        expect(mockLauncher.setMode).toHaveBeenCalledWith('window');
+        expect(result.success).toBe(true);
+        expect(result.oldMode).toBe('sidepanel'); // Auto resolves to sidepanel for Chrome
+      });
+
+      it('initializes automatically if not already initialized', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('sidepanel');
+        mockLauncher.setMode.mockResolvedValue({ success: true });
+        mockStorage.setMode.mockResolvedValue();
+
+        const fallback = new SidepanelFallback();
+        expect(fallback.initialized).toBe(false);
+
+        const result = await fallback.toggleMode();
+
+        expect(fallback.initialized).toBe(true);
+        expect(result.success).toBe(true);
+      });
+
+      it('handles setMode failure', async () => {
+        getBrowserInfo.mockReturnValue('chrome');
+        mockStorage.getMode.mockResolvedValue('sidepanel');
+        mockLauncher.setMode.mockResolvedValue({ success: false, error: 'API error' });
+
+        const fallback = new SidepanelFallback();
+        await fallback.init();
+
+        const result = await fallback.toggleMode();
+
+        expect(result.success).toBe(false);
+        expect(result.error).toBe('API error');
+      });
     });
   });
 });

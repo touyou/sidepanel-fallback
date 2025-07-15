@@ -150,9 +150,13 @@ describe('End-to-End Tests', () => {
       expect(openResult.success).toBe(true);
       expect(openResult.method).toBe('sidepanel');
       expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({
-        path: '/extension-panel.html'
+        path: '/extension-panel.html',
+        enabled: true
       });
-      expect(chrome.sidePanel.open).toHaveBeenCalledWith();
+      expect(chrome.sidePanel.setPanelBehavior).toHaveBeenCalledWith({
+        openPanelOnActionClick: true
+      });
+      // Note: chrome.sidePanel.open() is not called due to user gesture restrictions
 
       // Create settings UI
       const container = document.createElement('div');
@@ -166,7 +170,7 @@ describe('End-to-End Tests', () => {
 
     it('should handle sidepanel API failure gracefully', async () => {
       // Mock sidepanel API to fail
-      chrome.sidePanel.open.mockRejectedValue(new Error('Permission denied'));
+      chrome.sidePanel.setOptions.mockRejectedValue(new Error('Permission denied'));
 
       fallback = new SidepanelFallback({
         defaultMode: 'sidepanel'
@@ -343,7 +347,7 @@ describe('End-to-End Tests', () => {
         expect(result.method).toBe(method);
 
         if (method === 'sidepanel') {
-          expect(chrome.sidePanel.open).toHaveBeenCalled();
+          expect(chrome.sidePanel.setOptions).toHaveBeenCalled();
         } else {
           expect(window.open).toHaveBeenCalled();
         }
@@ -373,10 +377,11 @@ describe('End-to-End Tests', () => {
       results.forEach((result, index) => {
         expect(result.success).toBe(true);
         expect(chrome.sidePanel.setOptions).toHaveBeenCalledWith({
-          path: `/panel-${index}.html`
+          path: `/panel-${index}.html`,
+          enabled: true
         });
       });
-      expect(chrome.sidePanel.open).toHaveBeenCalledTimes(5);
+      expect(chrome.sidePanel.setOptions).toHaveBeenCalledTimes(5);
     });
 
     it('should handle settings changes during panel operations', async () => {
@@ -410,7 +415,7 @@ describe('End-to-End Tests', () => {
       createBrowserEnvironment('chrome', true);
 
       // Mock network-like errors
-      chrome.sidePanel.open.mockRejectedValue(new Error('Network error'));
+      chrome.sidePanel.setOptions.mockRejectedValue(new Error('Network error'));
       chrome.windows.create.mockRejectedValue(new Error('Window creation failed'));
       window.open.mockReturnValue(null);
 

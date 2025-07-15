@@ -110,7 +110,7 @@ describe('SidepanelFallback - Dependency Injection', () => {
       await fallback.init();
       const result = await fallback.openPanel('/test.html');
 
-      expect(customLauncher.openPanel).toHaveBeenCalledWith('window', '/test.html');
+      expect(customLauncher.openPanel).toHaveBeenCalledWith('window', '/test.html', {});
       expect(result.method).toBe('custom');
     });
 
