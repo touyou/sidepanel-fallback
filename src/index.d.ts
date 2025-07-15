@@ -239,6 +239,13 @@ export declare class SidepanelFallback {
   clearPerformanceCaches(cacheType?: 'lazy' | 'memory' | 'all'): void;
 
   /**
+   * Chrome Extension convenience methods
+   */
+  setupExtension(options: ExtensionSetupOptions): Promise<ExtensionSetupResult>;
+  handleActionClick(mode?: 'sidepanel' | 'popup'): Promise<ActionClickResult>;
+  toggleMode(): Promise<ToggleModeResult>;
+
+  /**
    * Static event constants
    */
   static readonly EVENTS: SidepanelEvents;
@@ -325,6 +332,36 @@ export interface SidepanelEvents {
   DEBUG: 'debug';
   ERROR: 'error';
   WARNING: 'warning';
+}
+
+/**
+ * Chrome Extension convenience interfaces
+ */
+export interface ExtensionSetupOptions {
+  sidepanelPath?: string;
+  popupPath?: string;
+  showInstruction?: boolean;
+}
+
+export interface ExtensionSetupResult {
+  success: boolean;
+  mode?: string;
+  error?: string;
+}
+
+export interface ActionClickResult {
+  success: boolean;
+  method?: string;
+  userAction?: string;
+  fallback?: boolean;
+  error?: string;
+}
+
+export interface ToggleModeResult {
+  success: boolean;
+  mode?: string;
+  oldMode?: string;
+  error?: string;
 }
 
 export default SidepanelFallback;

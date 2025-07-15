@@ -86,6 +86,23 @@ await fallback.withSettingsUI(document.getElementById('settings'));
 const settings = fallback.getCurrentSettings();
 ```
 
+### Chrome Extension Convenience API (New!)
+
+```javascript
+// Setup extension with simplified API
+await fallback.setupExtension({
+  sidepanelPath: 'sidepanel.html',
+  popupPath: 'popup.html',
+  showInstruction: true
+});
+
+// Handle action clicks automatically
+const result = await fallback.handleActionClick();
+
+// Toggle between sidepanel and popup
+await fallback.toggleMode();
+```
+
 ### Configuration Options
 
 ```javascript
@@ -97,7 +114,48 @@ const fallback = new SidepanelFallback({
 
 ## Examples
 
-### 🎯 Working Chrome Extension
+### 🎯 Chrome Extension (Simplified API)
+
+```javascript
+// background.js
+import SidepanelFallback from 'sidepanel-fallback';
+
+const fallback = new SidepanelFallback({ defaultMode: 'auto' });
+
+// Setup once during initialization
+await fallback.setupExtension({
+  sidepanelPath: 'sidepanel.html',
+  popupPath: 'popup.html'
+});
+
+// Handle action clicks
+chrome.action.onClicked.addListener(async () => {
+  const result = await fallback.handleActionClick();
+  if (result.userAction) {
+    console.log('User should:', result.userAction);
+  }
+});
+```
+
+### 🎯 Chrome Extension (Traditional API)
+
+```javascript
+// background.js
+import SidepanelFallback from 'sidepanel-fallback';
+
+const fallback = new SidepanelFallback({
+  defaultMode: 'auto'
+});
+
+chrome.action.onClicked.addListener(async () => {
+  await fallback.init();
+  const result = await fallback.openPanel('sidepanel.html');
+
+  if (result.success) {
+    console.log(`Panel opened using ${result.method}`);
+  }
+});
+```
 
 A complete, production-ready Chrome Extension example is available in
 [`examples/chrome-extension/`](examples/chrome-extension/). This demonstrates

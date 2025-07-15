@@ -18,6 +18,22 @@ and this project adheres to
 - Development process documentation with CHANGELOG guidelines
 - Node.js 20/22 compatibility improvements with specialized test setup
 - Enhanced Jest configuration for better cross-Node.js version support
+- **Documentation Localization**: Chrome Extension example documentation fully
+  converted to English
+
+### Fixed
+
+- Chrome Extension example mode detection and status display issues
+- Missing `GET_STATUS` and `SET_MODE` message handlers in background script
+- Mode display showing "Unknown" instead of actual mode value
+- Set mode functionality not working properly in shared UI components
+- Improved mode detection reliability with fallback to storage-based lookup
+- Enhanced UI initialization timing with retry mechanisms for better status
+  updates
+- Added comprehensive debugging and logging for Chrome Extension message
+  handling
+- **Shared UI Components**: New `SidepanelFallbackUI` class for reusable UI
+  components across popup and sidepanel interfaces
 
 ### Fixed
 
@@ -29,6 +45,22 @@ and this project adheres to
   Babel
 - **Test Stability**: Temporarily disabled problematic performance tests that
   cause crashes on Node.js 20/22
+
+### Changed
+
+- **Chrome Extension example**: Replaced verbose UI with clean
+  chrome-extension-switcher style interface
+  - Reduced popup width from 400px+ to 320px for better user experience
+  - Simplified layout with streamlined mode selection and action buttons
+  - Removed redundant feature boxes and gradient backgrounds for cleaner
+    appearance
+- **UI Architecture**: Refactored popup and sidepanel to use shared UI
+  components
+  - Created common `shared-ui.js` module for consistent styling and
+    functionality
+  - Eliminated code duplication between popup.html/popup.js and
+    sidepanel.html/sidepanel.js
+  - Improved maintainability with centralized UI logic and styling
 
 ### Known Issues
 
