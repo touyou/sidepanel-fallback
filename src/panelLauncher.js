@@ -16,20 +16,31 @@ export class PanelLauncher {
       };
     }
 
+    console.log(`Opening panel in ${mode} mode with path: ${path}`);
+
     // sidepanel mode case
     if (mode === 'sidepanel') {
       if (this.isExtensionContext()) {
         try {
-          // Set the sidepanel path if provided
+          // Set the sidepanel path and enable it
           if (path) {
-            await chrome.sidePanel.setOptions({ path });
+            await chrome.sidePanel.setOptions({ path, enabled: true });
           }
 
-          // Try to open the sidepanel
-          await chrome.sidePanel.open();
-          return { success: true, method: 'sidepanel' };
-        } catch (_error) {
-          // If sidepanel fails, automatically fallback to window mode
+          // Enable automatic sidepanel opening on action click
+          await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+
+          // Don't use sidePanel.open() due to user gesture restrictions
+          // Instead, let the user click the sidepanel icon
+
+          return {
+            success: true,
+            method: 'sidepanel',
+            userAction: 'Click the sidepanel icon in browser toolbar'
+          };
+        } catch (error) {
+          console.warn('Failed to setup sidepanel, falling back to window mode:', error);
+          // If sidepanel setup fails, automatically fallback to window mode
           return this._openWindow(path, true);
         }
       } else {
@@ -47,6 +58,7 @@ export class PanelLauncher {
         typeof chrome.sidePanel?.setPanelBehavior === 'function'
       ) {
         try {
+          await chrome.sidePanel.setOptions({ enabled: false });
           await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
         } catch (_error) {
           // Ignore errors in setting panel behavior - not critical for popup functionality
@@ -56,10 +68,6 @@ export class PanelLauncher {
     }
   }
 
-  /**
-   * Check if sidepanel is available in Chrome Extension context
-   * @returns {boolean}
-   */
   isExtensionContext() {
     return !!(
       typeof chrome !== 'undefined' &&
@@ -137,6 +145,48 @@ export class PanelLauncher {
           error: 'Failed to open popup window'
         };
       }
+    }
+  }
+
+  /**
+   * Set the panel mode (used by the simplified API)
+   * @param {string} mode - 'sidepanel' or 'window'
+   * @returns {Promise<{success: boolean, mode: string, error?: string}>}
+   */
+  async setMode(mode) {
+    // Mode validation
+    if (mode !== 'sidepanel' && mode !== 'window') {
+      return {
+        success: false,
+        error: `Invalid mode: ${mode}. Must be "sidepanel" or "window"`
+      };
+    }
+
+    try {
+      if (mode === 'sidepanel') {
+        // Enable sidepanel mode
+        if (this.isChromeExtensionContext() && typeof chrome.sidePanel?.setOptions === 'function') {
+          await chrome.sidePanel.setOptions({ enabled: true });
+          await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+        }
+      } else if (mode === 'window') {
+        // Disable sidepanel mode
+        if (this.isChromeExtensionContext() && typeof chrome.sidePanel?.setOptions === 'function') {
+          await chrome.sidePanel.setOptions({ enabled: false });
+          await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: false });
+        }
+      }
+
+      return {
+        success: true,
+        mode: mode
+      };
+    } catch (error) {
+      return {
+        success: false,
+        mode: mode,
+        error: error.message
+      };
     }
   }
 }

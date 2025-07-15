@@ -41,11 +41,16 @@ function normalizeOpenPanelResult(result) {
     };
   }
 
-  // Success case: extract method, success, fallback
+  // Success case: extract method, success, fallback, and userAction
   const normalized = {
     success: true,
     method: result.method
   };
+
+  // Add userAction if it exists
+  if (result.userAction) {
+    normalized.userAction = result.userAction;
+  }
 
   // Add fallback only if it exists and is true
   if (result.fallback === true) {
