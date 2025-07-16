@@ -1,15 +1,13 @@
 name: Update CHANGELOG on PR merge
 
 on:
-  push:
-    branches: [main]
   pull_request:
     types: [closed]
     branches: [main]
 
 jobs:
   update-changelog:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,34 +22,15 @@ jobs:
       - name: Get PR information
         id: pr-info
         run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            PR_NUMBER="${{ github.event.pull_request.number }}"
-            PR_TITLE="${{ github.event.pull_request.title }}"
-            PR_AUTHOR="${{ github.event.pull_request.user.login }}"
-            PR_BODY="${{ github.event.pull_request.body }}"
-          else
-            # For push events, try to find the most recent merged PR
-            COMMIT_SHA="${{ github.sha }}"
-            PR_INFO=$(gh pr list --state merged --limit 1 --json number,title,author,body --jq '.[0]')
-            if [ "$PR_INFO" != "null" ] && [ "$PR_INFO" != "" ]; then
-              PR_NUMBER=$(echo "$PR_INFO" | jq -r '.number')
-              PR_TITLE=$(echo "$PR_INFO" | jq -r '.title')
-              PR_AUTHOR=$(echo "$PR_INFO" | jq -r '.author.login')
-              PR_BODY=$(echo "$PR_INFO" | jq -r '.body // ""')
-            else
-              # Fallback to commit information
-              PR_NUMBER=""
-              PR_TITLE="${{ github.event.head_commit.message }}"
-              PR_AUTHOR="${{ github.event.head_commit.author.username }}"
-              PR_BODY=""
-            fi
-          fi
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+
           echo "PR_NUMBER=$PR_NUMBER" >> $GITHUB_OUTPUT
           echo "PR_TITLE=$PR_TITLE" >> $GITHUB_OUTPUT
           echo "PR_AUTHOR=$PR_AUTHOR" >> $GITHUB_OUTPUT
           echo "PR_BODY=$PR_BODY" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Determine change type and section
         id: change-type
@@ -150,4 +129,13 @@ jobs:
           git config --local user.name "GitHub Action"
           git add CHANGELOG.md
           git commit -m "docs: update CHANGELOG for PR #${{ steps.pr-info.outputs.PR_NUMBER }}"
-          git push
+
+          # Try to push, but handle failure gracefully for protected branches
+          if ! git push; then
+            echo "::warning::Failed to push CHANGELOG update directly. This might be due to branch protection rules."
+            echo "::notice::CHANGELOG has been updated locally. Manual intervention may be required."
+            echo "Modified CHANGELOG content:"
+            git diff HEAD~1 CHANGELOG.md || true
+          else
+            echo "::notice::CHANGELOG successfully updated and pushed."
+          fi

@@ -4,6 +4,12 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.0.1)'
+        required: true
+        type: string
 
 jobs:
   release:
@@ -34,49 +40,37 @@ jobs:
       - name: Build package
         run: npm run build
 
-      - name: Extract version from tag
+      - name: Extract version from tag or input
         id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-
-      - name: Update CHANGELOG for release
         run: |
-          VERSION=${{ steps.version.outputs.VERSION }}
-          DATE=$(date +%Y-%m-%d)
-
-          # Create backup of original CHANGELOG
-          cp CHANGELOG.md CHANGELOG.md.bak
-
-          # Replace [Unreleased] section with version and date
-          sed -i "s/## \[Unreleased\]/## [$VERSION] - $DATE/" CHANGELOG.md
-
-          # Add new empty Unreleased section at the top
-          sed -i "/## \[$VERSION\] - $DATE/i ## [Unreleased]\n" CHANGELOG.md
-          sed -i "/## \[Unreleased\]/a \n### Added\n\n### Changed\n\n### Fixed\n\n### Removed\n" CHANGELOG.md
-
-          # Update version comparison links
-          sed -i "s|\[Unreleased\]: https://github.com/touyou/sidepanel-fallback/compare/v.*\.\.\.HEAD|[Unreleased]: https://github.com/touyou/sidepanel-fallback/compare/v$VERSION...HEAD|" CHANGELOG.md
-          sed -i "/\[Unreleased\]:/a [$VERSION]: https://github.com/touyou/sidepanel-fallback/compare/v1.0.0...v$VERSION" CHANGELOG.md
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          fi
 
       - name: Extract release notes from CHANGELOG
         id: changelog
         run: |
           VERSION=${{ steps.version.outputs.VERSION }}
-          awk "/## \[$VERSION\]/, /## \[/ { if (/## \[/ && !/## \[$VERSION\]/) exit; print }" CHANGELOG.md > release_notes.txt
-          tail -n +2 release_notes.txt > release_notes_clean.txt
-          sed -i '/^$/N;/^\n$/d' release_notes_clean.txt
+          # Extract release notes for this version from existing CHANGELOG
+          if grep -q "## \[$VERSION\]" CHANGELOG.md; then
+            # Version exists in CHANGELOG, extract its notes
+            awk "/## \[$VERSION\]/, /## \[/ { if (/## \[/ && !/## \[$VERSION\]/) exit; print }" CHANGELOG.md > release_notes.txt
+            tail -n +2 release_notes.txt > release_notes_clean.txt
+            sed -i '/^$/N;/^\n$/d' release_notes_clean.txt
+          else
+            # Version not found in CHANGELOG, create default release notes
+            echo "Release v$VERSION" > release_notes_clean.txt
+            echo "" >> release_notes_clean.txt
+            echo "See CHANGELOG.md for details." >> release_notes_clean.txt
+          fi
 
           {
             echo 'NOTES<<EOF'
             cat release_notes_clean.txt
             echo EOF
           } >> $GITHUB_OUTPUT
-
-      - name: Commit CHANGELOG updates
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add CHANGELOG.md
-          git commit -m "docs: update CHANGELOG for v${{ steps.version.outputs.VERSION }}" || echo "No changes to commit"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -92,7 +86,15 @@ jobs:
 
       - name: Create GitHub Release
         run: |
-          TAG_NAME=${GITHUB_REF#refs/tags/}
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            TAG_NAME="v${{ steps.version.outputs.VERSION }}"
+            # For workflow_dispatch, create the tag first
+            git tag "$TAG_NAME"
+            git push origin "$TAG_NAME"
+          else
+            TAG_NAME=${GITHUB_REF#refs/tags/}
+          fi
+
           gh release create "$TAG_NAME" \
             --title "Release $TAG_NAME" \
             --notes "${{ steps.changelog.outputs.NOTES }}" \
